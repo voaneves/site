@@ -1,0 +1,156 @@
+---
+import Logo from '@voaneves/brand/astro/Logo.astro';
+import Icon from '@voaneves/brand/astro/Icon.astro';
+import Credit from '@voaneves/brand/astro/Credit.astro';
+import '../styles/site.css';
+import { UI, type Locale } from '../i18n/ui';
+import { alternatePathForLocale, routeAlternates } from '../i18n/routes.mjs';
+
+export interface Props {
+  locale?: Locale;
+  title?: string;
+  description?: string;
+  schemaJson?: object[];
+}
+
+const {
+  locale = 'pt-br',
+  title,
+  description,
+  schemaJson = [],
+} = Astro.props;
+
+const t = UI[locale];
+const htmlLang = locale === 'en' ? 'en' : 'pt-BR';
+const pageTitle = title ?? t.metaTitleHome;
+const pageDescription = description ?? t.metaDescHome;
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? 'https://voaneves.com').toString();
+const alternates = routeAlternates(canonicalUrl);
+const targetLocale: Locale = locale === 'en' ? 'pt-br' : 'en';
+const switchHref = alternatePathForLocale(Astro.url.pathname, targetLocale);
+const homePrefix = locale === 'en' ? '/en/' : '/';
+const privacyHref = locale === 'en' ? '/en/privacy/' : '/privacidade/';
+
+const defaultSchema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Victor Neves',
+    alternateName: 'voaneves',
+    url: 'https://voaneves.com',
+    jobTitle: locale === 'en' ? 'Product Engineer & Design Technologist' : 'Engenheiro de Produto e Design Technologist',
+    sameAs: [
+      'https://github.com/voaneves',
+      'https://www.linkedin.com/in/voaneves/',
+      'https://www.youtube.com/@voaneves',
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'voaneves',
+    url: 'https://voaneves.com',
+    inLanguage: htmlLang,
+  },
+];
+
+const graphs = schemaJson.length > 0 ? schemaJson : defaultSchema;
+---
+<!doctype html>
+<html lang={htmlLang}>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{pageTitle}</title>
+  <meta name="description" content={pageDescription} />
+  <meta name="theme-color" content="#fff8f8" />
+  <link rel="canonical" href={canonicalUrl} />
+  {alternates.map((alt) => (
+    <link rel="alternate" hreflang={alt.lang} href={alt.url} />
+  ))}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={pageDescription} />
+  <meta property="og:url" content={canonicalUrl} />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content={pageTitle} />
+  <meta name="twitter:description" content={pageDescription} />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/fraunces-italic-display.woff2" crossorigin />
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/schibsted-grotesk.woff2" crossorigin />
+  {graphs.map((entry) => (
+    <script type="application/ld+json" set:html={JSON.stringify(entry)} />
+  ))}
+  <script is:inline>
+    (() => {
+      try {
+        const s = localStorage.getItem('vn-theme');
+        const m = s === 'light' || s === 'dark' ? s : matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = m;
+      } catch {
+        document.documentElement.dataset.theme = 'light';
+      }
+    })();
+  </script>
+</head>
+<body>
+  <a class="vn-skip-link" href="#main">{t.skipToContent}</a>
+
+  <header class="vn-navbar">
+    <div class="vn-container vn-navbar__inner">
+      <a class="vn-navbar__brand" href={homePrefix} aria-label="voaneves">
+        <Logo variant="signature" tone="mono" />
+      </a>
+      <nav class="vn-navbar__nav" aria-label={t.navLabel}>
+        <a class="vn-type-label" href={`${homePrefix}#quem-sou`}>{t.navAbout}</a>
+        <a class="vn-type-label" href={`${homePrefix}#servicos`}>{t.navServices}</a>
+        <a class="vn-type-label" href={`${homePrefix}#projetos`}>{t.navProjects}</a>
+        <a class="vn-type-label" href={`${homePrefix}#contato`}>{t.navContact}</a>
+      </nav>
+      <div class="vn-navbar__actions">
+        <a class="vn-btn vn-btn--ghost vn-btn--sm" href={switchHref} aria-label={t.langSwitchLabel}>
+          {t.langSwitchText}
+        </a>
+        <button
+          id="vn-theme-toggle"
+          class="vn-icon-btn"
+          type="button"
+          aria-label={t.themeToggleLabel}
+        >
+          <Icon name="adjust" size={18} />
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <slot />
+  </main>
+
+  <footer class="vn-site-footer">
+    <div class="vn-container vn-site-footer__inner">
+      <Credit variant="inline" lang={locale === 'en' ? 'en' : 'pt-BR'} utmSource="voaneves-site" />
+      <div class="vn-site-footer__links">
+        <a class="vn-type-micro" href={privacyHref}>{t.footerPrivacy}</a>
+        <a class="vn-type-micro" href="https://github.com/voaneves" rel="noopener">GitHub</a>
+        <a class="vn-type-micro" href="https://www.linkedin.com/in/voaneves/" rel="noopener">LinkedIn</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const btn = document.getElementById('vn-theme-toggle');
+    btn?.addEventListener('click', () => {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      try {
+        localStorage.setItem('vn-theme', next);
+      } catch {}
+    });
+  </script>
+</body>
+</html>

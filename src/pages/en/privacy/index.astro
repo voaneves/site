@@ -1,0 +1,20 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { UI } from '../../../i18n/ui';
+
+const t = UI.en;
+---
+
+<Base locale="en" title={t.metaTitlePrivacy} description={t.metaDescPrivacy}>
+  <section class="vn-section">
+    <div class="vn-container vn-measure">
+      <p class="vn-type-tag vn-beat">{t.footerPrivacy}</p>
+      <h1 class="vn-type-h1 vn-beat">{t.privacyTitle}</h1>
+      <p class="vn-type-lead vn-beat">{t.privacyIntro}</p>
+      <p class="vn-type-body vn-beat">{t.privacyNoCookies}</p>
+      <p class="vn-type-body vn-beat">{t.privacyAnalytics}</p>
+      <p class="vn-type-body vn-beat">{t.privacyContact}</p>
+      <a class="vn-btn vn-btn--secondary vn-btn--md" href="/en/">{t.backHome}</a>
+    </div>
+  </section>
+</Base>

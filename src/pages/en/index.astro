@@ -1,0 +1,98 @@
+---
+import Base from '../../layouts/Base.astro';
+import Icon from '@voaneves/brand/astro/Icon.astro';
+import { UI } from '../../i18n/ui';
+
+const t = UI.en;
+---
+
+<Base locale="en" title={t.metaTitleHome} description={t.metaDescHome}>
+  <section id="inicio" class="vn-site-hero vn-site-anchor-target">
+    <span id="home" class="vn-sr-only"></span>
+    <div class="vn-container">
+      <div class="vn-site-hero__meta">
+        <span class="vn-status-pill">
+          <span class="vn-status-pill__dot" aria-hidden="true"></span>
+          <span>{t.statusAvailable}</span>
+        </span>
+        <span class="vn-type-tag">{t.heroKicker}</span>
+      </div>
+      <h1 class="vn-type-h1 vn-site-hero__title">{t.heroHeadline}</h1>
+      <p class="vn-type-lead vn-measure">{t.heroSub}</p>
+      <div class="vn-site-hero__actions">
+        <a class="vn-btn vn-btn--primary vn-btn--lg" href="#contato">
+          <span class="vn-btn__dot" aria-hidden="true"></span>
+          <span>{t.heroCtaPrimary}</span>
+        </a>
+        <a class="vn-btn vn-btn--secondary vn-btn--lg" href="#servicos">
+          <span>{t.heroCtaSecondary}</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="quem-sou" class="vn-section vn-site-anchor-target">
+    <span id="who" class="vn-sr-only"></span>
+    <span id="expertise" class="vn-sr-only"></span>
+    <div class="vn-container">
+      <p class="vn-type-tag vn-beat">{t.aboutTag}</p>
+      <h2 class="vn-type-h2 vn-measure">{t.aboutTitle}</h2>
+      <p class="vn-type-body vn-measure">{t.aboutBody}</p>
+    </div>
+  </section>
+
+  <section id="servicos" class="vn-section vn-site-anchor-target" data-surface="soft">
+    <span id="services" class="vn-sr-only"></span>
+    <span id="numeros" class="vn-sr-only"></span>
+    <span id="jornada" class="vn-sr-only"></span>
+    <span id="timeline" class="vn-sr-only"></span>
+    <span id="projetos" class="vn-sr-only"></span>
+    <span id="work" class="vn-sr-only"></span>
+    <span id="portfolio" class="vn-sr-only"></span>
+    <span id="perguntas" class="vn-sr-only"></span>
+    <div class="vn-container">
+      <p class="vn-type-tag vn-beat">{t.servicesTag}</p>
+      <h2 class="vn-type-h2">{t.servicesTitle}</h2>
+      <div class="vn-site-grid">
+        <article class="vn-service-card">
+          <span class="vn-type-tag">{t.service1Tag}</span>
+          <h3 class="vn-type-h3">{t.service1Title}</h3>
+          <p class="vn-type-body">{t.service1Desc}</p>
+        </article>
+        <article class="vn-service-card">
+          <span class="vn-type-tag">{t.service2Tag}</span>
+          <h3 class="vn-type-h3">{t.service2Title}</h3>
+          <p class="vn-type-body">{t.service2Desc}</p>
+        </article>
+        <article class="vn-service-card">
+          <span class="vn-type-tag">{t.service3Tag}</span>
+          <h3 class="vn-type-h3">{t.service3Title}</h3>
+          <p class="vn-type-body">{t.service3Desc}</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="contato" class="vn-section vn-site-band-signal vn-site-anchor-target" data-surface="signal">
+    <span id="contact" class="vn-sr-only"></span>
+    <div class="vn-container">
+      <p class="vn-type-tag vn-beat">{t.contactTag}</p>
+      <h2 class="vn-type-h2 vn-measure">{t.contactTitle}</h2>
+      <p class="vn-type-body vn-measure">{t.contactBody}</p>
+      <div class="vn-site-hero__actions">
+        <a class="vn-btn vn-btn--primary vn-btn--lg" href="mailto:victorneves478@gmail.com">
+          <Icon name="envelope-open" size={18} />
+          <span>{t.contactEmail}</span>
+        </a>
+        <a class="vn-btn vn-btn--secondary vn-btn--lg" href="https://github.com/voaneves" rel="noopener">
+          <Icon name="github" size={18} />
+          <span>{t.contactGithub}</span>
+        </a>
+        <a class="vn-btn vn-btn--secondary vn-btn--lg" href="https://www.linkedin.com/in/voaneves/" rel="noopener">
+          <Icon name="linkedin" size={18} />
+          <span>{t.contactLinkedin}</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>

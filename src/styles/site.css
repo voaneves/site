@@ -1,0 +1,121 @@
+@import "@voaneves/brand/css/tokens.css";
+@import "@voaneves/brand/css/base.css";
+@import "@voaneves/brand/css/components.css";
+
+@font-face {
+  font-family: "Fraunces Fallback";
+  src: local("Georgia");
+  ascent-override: 98%;
+  descent-override: 25%;
+  line-gap-override: 0%;
+  size-adjust: 103%;
+}
+
+@font-face {
+  font-family: "Schibsted Grotesk Fallback";
+  src: local("Arial");
+  ascent-override: 93%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+  size-adjust: 104%;
+}
+
+@font-face {
+  font-family: "Fraunces";
+  src: url("/fonts/fraunces-italic-display.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 700 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fraunces";
+  src: url("/fonts/fraunces-roman.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Schibsted Grotesk";
+  src: url("/fonts/schibsted-grotesk.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/jetbrains-mono.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+@layer site {
+  .vn-site-hero {
+    padding-block: clamp(var(--vn-space-9), 12vw, var(--vn-space-13));
+    border-bottom: 1px solid var(--vn-line);
+  }
+
+  .vn-site-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--vn-space-4);
+    margin-block-end: var(--vn-space-6);
+  }
+
+  .vn-site-hero__title {
+    max-width: 14ch;
+    margin-block-end: var(--vn-space-5);
+  }
+
+  .vn-site-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--vn-space-3);
+    margin-block-start: var(--vn-space-6);
+  }
+
+  .vn-site-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--vn-layout-gutter-md);
+    margin-block-start: var(--vn-space-6);
+  }
+
+  .vn-site-band-signal {
+    border-top: 1px solid var(--vn-line);
+  }
+
+  .vn-site-footer {
+    border-top: 1px solid var(--vn-line);
+    padding-block: var(--vn-space-8);
+  }
+
+  .vn-site-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--vn-space-4);
+  }
+
+  .vn-site-footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--vn-space-5);
+  }
+
+  .vn-site-anchor-target {
+    scroll-margin-top: 96px;
+  }
+
+  @media (max-width: 720px) {
+    .vn-navbar__nav {
+      display: none;
+    }
+  }
+}
