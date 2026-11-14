@@ -1,0 +1,69 @@
+name: Monitoramento (uptime)
+
+on:
+  schedule:
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: uptime
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Verificar site em produção
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment: ops
+    permissions:
+      contents: read
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ISSUE_TITLE: '🚨 Fora do ar'
+      SITE_URL: ${{ vars.SITE_URL || 'https://voaneves.pages.dev' }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Verificar endpoints e TLS
+        id: probe
+        run: bash scripts/ci/uptime-check.sh
+
+      - name: Fora do ar → abrir ou comentar issue
+        if: steps.probe.outputs.status == 'fail'
+        env:
+          DETAIL: ${{ steps.probe.outputs.detail }}
+        run: |
+          set -euo pipefail
+          gh label create incident --color B60205 --description "Incidente em produção" 2>/dev/null || true
+          n="$(gh issue list --label incident --state open --search '"Fora do ar" in:title' --json number --jq '.[0].number // empty')"
+          body="Falha detectada em $(date -u +%FT%TZ): $DETAIL
+          Execução: $RUN_URL
+          Referência: docs/GITOPS_RUNBOOK.md"
+          if [[ -z "$n" ]]; then
+            gh issue create --label incident --title "$ISSUE_TITLE" --body "$body"
+          else
+            updated="$(gh issue view "$n" --json updatedAt --jq .updatedAt)"
+            age=$(( $(date -u +%s) - $(date -u -d "$updated" +%s) ))
+            if (( age > 3600 )); then
+              gh issue comment "$n" --body "Continua fora do ar. $body"
+            fi
+          fi
+
+      - name: Voltou → fechar issue
+        if: steps.probe.outputs.status == 'ok'
+        run: |
+          set -euo pipefail
+          n="$(gh issue list --label incident --state open --search '"Fora do ar" in:title' --json number --jq '.[0].number // empty')"
+          if [[ -n "$n" ]]; then
+            gh issue close "$n" --comment "✅ Voltou ao normal em $(date -u +%FT%TZ). $RUN_URL"
+          fi
+
+      - name: Falhar etapa se fora do ar
+        if: steps.probe.outputs.status != 'ok'
+        run: exit 1

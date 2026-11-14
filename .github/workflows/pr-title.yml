@@ -1,0 +1,29 @@
+name: Título do PR
+
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened]
+
+permissions: {}
+
+jobs:
+  validar:
+    name: Validar título convencional
+    runs-on: ubuntu-24.04
+    permissions:
+      pull-requests: read
+    steps:
+      - name: Validar formato Conventional Commits
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          node -e '
+            const title = process.env.PR_TITLE || "";
+            const re = /^(feat|fix|perf|docs|refactor|build|ci|chore|revert|test)(\([a-z0-9._/-]+\))?!?: .{3,}$/;
+            if (!re.test(title)) {
+              console.error("Título de PR inválido:", title);
+              console.error("Use Conventional Commits (ex.: feat(hero): ajustar contraste do CTA)");
+              process.exit(1);
+            }
+            console.log("Título válido:", title);
+          '

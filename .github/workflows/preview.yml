@@ -1,0 +1,143 @@
+name: Prévia (PR)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions: {}
+
+concurrency:
+  group: previa-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.event.action != 'closed' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+        env:
+          PUBLIC_SITE_URL: https://voaneves.com
+          PUBLIC_GIT_SHA: ${{ github.sha }}
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dist-previa
+          path: dist/
+          retention-days: 3
+
+  publicar:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: preview
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+      deployments: write
+    outputs:
+      url: ${{ steps.deploy.outputs.alias }}
+      ready: ${{ steps.cf.outputs.ready }}
+    steps:
+      - name: Baixar artefato dist-previa sem executar código do PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download "${{ github.run_id }}" -n dist-previa -D dist
+
+      - name: Conferir credenciais do Cloudflare
+        id: cf
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::warning::CLOUDFLARE_API_TOKEN ausente no environment preview."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publicar prévia no Cloudflare Pages
+        id: deploy
+        if: steps.cf.outputs.ready == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PROJECT: ${{ vars.CF_PAGES_PROJECT || 'voaneves' }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          WRANGLER_OUTPUT_FILE_DIRECTORY: ${{ runner.temp }}/wr
+        run: |
+          npx --yes wrangler@4.162.0 pages deploy dist --project-name="$PROJECT" --branch="pr-$PR_NUMBER" --commit-hash="$HEAD_SHA"
+          jq -r 'select(.type=="pages-deploy-detailed") | "url=\(.url)\nalias=\(.alias)"' "$RUNNER_TEMP"/wr/*.json >> "$GITHUB_OUTPUT"
+
+      - name: Comentar URL da prévia no PR
+        if: steps.cf.outputs.ready == 'true' && steps.deploy.outputs.alias != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREVIEW_URL: ${{ steps.deploy.outputs.alias }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          gh pr comment "$PR_NUMBER" -R "${{ github.repository }}" --edit-last --create-if-none \
+            --body "Prévia publicada em $PREVIEW_URL (commit $HEAD_SHA)."
+
+  lighthouse-previa:
+    needs: publicar
+    if: needs.publicar.outputs.ready == 'true' && needs.publicar.outputs.url != ''
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci --ignore-scripts
+      - name: Lighthouse na prévia
+        env:
+          PREVIEW_URL: ${{ needs.publicar.outputs.url }}
+        run: npx --yes @lhci/cli autorun --config=lighthouserc.preview.cjs
+
+  limpar:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment: preview
+    permissions:
+      contents: read
+    env:
+      TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      PROJECT: ${{ vars.CF_PAGES_PROJECT || 'voaneves' }}
+      PR_BRANCH: pr-${{ github.event.pull_request.number }}
+    steps:
+      - name: Remover deploys da branch do PR fechado
+        if: env.TOKEN != '' && env.ACCOUNT_ID != ''
+        run: |
+          ids=$(curl -fsS -H "Authorization: Bearer $TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT/deployments" \
+            | jq -r --arg br "$PR_BRANCH" '.result[] | select(.deployment_trigger.metadata.branch == $br) | .id')
+          for id in $ids; do
+            curl -fsS -X DELETE -H "Authorization: Bearer $TOKEN" \
+              "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT/deployments/$id?force=true" || true
+          done

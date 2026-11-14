@@ -1,0 +1,33 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Araguaina
+    groups:
+      brand:
+        patterns:
+          - "@voaneves/brand"
+        update-types: ["major", "minor", "patch"]
+      minor-and-patch:
+        exclude-patterns:
+          - "@voaneves/brand"
+        update-types: ["minor", "patch"]
+    commit-message:
+      prefix: chore(deps)
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Araguaina
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: chore(ci)

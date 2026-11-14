@@ -1,0 +1,11 @@
+# _redirects — first match wins
+/voaneves-intermediario/worker.min.js  /worker.min.js  200
+/voaneves-intermediario/*              /:splat         301
+/timeline                              /#jornada       301
+/timeline.html                         /#jornada       301
+/loading.html                          /               301
+/games.html                            /               301
+/project/*                             /projetos/:splat 301
+/cv                                    /assets/cv-pt.pdf 302
+/paru-site/*   https://voaneves.github.io/paru-site/:splat  302
+/bip-kids/*    https://voaneves.github.io/bip-kids/:splat   302

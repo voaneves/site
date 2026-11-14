@@ -1,0 +1,156 @@
+name: Deploy (site no Cloudflare Pages)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    name: CI
+    permissions:
+      contents: read
+    uses: ./.github/workflows/ci.yml
+    with:
+      ref: ${{ github.sha }}
+
+  deploy:
+    needs: checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: ${{ vars.SITE_URL || 'https://voaneves.pages.dev' }}
+    permissions:
+      contents: read
+    outputs:
+      ready: ${{ steps.cf.outputs.ready }}
+    env:
+      PROJECT: ${{ vars.CF_PAGES_PROJECT || 'voaneves' }}
+      SITE_URL: ${{ vars.SITE_URL || 'https://voaneves.pages.dev' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci --ignore-scripts
+      - name: Build
+        env:
+          PUBLIC_SITE_URL: ${{ env.SITE_URL }}
+          PUBLIC_GIT_SHA: ${{ github.sha }}
+          PUBLIC_CF_BEACON_TOKEN: ${{ vars.PUBLIC_CF_BEACON_TOKEN }}
+        run: npm run build
+      - run: npm run check:budget
+      - run: npm run check:html
+
+      - name: Conferir credenciais do Cloudflare
+        id: cf
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::warning::CLOUDFLARE_API_TOKEN não configurado — site não publicado."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Guardar deploy de produção anterior
+        id: prev
+        if: steps.cf.outputs.ready == 'true'
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          id=$(curl -fsS -H "Authorization: Bearer $TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT/deployments?env=production&per_page=1" \
+            | jq -r '.result[0].id // empty')
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
+      - name: Publicar candidato
+        id: cand
+        if: steps.cf.outputs.ready == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_OUTPUT_FILE_DIRECTORY: ${{ runner.temp }}/wr-cand
+        run: |
+          npx --yes wrangler@4.162.0 pages deploy dist --project-name="$PROJECT" --branch=candidato --commit-hash="$GITHUB_SHA"
+          jq -r 'select(.type=="pages-deploy-detailed") | "url=\(.url)"' "$RUNNER_TEMP"/wr-cand/*.json >> "$GITHUB_OUTPUT"
+
+      - name: Smoke no candidato
+        if: steps.cf.outputs.ready == 'true'
+        run: bash scripts/ci/smoke.sh "${{ steps.cand.outputs.url }}" candidate
+
+      - name: Promover para produção
+        id: prod
+        if: steps.cf.outputs.ready == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          msg=$(git log -1 --pretty=%s)
+          npx --yes wrangler@4.162.0 pages deploy dist --project-name="$PROJECT" --branch=main --commit-hash="$GITHUB_SHA" --commit-message="$msg"
+
+      - name: Smoke em produção
+        if: steps.cf.outputs.ready == 'true'
+        run: |
+          sleep 5
+          bash scripts/ci/smoke.sh "$SITE_URL" production
+
+      - name: Rollback automático em falha pós-promoção
+        if: failure() && steps.prod.outcome == 'success' && steps.prev.outputs.id != ''
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          curl -fsS -X POST -H "Authorization: Bearer $TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT/deployments/${{ steps.prev.outputs.id }}/rollback"
+          echo "::error::Smoke falhou; produção revertida para ${{ steps.prev.outputs.id }}."
+
+  lighthouse-producao:
+    needs: deploy
+    if: needs.deploy.outputs.ready == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci --ignore-scripts
+      - name: LHCI em produção
+        id: lh
+        continue-on-error: true
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://voaneves.pages.dev' }}
+        run: npx --yes @lhci/cli autorun --config=lighthouserc.prod.cjs
+
+      - name: Abrir issue se Lighthouse < 100
+        if: steps.lh.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create lighthouse --color FBCA04 2>/dev/null || true
+          gh issue create --label lighthouse --title "📉 Lighthouse < 100 em produção ($GITHUB_SHA)" \
+            --body "Execução: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          exit 1

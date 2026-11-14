@@ -1,0 +1,6 @@
+{
+  "htmlGzMaxBytes": 35840,
+  "inlineCssGzMaxBytes": 14336,
+  "firstLoadJsGzMaxBytes": 8192,
+  "preloadFontsMaxBytes": 61440
+}
