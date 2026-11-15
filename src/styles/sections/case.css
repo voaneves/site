@@ -39,9 +39,16 @@
     font-size: 12px;
   }
 
+  .vn-case-hero .vn-case-eyebrow {
+    color: var(--vn-ref-red-400);
+    margin: 0;
+  }
+
   .vn-case-hero__title {
     margin-block-end: var(--vn-space-4);
     max-width: 12em; /* = 18ch of the web font; ch would depend on the fallback font during the swap */
+    font-size: clamp(2.75rem, 9vw, 7rem);
+    overflow-wrap: break-word;
   }
 
   .vn-case-kpis {
@@ -58,12 +65,18 @@
     display: block;
   }
 
-  .vn-case-media__img {
+  /* Morph target of the home thumbnail (data-vt). Never hidden or animated: it is the LCP area. */
+  .vn-case-media {
+    margin-block-start: var(--vn-space-6);
+    border: 1px solid var(--vn-line-on-dark);
+    border-radius: var(--vn-radius-xl);
+    overflow: clip;
+  }
+
+  .vn-case-media img {
+    display: block;
     width: 100%;
     height: auto;
-    border-radius: var(--vn-radius-xl);
-    border: 1px solid var(--vn-line);
-    margin-block-end: var(--vn-space-8);
   }
 
   .vn-case-grid {
