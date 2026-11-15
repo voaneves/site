@@ -7,6 +7,7 @@ import { init as marquee } from './marquee';
 import { init as journey } from './journey';
 import { init as hero } from './hero';
 import { init as afterLcp } from './after-lcp';
+import { onFirstPointer, motionOK } from './lazy';
 
 theme();
 drawer();
@@ -19,5 +20,4 @@ hero();
 afterLcp();
 
 // --- module registrations ---
-{
-}
+onFirstPointer(() => motionOK() && import('./cursor-trail'));
