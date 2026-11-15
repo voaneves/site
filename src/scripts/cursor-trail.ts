@@ -347,6 +347,7 @@ let py = 0;
 let qx = 0;
 let qy = 0;
 let ink = RED;
+let nodye = 0; // entry time inside a data-trail="off" region (negated once wiped), 0 = outside
 let lastEl: Element | null | undefined;
 let theme: string | undefined;
 let hidden = false;
@@ -393,6 +394,13 @@ function tick(now: number) {
     gy = py;
     ground(th);
   }
+  if (nodye) {
+    // opt-out region: no new dye, canvas fades out, residual ink is wiped once the fade is done
+    canvas.style.opacity = '0';
+    if (nodye > 0 && now - nodye > 420) (r.clear(), (nodye = -nodye));
+    qx = px;
+    qy = py;
+  }
   r.frame(qx, qy, px, py, dt, ink);
   qx = px;
   qy = py;
@@ -404,6 +412,12 @@ function ground(th: string | undefined) {
   if (el === lastEl && th === theme) return;
   lastEl = el;
   theme = th;
+  const o = !!el?.closest('[data-trail="off"]');
+  if (o !== !!nodye) {
+    nodye = o ? performance.now() : 0;
+    if (!o && canvas) canvas.style.opacity = '1';
+  }
+  flag('__vnTrailOff', o);
   // The ink colour follows the ground under the pointer, not the theme (the hero is ink in both themes).
   // It is baked into the dye as it is dropped, so a trail that crosses grounds keeps each colour where it fell.
   ink = el?.closest('[data-ground="signal"]') ? INK : groundDark(el, th === 'dark') ? RED_HOT : RED;
@@ -420,7 +434,7 @@ function onMove(e: PointerEvent) {
     clearTimeout(fade);
     fade = 0;
   }
-  if (canvas.style.opacity !== '1') canvas.style.opacity = '1';
+  if (!nodye && canvas.style.opacity !== '1') canvas.style.opacity = '1';
   if (!raf) {
     qx = px;
     qy = py;
