@@ -204,8 +204,7 @@
   }
   /* The brand signature logo hardcodes font-family="JetBrains Mono" on its <text>, which would pull the
      mono font into first paint. A CSS rule beats the presentation attribute. */
-  .vn-navbar__brand text,
-  .vn-mobile-drawer__head text {
+  .vn-navbar__brand text {
     font-family: var(--vn-font-mono);
   }
 }

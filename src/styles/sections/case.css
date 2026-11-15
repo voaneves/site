@@ -139,26 +139,5 @@
     color: var(--vn-ink);
   }
 
-  .vn-case .vn-spec-list__row { position: relative; }
-  .vn-case .vn-spec-list__row::after {
-    content: "";
-    position: absolute;
-    inset: auto 0 -1px;
-    height: 1px;
-    background: var(--vn-signal-ink);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-  }
-  .vn-case .vn-spec-list__row dt { transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
-  .vn-case .vn-spec-list__row:hover::after,
-  .vn-case .vn-spec-list__row:focus-within::after { transform: scaleX(1); }
-  .vn-case .vn-spec-list__row:hover dt,
-  .vn-case .vn-spec-list__row:focus-within dt { transform: translateX(8px); }
-  .vn-case-pager__link { transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
-  .vn-case-pager__link:hover,
-  .vn-case-pager__link:focus-visible { transform: translateY(-3px); }
-  @media (prefers-reduced-motion: reduce) {
-    .vn-case .vn-spec-list__row::after, .vn-case .vn-spec-list__row dt, .vn-case-pager__link { transition: none; }
-  }
+  /* Spec-row wipe and pager lift (hover, focus-within, focus-visible) live in src/scripts/main.ts, adopted on case pages. */
 }

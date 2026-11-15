@@ -1,15 +1,5 @@
 /* W6 motion contract (shared by phase 2). Hidden states only under html.js + no-preference. */
 @layer site {
-  @keyframes vn-sr {
-    from { opacity: .001; translate: 0 2rem; }
-    to { opacity: 1; translate: 0 0; }
-  }
-
-  @keyframes vn-par {
-    from { translate: 0 -4%; }
-    to { translate: 0 4%; }
-  }
-
   /* Eyebrow: mono bracket label. Brackets/number live in aria-hidden spans. */
   .vn-eyebrow {
     font-family: var(--vn-font-mono, ui-monospace, monospace);
@@ -90,18 +80,6 @@
         animation: vn-drift cubic-bezier(.25, .6, .3, 1) both;
         animation-timeline: view();
         animation-range: cover 0% cover 70vh;
-      }
-
-      html.js .vn-sr {
-        animation: vn-sr linear both;
-        animation-timeline: view();
-        animation-range: entry 0% cover 30%;
-      }
-
-      html.js .vn-par {
-        animation: vn-par linear both;
-        animation-timeline: view();
-        animation-range: cover;
       }
     }
   }

@@ -77,27 +77,4 @@
     --hero-frame-shadow: 0 30px 60px -20px rgba(10, 10, 10, 0.28);
     --hero-img-filter: grayscale(1) sepia(0.12) contrast(1.02);
   }
-
-  /* Theme toggle transition: ink spill to dark, dawn arch to light, toggle spins (vn-spin lives in responsive.css). */
-  @media (prefers-reduced-motion: no-preference) {
-    #vn-theme-toggle { view-transition-name: vn-toggle; }
-    ::view-transition-old(root) { animation: none; mix-blend-mode: normal; }
-    ::view-transition-new(root) { mix-blend-mode: normal; }
-    :root[data-theme="dark"]::view-transition-new(root) {
-      animation: vn-dusk 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-    }
-    :root[data-theme="light"]::view-transition-new(root) {
-      animation: vn-dawn 0.9s cubic-bezier(0.25, 1, 0.5, 1);
-    }
-    ::view-transition-old(vn-toggle) { animation: none; opacity: 0; }
-    ::view-transition-new(vn-toggle) { animation: vn-spin 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
-    @keyframes vn-dusk {
-      from { clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 50%)); scale: 1.04; }
-      to { clip-path: circle(var(--vt-r, 150vmax) at var(--vt-x, 50%) var(--vt-y, 50%)); scale: 1; }
-    }
-    @keyframes vn-dawn {
-      from { clip-path: inset(100% 0 0 0 round 50% 50% 0 0); }
-      to { clip-path: inset(0 round 0); }
-    }
-  }
 }

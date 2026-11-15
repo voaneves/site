@@ -71,26 +71,5 @@
     color: var(--vn-signal-ink);
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    @supports selector(::details-content) {
-      .vn-faq-item {
-        interpolate-size: allow-keywords;
-      }
-
-      .vn-faq-item::details-content {
-        height: 0;
-        overflow: clip;
-        opacity: 0;
-        translate: 0 -0.5rem;
-        transition: opacity .4s var(--vn-ease-out), translate .4s var(--vn-ease-out),
-          height .4s var(--vn-ease-out), content-visibility .4s allow-discrete;
-      }
-
-      .vn-faq-item[open]::details-content {
-        opacity: 1;
-        translate: 0 0;
-        height: auto;
-      }
-    }
-  }
+  /* The open/close transition lives in src/scripts/main.ts, adopted when #perguntas nears the viewport. */
 }

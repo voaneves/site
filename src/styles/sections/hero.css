@@ -177,21 +177,10 @@
     color: var(--hero-btn-fg);
   }
 
-  .vn-hero-btn-ghost:hover:not(:disabled) {
-    background-color: var(--hero-btn-fg);
-    border-color: var(--hero-btn-fg);
-    color: var(--g-bg);
-  }
-
   .vn-hero-btn-cv {
     color: var(--hero-btn-fg);
     opacity: 1;
     border: 1px solid var(--hero-edge);
-  }
-
-  .vn-hero-btn-cv:hover:not(:disabled) {
-    background-color: color-mix(in srgb, var(--hero-btn-fg) 12%, transparent);
-    color: var(--hero-btn-fg);
   }
 
   .vn-hero__stage {
