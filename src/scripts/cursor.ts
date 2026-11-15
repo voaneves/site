@@ -1,21 +1,23 @@
 // Cursor layer B: Sinal dot + label pill + media preview (B8 state machine, WOW-PLAN §2a).
 // Lazy chunk (onFirstPointer + motionOK in main.ts). It owns the `.vn-cursor` DOM and its CSS: the
 // stylesheet is adopted from here (CSSOM, CSP-safe), so the cursor costs 0 inline bytes.
-const TAU_DOT_MS = 30;
-const TAU_PILL_MS = 150;
-const SETTLE_EPS_PX = 0.1;
-const MEDIA_HALF_W = 168; // half of the 320px preview + 8px viewport margin
-const MEDIA_MIN_Y = 274; // 220px preview + pill + gaps, so it never leaves the top of the viewport
-const SNAP_MAX_W = 240; // [data-magnetic] snapping only for small targets
+// Motion: the dot chases the pointer and stretches with its speed; the pill and the media card hang on a
+// damped spring above it (they lag, overshoot and tilt), grow out of the dot, and decode their label from noise.
 
-const CSS = `.vn-cursor{&:not([data-state=hidden]){opacity:1}
-&:not([data-state=hidden]),&[data-f]{transition-duration:.05s;transition-delay:0s}
-:root[data-theme=dark] &,&[data-ground=ink]{--b:#f4ead4;--t:#0a0a0a}
-&[data-ground=signal][data-state]{--b:#0a0a0a;--t:#f4ead4;--d:#0a0a0a}
-&[data-state=link]{--k:3;&:not([data-ground=signal]){mix-blend-mode:difference;--d:#fff}}
-&[data-pressed]{--p:.85}
-&:is([data-state=label],[data-state=media]){.vn-cursor__pill{opacity:1;scale:1}span{translate:0}}
-&[data-state=media] .vn-cursor__media{opacity:1;scale:1}}`;
+const TAU_DOT_MS = 30;
+const SPRING_K = 420; // pill/media spring stiffness (1/s^2)
+const SPRING_C = 25; // damping (1/s): a little overshoot, no wobble
+const TILT = 0.011; // deg per px/s of spring velocity
+const DECODE_MS = 380;
+const NOISE = '#$*@%01>/+';
+const MEDIA_HALF_W = 168; // half of the 320px preview + 8px viewport margin
+const MEDIA_MIN_Y = 262; // 220px preview + gap, so it never leaves the top of the viewport
+const PULL = 0.8; // share of the way to the magnet centre ...
+const PULL_MAX = 36; // ... capped in px, so wide buttons pull gently and small ones snap
+
+const SPRING = 'cubic-bezier(.3,1.55,.5,1)';
+const OUT = 'cubic-bezier(.2,.8,.2,1)';
+const CSS = `.vn-cursor{--b:#0a0a0a;--t:#f4ead4;--d:var(--vn-signal);opacity:0;transition:opacity .25s .35s;&:not([data-state=hidden]){opacity:1}&:not([data-state=hidden]),&[data-f]{transition:opacity .05s}:root[data-theme=dark] &,&[data-ground=ink]{--b:#f4ead4;--t:#0a0a0a}&[data-ground=signal]{--b:#0a0a0a;--t:#f4ead4;--d:#0a0a0a}&[data-state=link]{--k:3;&:not([data-ground=signal]){mix-blend-mode:difference;--d:#fff}}&:is([data-state=label],[data-state=media]){--k:0}&[data-l]:is([data-state=label],[data-state=media]){.vn-cursor__pill{opacity:1;scale:1}span{translate:0}}&[data-state=media] .vn-cursor__media{opacity:1;scale:1;clip-path:inset(0);img{scale:1}}&[data-pressed]{--p:.6;.vn-cursor__pill{scale:.9}}}.vn-cursor__dot{top:-4px;left:-4px;transform:none;scale:calc(var(--k,1)*var(--p,1));background:var(--d);transition:scale .4s ${SPRING}}.vn-cursor__pill,.vn-cursor__media{opacity:0;scale:0;transform-origin:0 0;transition:opacity .2s,scale .5s ${SPRING}}.vn-cursor__pill{position:fixed;top:0;left:0;z-index:var(--vn-cursor-z-label);transform:translate(-50%,calc(-100% - 18px));padding:7px 14px;color:var(--t);font:600 11px/16px var(--vn-font-mono);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;b{position:absolute;inset:0;z-index:-1;border-radius:99px;background:var(--b)}div{overflow:hidden}span{display:block;translate:0 110%;transition:translate .45s .04s ${SPRING}}}.vn-cursor__media{transform:translate(-50%,calc(-100% - 33px));background:#141414;scale:.85;clip-path:inset(100% 0 0);transition:opacity .2s,scale .6s ${SPRING},clip-path .55s ${OUT};img{display:block;width:100%;height:100%;object-fit:cover;scale:1.3;transition:scale .9s ${OUT}}}`;
 
 const OK = '(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference)';
 const TXT = 'input,textarea,select,[contenteditable]';
@@ -23,6 +25,8 @@ const TXT = 'input,textarea,select,[contenteditable]';
 const GROUND = '[data-ground],[data-surface=signal],[data-surface=inverse],.vn-hero,.vn-case-hero';
 const SIGNAL = '[data-ground=signal],[data-surface=signal]';
 const LNK = 'a,button,[data-cursor]';
+
+const clamp = (v: number, m: number) => Math.max(-m, Math.min(m, v));
 
 function init(): void {
   const mq = matchMedia(OK);
@@ -32,14 +36,14 @@ function init(): void {
   sheet.replaceSync(CSS);
   document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
 
-  const root = document.createElement('div');
-  root.className = 'vn-cursor';
-  root.setAttribute('aria-hidden', 'true');
-  root.dataset.state = 'hidden';
-  root.innerHTML = '<i class="vn-cursor__dot"></i><div class="vn-cursor__pill"><span></span></div><div class="vn-cursor__media"><img alt=""></div>';
-  document.body.append(root);
-  const [dot, pill, media] = [...root.children] as HTMLElement[];
-  const lab = pill.firstChild as HTMLElement;
+  document.body.insertAdjacentHTML(
+    'beforeend',
+    '<div class="vn-cursor" aria-hidden="true" data-state="hidden"><i class="vn-cursor__dot"></i><div class="vn-cursor__media"><img alt=""></div><div class="vn-cursor__pill"><b></b><div><span></span></div></div></div>',
+  );
+  const root = document.body.lastElementChild as HTMLElement;
+  const [dot, media, pill] = [...root.children] as HTMLElement[];
+  const bg = pill.firstChild as HTMLElement;
+  const lab = pill.querySelector('span')!;
   const img = media.firstChild as HTMLImageElement;
 
   const ac = new AbortController();
@@ -47,37 +51,87 @@ function init(): void {
   let st = 'hidden';
   let cur: EventTarget | null = null;
   let mag: Element | null = null;
-  let lx = -1, ly = -1, tx = 0, ty = 0, dx = 0, dy = 0, px = 0, py = 0;
+  let lx = -1, ly = -1, tx = 0, ty = 0, dx = 0, dy = 0, px = 0, py = 0, vx = 0, vy = 0, sx = 0;
   let raf = 0, last = 0;
+  let txt = '', t0 = 0;
 
   const put = () => {
     dot.style.translate = `${dx}px ${dy}px`;
     pill.style.translate = `${px}px ${py}px`;
+    pill.style.rotate = media.style.rotate = `${clamp(-vx * TILT, 9)}deg`;
     media.style.translate = `${Math.min(Math.max(px, MEDIA_HALF_W), innerWidth - MEDIA_HALF_W)}px ${Math.max(py, MEDIA_MIN_Y)}px`;
   };
+  // the label decodes from noise into its text, left to right (signal out of noise)
+  const decode = (t: number) => {
+    const k = (t - t0) / DECODE_MS;
+    let s = '';
+    for (let i = 0; i < txt.length; i++) {
+      s += k * 1.4 - 0.4 > i / txt.length || txt[i] === ' ' ? txt[i] : NOISE[(Math.random() * NOISE.length) | 0];
+    }
+    lab.textContent = k < 1 ? s : txt;
+    return k < 1;
+  };
   const tick = (t: number) => {
-    const dt = Math.max(0, Math.min(t - last, 64));
+    const ms = Math.max(0, Math.min(t - last, 64));
     last = t;
-    const a = 1 - Math.exp(-dt / TAU_DOT_MS);
-    const b = 1 - Math.exp(-dt / TAU_PILL_MS);
-    dx += (tx - dx) * a; dy += (ty - dy) * a;
-    px += (tx - px) * b; py += (ty - py) * b;
-    const live = Math.max(Math.abs(tx - dx), Math.abs(ty - dy), Math.abs(tx - px), Math.abs(ty - py)) >= SETTLE_EPS_PX;
-    if (!live) { dx = px = tx; dy = py = ty; }
+    const a = 1 - Math.exp(-ms / TAU_DOT_MS);
+    const ex = dx;
+    const ey = dy;
+    dx += (tx - dx) * a;
+    dy += (ty - dy) * a;
+    // pill: damped spring, integrated in two half steps for stability on long frames
+    for (let i = 0, h = ms / 2000; i < 2; i++) {
+      vx += (SPRING_K * (tx - px) - SPRING_C * vx) * h;
+      vy += (SPRING_K * (ty - py) - SPRING_C * vy) * h;
+      px += vx * h;
+      py += vy * h;
+    }
+    // dot stretch along its own velocity (liquid drop)
+    const sp = ms ? Math.hypot(dx - ex, dy - ey) / ms : 0;
+    sx += (Math.min(sp * 0.14, 0.8) - sx) * 0.35;
+    dot.style.transform = `rotate(${Math.atan2(dy - ey, dx - ex)}rad) scale(${1 + sx},${1 - sx * 0.45})`;
+    const dec = txt !== lab.textContent && decode(t);
+    const live = dec || Math.hypot(tx - dx, ty - dy, tx - px, ty - py, vx / 30, vy / 30, sx * 9) >= 0.1;
+    if (!live) settle();
     put();
     raf = live ? requestAnimationFrame(tick) : 0;
   };
+  const settle = () => {
+    dx = px = tx;
+    dy = py = ty;
+    vx = vy = sx = 0;
+    dot.style.transform = '';
+  };
   const kick = () => {
-    if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
+    if (!raf) {
+      last = performance.now();
+      raf = requestAnimationFrame(tick);
+    }
   };
   const aim = () => {
-    const r = mag?.getBoundingClientRect();
-    [tx, ty] = r && r.width < SNAP_MAX_W ? [r.left + r.width / 2, r.top + r.height / 2] : [lx, ly];
+    // the live centre of the [data-magnetic] target, as magnetic.ts magnetTarget() reports it (inlined: importing
+    // that chunk from here would add a preload map to the entry), so the dot rides the button as it drifts
+    const m = mag?.getBoundingClientRect();
+    const ox = m ? (m.x + m.width / 2 - lx) * PULL : 0;
+    const oy = m ? (m.y + m.height / 2 - ly) * PULL : 0;
+    const k = Math.min(1, PULL_MAX / (Math.hypot(ox, oy) || 1));
+    tx = lx + ox * k;
+    ty = ly + oy * k;
   };
   const hide = (fast = false) => {
     root.dataset.state = st = 'hidden';
     root.toggleAttribute('data-f', fast);
-    root.removeAttribute('data-pressed');
+  };
+  const say = (s: string) => {
+    const vis = st === 'label' || st === 'media';
+    if (s === txt && vis) return; // re-entering from outside decodes the label again
+    const w0 = pill.offsetWidth;
+    txt = s;
+    t0 = performance.now();
+    lab.textContent = s; // measure the final width, then decode
+    // morph the pill background from its old width to the new one (scale only, no layout animation)
+    if (vis && w0 && s) bg.animate({ scale: [`${w0 / pill.offsetWidth} 1`, '1 1'] }, { duration: 500, easing: SPRING });
+    decode(t0);
   };
   const ev = (el: Element | null) => {
     if (!el || el.closest(TXT)) return hide(true);
@@ -86,12 +140,25 @@ function init(): void {
     const k = el.closest(LNK);
     const s = m ? 'media' : l ? 'label' : k ? 'link' : 'idle';
     mag = s === 'link' || s === 'label' ? el.closest('[data-magnetic]') : null;
-    lab.textContent = l?.dataset.cursorLabel ?? '';
-    if (m) img.src = m.dataset.cursorMedia!;
+    // keep the old text while the pill shrinks away; a media card without a label shows no pill
+    if (l || m) say(l?.dataset.cursorLabel ?? '');
+    root.toggleAttribute('data-l', !!txt);
+    const src = m?.dataset.cursorMedia;
+    if (src && img.getAttribute('src') !== src) {
+      const swap = st === 'media';
+      img.src = src;
+      // a new project while the card is open: the new image slides in
+      if (swap) img.animate({ translate: ['0 30%', '0 0'] }, { duration: 500, easing: OUT });
+    }
     const g = el.closest(GROUND);
     root.dataset.ground = !g ? '' : g.matches(SIGNAL) ? 'signal' : 'ink';
     root.dataset.state = st = s;
     root.removeAttribute('data-f');
+  };
+  const settleAt = () => {
+    aim();
+    settle();
+    put();
   };
   const off = () => {
     ac.abort();
@@ -103,14 +170,15 @@ function init(): void {
   document.addEventListener('pointermove', (e) => {
     if (e.pointerType === 'touch') return;
     const was = st;
-    lx = e.clientX; ly = e.clientY;
+    lx = e.clientX;
+    ly = e.clientY;
     if (e.target !== cur || st === 'hidden') ev((cur = e.target) as Element);
     aim();
-    if (was === 'hidden' || st === 'hidden') { dx = px = tx; dy = py = ty; put(); }
-    else kick();
+    if (was === 'hidden' || st === 'hidden') settleAt();
+    if (st !== 'hidden') kick();
   }, opt);
   document.addEventListener('pointerdown', () => root.toggleAttribute('data-pressed', true), opt);
-  for (const t of ['pointerup', 'pointercancel']) document.addEventListener(t, () => root.removeAttribute('data-pressed'), opt);
+  document.addEventListener('pointerup', () => root.removeAttribute('data-pressed'), opt);
   document.addEventListener('pointerout', (e) => e.relatedTarget || hide(), opt);
   document.addEventListener('keydown', () => hide(true), opt);
   document.addEventListener('scrollend', () => {
@@ -123,4 +191,8 @@ function init(): void {
   mq.addEventListener('change', () => mq.matches || off(), { signal: ac.signal });
 }
 
-try { init(); } catch { /* no constructable stylesheets or DOM: stay silent, the native cursor remains */ }
+try {
+  init();
+} catch {
+  /* no constructable stylesheets or DOM: stay silent, the native cursor remains */
+}

@@ -5,8 +5,8 @@
   "firstLoadJsGzMaxBytes": 8192,
   "lazyJsGzMaxBytes": 15360,
   "lazyChunks": {
-    "cursor": 1536,
-    "cursor-trail": 4096,
+    "cursor": 2560,
+    "cursor-trail": 9216,
     "magnetic": 614,
     "signal-field": 2560,
     "hero-fx": 3584

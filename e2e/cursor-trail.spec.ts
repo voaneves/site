@@ -105,8 +105,8 @@ test.describe('trail: runtime', () => {
     const size = await trail(page).evaluate((c: HTMLCanvasElement) => [c.width, c.height]);
     expect(size[0]).toBeGreaterThan(0);
     expect(size[1]).toBeGreaterThan(0);
-    // canvas is tiny: about one cell per 24-36 CSS px, times a small upscale
-    expect(size[0]).toBeLessThan(400);
+    // the canvas is drawn at half the CSS resolution and upscaled by the compositor (the fluid itself is coarser)
+    expect(size[0]).toBeLessThanOrEqual(640);
     expect(errors).toEqual([]);
   });
 
@@ -129,23 +129,59 @@ test.describe('trail: runtime', () => {
     expect(await painted()).toBe(0);
   });
 
-  test('the trail is hidden over a data-ground="signal" band and the canvas never exceeds 0.35 opacity', async ({ page }) => {
-    await ready(page, '/?vn-debug&vn-trail=2d');
+  test('the ink follows the ground: Sinal red on creme, a hotter red on ink, Tinta on the Sinal band', async ({ page }) => {
+    await ready(page, '/?vn-debug');
     await page.evaluate(() => {
-      const band = document.createElement('div');
-      band.setAttribute('data-ground', 'signal');
-      Object.assign(band.style, { position: 'fixed', left: '0', top: '0', width: '50vw', height: '100vh', zIndex: '9000' });
-      document.body.appendChild(band);
+      for (const [id, bg, left, sig] of [
+        ['t-light', '#f4ead4', '0', ''],
+        ['t-dark', '#0a0a0a', '33vw', ''],
+        ['t-sig', '#f50000', '66vw', 'signal'],
+      ]) {
+        const d = document.createElement('div');
+        d.id = id;
+        if (sig) d.dataset.ground = sig;
+        Object.assign(d.style, { position: 'fixed', left, top: '0', width: '34vw', height: '100vh', zIndex: '9000', background: bg });
+        document.body.appendChild(d);
+      }
     });
-    await page.mouse.move(700, 300); // first move triggers the lazy import
+    await page.mouse.move(100, 300); // first move triggers the lazy import
     await expect(trail(page)).toHaveCount(1);
-    await page.mouse.move(720, 320);
-    await page.mouse.move(740, 330);
-    await expect.poll(() => trail(page).evaluate((c) => getComputedStyle(c).opacity)).toBe('0.35');
-    await page.mouse.move(100, 300);
-    await page.mouse.move(120, 320);
-    await page.mouse.move(140, 330);
-    await expect.poll(() => trail(page).evaluate((c) => getComputedStyle(c).opacity)).toBe('0');
+    const ink = () => page.evaluate(() => (window as unknown as { __vnTrailInk?: string }).__vnTrailInk);
+    for (const [x, want] of [
+      [200, '0.96,0,0'],
+      [640, '1,0.2,0.17'],
+      [1100, '0.04,0.035,0.035'],
+    ] as const) {
+      await page.mouse.move(x - 40, 320);
+      await page.mouse.move(x, 330, { steps: 3 });
+      await expect.poll(ink).toBe(want);
+      // the trail never disappears on a ground: only its colour changes
+      expect(await trail(page).evaluate((c) => getComputedStyle(c).opacity)).toBe('1');
+    }
+  });
+
+  test('the ink is actually on screen while the pointer moves (screenshot over a blank creme ground)', async ({ page }) => {
+    await ready(page, '/?vn-debug');
+    await page.evaluate(() => {
+      const d = document.createElement('div');
+      Object.assign(d.style, { position: 'fixed', inset: '0', zIndex: '9000', background: '#f4ead4' });
+      document.body.appendChild(d);
+    });
+    await page.mouse.move(300, 300);
+    await expect(trail(page)).toHaveCount(1);
+    for (let i = 0; i < 24; i++) await page.mouse.move(300 + i * 28, 300 + Math.sin(i / 3) * 90);
+    const png = (await page.screenshot()).toString('base64');
+    // count clearly red pixels (the 8px dot alone is about 50 of them)
+    const red = await page.evaluate(async (b64) => {
+      const img = await createImageBitmap(new Blob([Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))]));
+      const o = new OffscreenCanvas(img.width, img.height).getContext('2d')!;
+      o.drawImage(img, 0, 0);
+      const d = o.getImageData(0, 0, img.width, img.height).data;
+      let n = 0;
+      for (let i = 0; i < d.length; i += 4) if (d[i] > 180 && d[i + 1] < 170 && d[i] - d[i + 1] > 60) n++;
+      return n;
+    }, png);
+    expect(red).toBeGreaterThan(3000);
   });
 
   test('plain alpha blending on light and dark grounds (never multiply/screen, which erase the trail on the wrong ground)', async ({ page }) => {
