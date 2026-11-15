@@ -1,4 +1,22 @@
 @layer site {
+  /* Sticky navbar height incl. its 1px border (measured: 73px). Used by scroll-padding and the services stack. */
+  :root {
+    --nav-h: 73px;
+  }
+
+  html {
+    scroll-padding-top: calc(var(--nav-h) + 1.5rem);
+  }
+
+  /* The brand signature logo is an <svg viewBox="0 0 180 32"> with no width/height, which collapses to
+     0×0 inside the flex navbar. Give it a height; the viewBox supplies the width (≈157px). */
+  .vn-navbar__brand svg,
+  .vn-mobile-drawer__head svg {
+    display: block;
+    block-size: 1.75rem;
+    inline-size: auto;
+  }
+
   /* Scroll progress bar */
   .vn-scroll-progress {
     position: fixed;
@@ -25,7 +43,6 @@
     min-block-size: 24px;
     padding-block: 4px;
     color: var(--vn-text-muted);
-    transition: color var(--vn-dur-hover) var(--vn-ease-out);
   }
 
   .vn-navbar__link:hover,
@@ -33,7 +50,7 @@
     color: var(--vn-text);
   }
 
-  .vn-navbar__link.is-active::after {
+  .vn-navbar__link::after {
     content: "";
     position: absolute;
     left: 0;
@@ -41,6 +58,14 @@
     bottom: -2px;
     height: 2px;
     background: var(--vn-signal);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--vn-dur-hover) var(--vn-ease-out);
+  }
+
+  .vn-navbar__link:hover::after,
+  .vn-navbar__link.is-active::after {
+    transform: scaleX(1);
   }
 
   .vn-navbar__menu-btn {
