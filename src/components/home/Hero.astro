@@ -20,9 +20,10 @@ const L = {
   en: { tap: 'Tap to reveal full color' },
 } as const;
 const l = L[locale];
+const idle = [c.hero.essence.replace(/[.,]/g, '').replace(' ', '·').toUpperCase(), 'PALMAS·TO', c.hero.ctaPrimary.replace(' ', '·').toUpperCase()].join('|');
 ---
 
-<section id="inicio" class="vn-hero vn-site-anchor-target" data-surface="inverse">
+<section id="inicio" class="vn-hero vn-site-anchor-target" data-surface="inverse" data-cursor-zone="ring" data-cursor-idle={idle}>
   <span id="home" class="vn-sr-only"></span>
   <div class="vn-hero__grid" aria-hidden="true"></div>
 
