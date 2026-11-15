@@ -203,7 +203,7 @@ test.describe('reduced motion', () => {
     test(`no running animations, reveals visible, no lazy motion chunks ${route}`, async ({ page }) => {
       const lazy: string[] = [];
       page.on('request', (rq) => {
-        if (/\/_astro\/(cursor|cursor-trail|magnetic|signal-field)\./.test(rq.url())) lazy.push(rq.url());
+        if (/\/_astro\/(cursor|cursor-trail|magnetic|signal-field|hero-fx)\./.test(rq.url())) lazy.push(rq.url());
       });
       await page.setViewportSize({ width: 1366, height: 800 });
       await page.goto(route);

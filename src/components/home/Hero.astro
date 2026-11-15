@@ -14,6 +14,12 @@ const projectBase = locale === 'en' ? '/en/projects' : '/projetos';
 const badgeLoop = `${c.hero.badgeText}${c.hero.badgeText}`;
 // Display name: "Victor / Neves" (the data keeps the caps used elsewhere).
 const nameCase = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
+// Touch caption (the data caption says "hover"); swapped in by CSS on coarse pointers.
+const L = {
+  'pt-br': { tap: 'Toque para revelar em cor' },
+  en: { tap: 'Tap to reveal full color' },
+} as const;
+const l = L[locale];
 ---
 
 <section id="inicio" class="vn-hero vn-site-anchor-target" data-surface="inverse">
@@ -86,7 +92,10 @@ const nameCase = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
         />
         <canvas class="vn-hero-portrait__canvas" width="333" height="500" aria-hidden="true"></canvas>
         <div class="vn-hero-portrait__frame" aria-hidden="true"></div>
-        <span class="vn-hero-portrait__hint vn-type-micro">{c.hero.portraitCaption}</span>
+        <span class="vn-hero-portrait__hint vn-type-micro"
+          ><span class="vn-hero-portrait__hint-hover">{c.hero.portraitCaption}</span
+          ><span class="vn-hero-portrait__hint-tap">{l.tap}</span></span
+        >
       </div>
 
       {c.hero.chips.map((chip) => (
