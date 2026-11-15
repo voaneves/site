@@ -65,9 +65,10 @@
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .vn-beat { animation: vn-beat 0.8s cubic-bezier(0.25, 1, 0.5, 1) backwards; }
-    .vn-beat:nth-child(2) { animation-delay: 0.1s; }
-    .vn-beat:nth-child(3) { animation-delay: 0.2s; }
+    /* The entrance starts from opacity 0, so it is gated on html.js: without JS the content is simply there. */
+    html.js .vn-beat { animation: vn-beat 0.8s cubic-bezier(0.25, 1, 0.5, 1) backwards; }
+    html.js .vn-beat:nth-child(2) { animation-delay: 0.1s; }
+    html.js .vn-beat:nth-child(3) { animation-delay: 0.2s; }
     @keyframes vn-beat { from { opacity: 0; transform: translateY(14px); } }
   }
 }
