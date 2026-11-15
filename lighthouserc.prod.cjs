@@ -1,12 +1,15 @@
 const siteUrl = (process.env.SITE_URL || 'https://voaneves.com').replace(/\/$/, '');
 const form = process.env.LHCI_FORM ?? 'mobile';
+// *.pages.dev always sends X-Robots-Tag: noindex (Cloudflare), so is-crawlable only means something on the real domain.
+const isAlias = /\.pages\.dev$/.test(new URL(siteUrl).hostname);
+const base = form === 'desktop' ? { preset: 'desktop' } : {};
 
 module.exports = {
   ci: {
     collect: {
       url: [`${siteUrl}/`, `${siteUrl}/en/`, `${siteUrl}/privacidade/`, `${siteUrl}/en/privacy/`],
       numberOfRuns: 5,
-      settings: form === 'desktop' ? { preset: 'desktop' } : {},
+      settings: isAlias ? { ...base, skipAudits: ['is-crawlable'] } : base,
     },
     assert: {
       assertions: {
