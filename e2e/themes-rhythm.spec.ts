@@ -30,11 +30,19 @@ const EXPECTED: Record<Theme, Record<Key, string>> = {
   dark: { hero: TINTA, about: NIGHT, numbers: GRAPHITE, expertise: TINTA, journey: NIGHT, projects: GRAPHITE, services: NIGHT, faq: TINTA, contact: SIGNAL, footer: NIGHT },
 };
 const META: Record<Theme, string> = { light: '#fdfbf6', dark: '#0a0a0a' };
-const WEDGES: Key[] = ['about', 'numbers', 'expertise', 'faq'];
+// Each chapter's corner wedge is drawn in the ground of the section ABOVE it (it bleeds into the chapter, so
+// the join reads as a diagonal). Same-colour-as-self would be invisible, so §U6k.7 test 10 is read as "equals
+// the previous section's ground", which also covers the Numbers exception (its wedge is About's ground).
+const WEDGES: [Key, Key][] = [['about', 'hero'], ['numbers', 'about'], ['expertise', 'numbers'], ['faq', 'services']];
 const selOf = (k: Key) => GROUNDS.find((g) => g.key === k)!.sel;
 
 async function open(page: Page, theme: Theme, url = '/') {
-  await page.addInitScript((t) => localStorage.setItem('vn-theme', t), theme);
+  // seed once per tab: the init script re-runs on reload, which would otherwise undo a theme the test just stored
+  await page.addInitScript((t) => {
+    if (sessionStorage.getItem('vn-seeded')) return;
+    sessionStorage.setItem('vn-seeded', '1');
+    localStorage.setItem('vn-theme', t);
+  }, theme);
   await page.goto(url);
   await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
 }
@@ -90,7 +98,10 @@ for (const theme of THEMES) {
     test(`text contrast: heading >= 3, paragraph and eyebrow >= 4.5 (${theme})`, async ({ page }) => {
       await open(page, theme);
       await expect.poll(() => bgs(page)).toEqual(EXPECTED[theme]);
-      const rows = await page.evaluate((grounds) => {
+      // scroll reveals hold eyebrows at opacity 0 until their section is in view; visit each ground first
+      for (const g of GROUNDS) await page.locator(g.sel).first().scrollIntoViewIfNeeded();
+      await page.evaluate(() => scrollTo(0, 0));
+      const measure = () => page.evaluate((grounds) => {
         const parse = (c: string) => c.match(/[\d.]+/g)!.map(Number);
         const lin = (v: number) => (v / 255 <= 0.03928 ? v / 255 / 12.92 : ((v / 255 + 0.055) / 1.055) ** 2.4);
         const L = (c: number[]) => 0.2126 * lin(c[0]) + 0.7152 * lin(c[1]) + 0.0722 * lin(c[2]);
@@ -116,8 +127,11 @@ for (const theme of THEMES) {
         }
         return out;
       }, [...GROUNDS]);
-      expect(rows.some((r) => r.what === 'heading')).toBe(true);
-      for (const r of rows) expect(r.ratio, `${r.id} ${r.what}`).toBeGreaterThanOrEqual(r.min);
+      // revealed text keeps its opacity (they do not unreveal), so poll until every measured row has settled
+      await expect
+        .poll(async () => (await measure()).filter((r) => r.ratio < r.min).map((r) => `${r.id} ${r.what} ${r.ratio.toFixed(2)}`))
+        .toEqual([]);
+      expect((await measure()).some((r) => r.what === 'heading')).toBe(true);
     });
 
     test(`color-scheme per section (${theme})`, async ({ page }) => {
@@ -135,10 +149,10 @@ for (const theme of THEMES) {
 
     test(`chapter wedges match the ground (${theme})`, async ({ page }) => {
       await open(page, theme);
-      for (const k of WEDGES) {
+      for (const [k, prev] of WEDGES) {
         await expect
           .poll(() => page.evaluate((s) => getComputedStyle(document.querySelector(s)!, '::before').backgroundColor, selOf(k)), { message: k })
-          .toBe(EXPECTED[theme][k]);
+          .toBe(EXPECTED[theme][prev]);
       }
     });
 

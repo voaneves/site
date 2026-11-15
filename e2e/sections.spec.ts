@@ -51,14 +51,21 @@ for (const { route, sections } of CASES) {
       await expect(first).toHaveAttribute('open', '');
     });
 
-    test('ink chapter text is cream on black', async ({ page }) => {
-      await page.goto(route);
-      const c = await page.locator('#numeros').evaluate((el) => {
-        const cs = getComputedStyle(el);
-        return { bg: cs.backgroundColor, fg: cs.color };
+    // U6k.4: the ink chapter is the day's dark counterpoint (tinta) and the night's ember band (graphite),
+    // no longer pure black. Text stays cream on it in both themes.
+    for (const [theme, bg] of [['light', 'rgb(10, 10, 10)'], ['dark', 'rgb(26, 26, 26)']] as const) {
+      test(`ink chapter text is cream on its ground (${theme})`, async ({ page }) => {
+        await page.addInitScript((t) => localStorage.setItem('vn-theme', t), theme);
+        await page.goto(route);
+        await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+        const c = await page.locator('#numeros').evaluate((el) => {
+          const cs = getComputedStyle(el);
+          return { bg: cs.backgroundColor, fg: cs.color };
+        });
+        expect(c.bg).toBe(bg);
+        expect(c.fg).toBe('rgb(232, 222, 197)');
       });
-      expect(c.bg).toBe('rgb(0, 0, 0)');
-    });
+    }
   });
 }
 
