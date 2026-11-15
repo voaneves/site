@@ -49,6 +49,10 @@ function notSettled(sel: string) {
     .filter((e) => {
       const cs = getComputedStyle(e);
       const zero = (v: string) => v === 'none' || v.split(' ').every((n) => parseFloat(n) === 0);
+      // U7 parallax drives scale/translate from a scroll or view timeline on purpose (e.g. project thumbnails at
+      // 1.18 inside their clip): that is choreography in progress, not an entrance left unfinished. Opacity still counts.
+      const scrolled = e.getAnimations().some((a) => a.timeline && !(a.timeline instanceof DocumentTimeline));
+      if (scrolled) return cs.opacity !== '1';
       return cs.opacity !== '1' || !zero(cs.translate) || !['none', '1'].includes(cs.scale) || cs.transform !== 'none';
     })
     .map((e) => `${e.tagName.toLowerCase()}.${String(e.className).split(/\s+/)[0]}[${e.getAttribute('data-enter')}]`);
