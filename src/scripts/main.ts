@@ -6,7 +6,7 @@ import { init as nav } from './nav';
 import { init as marquee } from './marquee';
 import { init as hero } from './hero';
 import { init as afterLcp } from './after-lcp';
-import { onIdle } from './lazy';
+import { onIdle, motionOK } from './lazy';
 
 theme();
 drawer();
@@ -29,5 +29,15 @@ afterLcp();
       void import('./journey').then((m) => m.init());
     }, { rootMargin: '100% 0px' });
     io.observe(sec);
+  });
+  // W12: the signal-field canvas loads once the browser is idle and #contato is within one viewport.
+  onIdle(() => {
+    const band = document.getElementById('contato');
+    if (!band || !motionOK()) return;
+    new IntersectionObserver((e, o) => {
+      if (!e.some((x) => x.isIntersecting)) return;
+      o.disconnect();
+      void import('./signal-field').then((m) => m.init(band));
+    }, { rootMargin: '100% 0px' }).observe(band);
   });
 }
