@@ -28,6 +28,12 @@ export const UI = {
     privacyAnalytics: 'Métricas agregadas de tráfego utilizam Cloudflare Web Analytics sem coleta de identificadores individuais.',
     privacyContact: 'Para solicitações relacionadas à LGPD, entre em contato pelo e-mail victorneves478@gmail.com.',
     backHome: 'Voltar para o início',
+    breadcrumbLabel: 'Trilha de navegação',
+    projectNavLabel: 'Navegação entre projetos',
+    notFoundMetaTitle: '404 — Victor Neves',
+    notFoundMetaDesc: 'Página não encontrada.',
+    notFoundTitle: 'Sinal perdido. Essa página saiu do mapa.',
+    notFoundLead: 'Que tal voltar pro início?',
   },
   en: {
     metaTitleHome: 'Victor Neves — Engineering, Data, Design & Code',
@@ -58,6 +64,12 @@ export const UI = {
     privacyAnalytics: 'Aggregate traffic metrics rely solely on cookie-free Cloudflare Web Analytics without personal identifiers.',
     privacyContact: 'For privacy inquiries or data requests, email victorneves478@gmail.com.',
     backHome: 'Back to home',
+    breadcrumbLabel: 'Breadcrumb',
+    projectNavLabel: 'Project navigation',
+    notFoundMetaTitle: '404 — Victor Neves',
+    notFoundMetaDesc: 'Page not found.',
+    notFoundTitle: 'Signal lost. This page is off the map.',
+    notFoundLead: 'Want to head back home?',
   },
 } as const;
 

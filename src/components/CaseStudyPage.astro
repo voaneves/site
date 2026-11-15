@@ -1,6 +1,6 @@
 ---
 import Icon from '@voaneves/brand/astro/Icon.astro';
-import type { Locale } from '../i18n/ui';
+import { UI, type Locale } from '../i18n/ui';
 import { PORTFOLIO, type ProjectCase } from '../data/portfolio';
 
 export interface Props {
@@ -19,7 +19,7 @@ const caseBase = locale === 'en' ? '/en/projects' : '/projetos';
 <article class="vn-case">
   <section class="vn-case-hero" data-surface="inverse">
     <div class="vn-container">
-      <nav class="vn-case-crumb" aria-label="Breadcrumb">
+      <nav class="vn-case-crumb" aria-label={UI[locale].breadcrumbLabel}>
         <a href={homeHref}>{c.caseUi.breadcrumbHome}</a>
         <span aria-hidden="true">/</span>
         <a href={`${homeHref}#projetos`}>{c.caseUi.breadcrumbProjects}</a>
@@ -127,7 +127,7 @@ const caseBase = locale === 'en' ? '/en/projects' : '/projetos';
         </div>
       </div>
 
-      <nav class="vn-case-pager" aria-label="Project navigation">
+      <nav class="vn-case-pager" aria-label={UI[locale].projectNavLabel}>
         <a class="vn-case-pager__link" href={`${caseBase}/${prevProject.slug}/`}>
           <span class="vn-type-micro vn-muted">← {c.caseUi.prevProject}</span>
           <strong class="vn-type-body-strong">{prevProject.title}</strong>

@@ -1,12 +1,9 @@
+import { PROJECT_SLUGS } from '../data/slugs.mjs';
+
 export const ROUTE_PAIRS = [
   { pt: '/', en: '/en/' },
   { pt: '/privacidade/', en: '/en/privacy/' },
-  { pt: '/projetos/mte/', en: '/en/projects/mte/' },
-  { pt: '/projetos/dashboards/', en: '/en/projects/dashboards/' },
-  { pt: '/projetos/caato/', en: '/en/projects/caato/' },
-  { pt: '/projetos/mota-godinho/', en: '/en/projects/mota-godinho/' },
-  { pt: '/projetos/boas-obras/', en: '/en/projects/boas-obras/' },
-  { pt: '/projetos/midflow/', en: '/en/projects/midflow/' },
+  ...PROJECT_SLUGS.map((s) => ({ pt: `/projetos/${s}/`, en: `/en/projects/${s}/` })),
 ];
 
 /**
