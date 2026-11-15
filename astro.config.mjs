@@ -46,6 +46,11 @@ export default defineConfig({
     },
   },
   vite: {
+    server: {
+      // Parallel git worktrees live under .claude/worktrees (full checkouts with node_modules); watching
+      // them makes the dev server restart constantly and drop its module-runner transport.
+      watch: { ignored: ['**/.claude/**', '**/.wrangler/**', '**/.lighthouseci/**', '**/test-results/**', '**/playwright-report/**'] },
+    },
     build: {
       // Inline the ~6 KB entry script into the HTML (CSP hashes it automatically): an extra request
       // otherwise lands inside the LCP window.
