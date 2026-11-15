@@ -22,8 +22,13 @@ for (const route of ROUTES) {
     test(`axe WCAG 2.2 AA clean on ${route} (${theme}, ${vp.width}px)`, async ({ page }) => {
       await page.setViewportSize(vp);
       await page.goto(route);
-      await page.evaluate((mode) => {
+      await page.evaluate(async (mode) => {
         document.documentElement.dataset.theme = mode;
+        // Flipping the theme flips color-scheme, which starts colour transitions; audit the settled state.
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+        await Promise.all(
+          document.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.finished.catch(() => {})),
+        );
       }, theme);
       const results = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
