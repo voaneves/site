@@ -40,7 +40,8 @@ async function measure(browser: Browser, baseURL: string, route: string): Promis
       const de = document.documentElement;
       const undecoded: string[] = [];
       await Promise.all(
-        [...document.images].map(async (i) => {
+        // The cursor's media card holds an src-less <img> until it previews a project: not content.
+        [...document.images].filter((i) => !i.closest('.vn-cursor')).map(async (i) => {
           const src = i.getAttribute('src') ?? '?';
           i.loading = 'eager'; // off-screen lazy images (e.g. horizontal carousels) never load by vertical scroll alone
           try {

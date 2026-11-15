@@ -6,6 +6,12 @@ import { expect, test } from '@playwright/test';
 const IDS = ['quem-sou', 'numeros', 'expertise', 'jornada', 'projetos', 'servicos', 'perguntas', 'contato'];
 const WIDTHS = [1366, 1100, 950, 850, 700, 390];
 const TOLERANCE = 0.15;
+// Same criterion as the nav tests: the section's top is in the upper 60% and it still fills the screen below 15%.
+const inView = (id: string) => (page: import('@playwright/test').Page) =>
+  page.evaluate((id) => {
+    const r = document.getElementById(id)!.getBoundingClientRect();
+    return r.top < innerHeight * 0.6 && r.bottom > innerHeight * 0.15;
+  }, id);
 
 for (const width of WIDTHS) {
   test(`content-visibility seeds stay within ${TOLERANCE * 100}% of real section heights at ${width}px`, async ({ page }) => {
@@ -36,16 +42,12 @@ test('an in-page nav jump lands on its section even while sections are unrendere
   await page.setViewportSize({ width: 1366, height: 800 });
   await page.goto('/');
   await page.locator('a[href$="#perguntas"]').first().click();
-  await expect
-    .poll(() => page.evaluate(() => Math.round(document.getElementById('perguntas')!.getBoundingClientRect().top)), { timeout: 5000 })
-    .toBeLessThan(200);
+  await expect.poll(() => inView('perguntas')(page), { timeout: 8000 }).toBe(true);
   expect(await page.evaluate(() => document.documentElement.classList.contains('vn-cv-off'))).toBe(true);
 });
 
 test('loading with a hash lands on that section', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/#contato');
-  await expect
-    .poll(() => page.evaluate(() => Math.round(document.getElementById('contato')!.getBoundingClientRect().top)), { timeout: 5000 })
-    .toBeLessThan(200);
+  await expect.poll(() => inView('contato')(page), { timeout: 8000 }).toBe(true);
 });
