@@ -48,13 +48,23 @@ jobs:
           fi
           bash scripts/ops/cf-audit.sh
 
+      - name: Dependências na última versão, sem CVE e com assinaturas válidas
+        id: deps
+        continue-on-error: true
+        run: |
+          status=0
+          npm outdated || status=1
+          npm audit --audit-level=low || status=1
+          npm audit signatures || status=1
+          exit $status
+
       - name: Lighthouse em produção
         id: lh
         continue-on-error: true
-        run: npx --yes @lhci/cli autorun --config=lighthouserc.prod.cjs
+        run: npx --yes @lhci/cli@0.16.1 autorun --config=lighthouserc.prod.cjs
 
       - name: Abrir ou atualizar issue se houver falha
-        if: steps.drift.outcome == 'failure' || steps.lh.outcome == 'failure'
+        if: steps.drift.outcome == 'failure' || steps.deps.outcome == 'failure' || steps.lh.outcome == 'failure'
         run: |
           gh label create audit --color 0E8A16 2>/dev/null || true
           gh issue create --label audit --title "🔎 Auditoria semanal" \

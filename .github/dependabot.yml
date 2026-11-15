@@ -1,12 +1,15 @@
 version: 2
+# Every package at its latest release, majors included. The 3-day cooldown lets a compromised release be caught
+# and pulled before it reaches us (hijacked packages ship as the newest version); security updates skip it.
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
-      day: monday
+      interval: daily
       time: "06:00"
       timezone: America/Araguaina
+    cooldown:
+      default-days: 3
     groups:
       brand:
         patterns:
@@ -16,16 +19,21 @@ updates:
         exclude-patterns:
           - "@voaneves/brand"
         update-types: ["minor", "patch"]
+      major:
+        exclude-patterns:
+          - "@voaneves/brand"
+        update-types: ["major"]
     commit-message:
       prefix: chore(deps)
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
-      day: monday
+      interval: daily
       time: "06:00"
       timezone: America/Araguaina
+    cooldown:
+      default-days: 3
     groups:
       actions:
         patterns: ["*"]
