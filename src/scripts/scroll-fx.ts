@@ -19,6 +19,13 @@ export function init(): void {
   }
   document.adoptedStyleSheets = [...document.adoptedStyleSheets, S];
   document.documentElement.dataset.scrollFx = tl ? 'tl' : 'base';
+  // Reduced motion switched on at runtime: drop the sheet, so every timeline and clip goes with it.
+  const mq = matchMedia('(prefers-reduced-motion: reduce)');
+  mq.addEventListener('change', () => {
+    if (!mq.matches) return;
+    document.adoptedStyleSheets = document.adoptedStyleSheets.filter((x) => x !== S);
+    delete document.documentElement.dataset.scrollFx;
+  });
 
   // [data-enter=lines]: wrap each word in .vn-w (text nodes and spaces kept, so textContent and the accessible name hold).
   document.querySelectorAll('[data-enter=lines]:not(.is-in)').forEach((el) => {

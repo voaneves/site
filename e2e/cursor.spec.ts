@@ -100,8 +100,11 @@ test.describe('cursor: gating', () => {
     await expect(cursor(page)).toHaveAttribute('data-state', 'idle');
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await expect(cursor(page)).toHaveCount(0);
-    const sheets = await page.evaluate(() => document.adoptedStyleSheets.length);
-    expect(sheets).toBe(0);
+    // The pointer-only button hover colours (main.ts, not motion) legitimately stay; every motion sheet must go.
+    const motionSheets = await page.evaluate(() =>
+      document.adoptedStyleSheets.filter((s) => /vn-cursor|animation-timeline|data-fx|transition/.test([...s.cssRules].map((r) => r.cssText).join(''))).length,
+    );
+    expect(motionSheets).toBe(0);
   });
 });
 
