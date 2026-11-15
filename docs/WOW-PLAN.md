@@ -512,3 +512,145 @@ That is about 38 new tests. None of the subtasks touch reveal.ts, count.ts, moti
 4. **Rejected:** Lenis smooth scroll and section snapping. They cost about 4 KB, add INP and a11y risk, and fight native scrolling. The scroll-driven easing gives the same feel.
 
 **Cost.** U6 + U7 ≈ 15.6 KB lazy, which is over the 15360 B limit. Raise `lazyJsGzMaxBytes` to **17408** and add `"scroll-fx": 2048`. Everything is idle-loaded or pointer-loaded and transform-only, so the expected Lighthouse impact is 0 (TBT < 10 ms, CLS 0). U7 is gated on an LHCI run on both form factors.
+
+## U6k. Two themes, two spectacles: paper day and ink night, with a ground rhythm per section
+
+**Why.** User feedback: "the white theme is not really white, all sections maintain the same. I'd like a clear distinction between modes and each like a spectacle." The bar is era-residence.com, where every section declares a light, colour or dark ground with a deliberate rhythm, and lamalama.com, which swaps the backdrop theme per section.
+
+### U6k.1 Evidence (build of da3ce7f, `wrangler pages dev dist --port 8820`, Chrome, 1440×900, full page, `vn-theme` stored)
+
+Probe: computed `background-color` / `color` of each home section in both themes.
+
+| Section | Light now: bg / text | Dark now: bg / text | Same in both? | Why it does not flip |
+|---|---|---|---|---|
+| Body / page ground | #f4ead4 / #0a0a0a | #0a0a0a / #e8dec5 | no | `--vn-surface` light is cream-100, so "light" is cream, not white |
+| Hero `#inicio` (inverse) | #0a0a0a / #f4ead4 | #0a0a0a / #f4ead4 | **yes** | hero.css hardcodes `--vn-ref-ink-950` plus about 20 cream/rgba literals |
+| 01 About `#quem-sou` | #e8dec5 / #000 | #e8dec5 / #000 | **yes** | `.vn-chapter--creme` in motion.css hardcodes `#e8dec5`, `#000` and muted `#3d3a33` |
+| 02 Numbers `#numeros` (inverse) | #000 / #e8dec5 | #000 / #e8dec5 | **yes** | `.vn-chapter--ink` hardcodes `#000`, and numbers.css uses ref cream tokens |
+| 03 Expertise | #e8dec5 / #000 | #e8dec5 / #000 | **yes** | `.vn-chapter--creme` |
+| 04 Journey (soft) | #efe4c5 / #0a0a0a | #141414 / #e8dec5 | no | brand `--vn-surface-soft` is `light-dark()` |
+| 05 Projects | transparent (body #f4ead4) | transparent (body #0a0a0a) | no | inherits the body |
+| 06 Services (soft) | #efe4c5 / #0a0a0a | #141414 / #e8dec5 | no | as Journey |
+| 07 FAQ | #e8dec5 / #000 | #e8dec5 / #000 | **yes** | `.vn-chapter--creme` |
+| 08 Contact (signal) | #f50000 / #0a0a0a | #f50000 / #0a0a0a | **yes, by rule** | contact.css `--vn-ref-red-600`. Brand B9.3: the Sinal band stays #f50000 with ink text in both themes |
+| Footer | transparent (body) | transparent (body) | no | inherits the body |
+| `meta[name=theme-color]` on load | **#0a0a0a** | #0a0a0a | **yes (bug)** | Base.astro ships one static `#0a0a0a`, and theme.ts only updates it on click. This breaks B9.6 |
+
+Conclusion: 6 of the 10 home grounds are identical in both modes, and the 3 that flip only move between three creams 1.1:1 apart (#f4ead4, #efe4c5, #e8dec5). Light mode reads as "beige with black and red blocks", and dark mode is the same page with only Journey, Projects and Services darkened. In dark mode, three cream chapters (About, Expertise, FAQ) break the night. Root cause in the system: brand `[data-surface=inverse|signal]` sets only `background-color`/`color`, never `color-scheme`. `light-dark()` tokens inside an inverse section therefore resolve to their *light* values, so each section hardcoded its colours to stay legible. Those literals do not follow the theme.
+
+### U6k.2 Decisions
+
+1. **Light = "paper day" (warm gallery white).** Use a new ground `paper` #fdfbf6 (a warm off-white, 1.29:1 against cream-300, so creme now reads as a *colour* ground and no longer as the page). Choose warm over cool: the brand's neutrals are all warm (cream, sand), Sinal #f50000 is a warm red, and a blue-white would make the sand muted text look dirty. Do not use pure #fff for the ground: it is reserved for raised cards, which keeps cards readable on paper with their existing 1px `--vn-line` border. Rejected: pure white ground (sterile, cards disappear) and cream-100 as today (that is the complaint).
+2. **Dark = "ink night".** Use only the brand darks: Tinta #0a0a0a, night #000 and graphite ink-900 #1a1a1a. Text stays cream-300 #e8dec5, never pure white (B9.2). There is no cream chapter in dark mode. The night's "colour" grounds are the **ember** Numbers band (graphite plus a static Sinal radial glow) and the Sinal contact band.
+3. **Rhythms are different, not mirrored.** Light alternates paper and creme in a 2-beat, with one Tinta counterpoint (Numbers). Dark runs a 3-beat Tinta, night, graphite cycle, with the ember at Numbers. Every section except Contact changes its computed ground, 8 of 10 change luminance class, and no two adjacent sections share a ground in either mode.
+4. **Contact keeps #f50000 + ink in both themes** (B9.3, plus `signal-field.spec` asserts `rgb(245, 0, 0)`). It differs by framing. In light it sits between paper and creme as a hot block, and in dark it is the only bright plane between Tinta and night, a lamp in the dark.
+5. **One mechanism: ground presets that set `color-scheme`.** Each preset sets `color-scheme` plus the semantic tokens, so every brand `light-dark()` token inside the section (buttons, chips, lines, focus, muted) resolves for that ground with no per-component overrides. Sections are addressed by their existing ids from the new `themes.css`, so no `.astro` or owned CSS file is touched.
+6. **Site-local now, upstream later.** The brand is a vendored tgz and U6a–h run in parallel, so U6k ships in the site. A brand 1.1 proposal follows (§U6k.8). When it lands, `themes.css` shrinks to the section map.
+
+### U6k.3 Ground presets (token map; contrast measured, WCAG 2.x)
+
+| Preset | bg | text (ratio) | muted (ratio) | line | small red text (ratio) | `color-scheme` |
+|---|---|---|---|---|---|---|
+| `paper` | `--vn-ref-paper` #fdfbf6 (new, site-local) | ink-950 (19.14) | sand-800 #5c5446 (7.22) | rgba(10,10,10,.12) | red-800 #b80000 (6.68). Sinal #f50000 only ≥ 24px / 18.66px bold (4.16) | light |
+| `creme` | cream-300 #e8dec5 | ink-950 (14.79) | sand-800 (5.58) | rgba(10,10,10,.12) | red-800 (5.16). Sinal large only (3.21) | light |
+| `tinta` | ink-950 #0a0a0a | cream-300 (14.79) | sand-500 #a69c86 (7.28) | rgba(232,222,197,.14) | red-450 #ff3838 (5.54) | dark |
+| `night` | ink-1000 #000 | cream-300 (15.69) | sand-500 (7.72) | rgba(232,222,197,.14) | red-450 (5.87) | dark |
+| `graphite` | ink-900 #1a1a1a | cream-300 (13.00) | sand-500 (6.40) | rgba(232,222,197,.14) | red-450 (4.87) | dark |
+| `signal` | red-600 #f50000 (unchanged) | ink-950 (4.60) | ink-950 | — | — | unchanged |
+
+Root overrides (`:root[data-theme=light]`): `--vn-surface: var(--vn-ref-paper)` (body, navbar glass, case/privacy/404 pages turn paper automatically), `--vn-surface-soft: var(--vn-ref-cream-300)`, `--vn-surface-raised: #fff`. Dark root: unchanged.
+
+Each preset writes private vars `--g-bg --g-fg --g-muted --g-line --g-red` and `color-scheme`. One shared rule maps them onto the grounds: `background-color: var(--g-bg); color: var(--g-fg); --vn-text: var(--g-fg); --vn-text-muted: var(--g-muted); --vn-text-on-inverse: var(--g-fg); --vn-text-muted-on-inverse: var(--g-muted); --vn-line: var(--g-line); --vn-signal-ink: var(--g-red)`. Selectors are `#id` (1,0,0), so they beat `.vn-chapter--*`, `[data-surface]` and `.vn-hero` without `!important`. Chapter wedges (`::before { background: inherit }`) follow automatically.
+
+### U6k.4 Section rhythm per mode (current → proposed)
+
+| # | Section | Light now | **Light proposed** | Dark now | **Dark proposed** |
+|---|---|---|---|---|---|
+| — | Hero `#inicio` | #0a0a0a | **paper**: ink type, red dot, 5% ink grid, portrait as a print | #0a0a0a | **tinta** + 4% cream grid (as today) |
+| 01 | About `#quem-sou` | #e8dec5 | **creme** | #e8dec5 | **night** |
+| 02 | Numbers `#numeros` | #000 | **tinta** (the one dark counterpoint of the day; `color-scheme: dark`) | #000 | **graphite + ember**: `background-image: radial-gradient(60% 80% at 50% 0%, rgb(255 56 56 / .16), transparent 70%)`, static |
+| 03 | Expertise | #e8dec5 | **paper** | #e8dec5 | **tinta** |
+| 04 | Journey | #efe4c5 | **creme** | #141414 | **night** |
+| 05 | Projects | body | **paper** | body | **graphite** |
+| 06 | Services | #efe4c5 | **creme** | #141414 | **night** |
+| 07 | FAQ | #e8dec5 | **paper** | #e8dec5 | **tinta** |
+| 08 | Contact | #f50000 | **signal** (unchanged) | #f50000 | **signal** (unchanged) |
+| — | Footer `.vn-site-footer` | body | **creme** | body | **night** |
+
+Sequences: light P C T P C P C P S C · dark T N G T N G N T S N. There are no adjacent repeats, and the patterns differ in period and accent position.
+
+**Hero, light.** hero.css is refactored to local custom properties with today's dark values as defaults (§U6k.6, U6k-3). `themes.css` sets the light values on `:root[data-theme=light] #inicio`:
+
+| Var | Default (dark, today) | Light |
+|---|---|---|
+| `--hero-fg` | cream | ink-950 |
+| `--hero-muted` | sand-500 / cream-300 | sand-800 |
+| `--hero-line` | `--vn-line-on-dark` / rgba(244,234,212,.22) | rgba(10,10,10,.14) |
+| `--hero-grid` | rgba(244,234,212,.04) | rgba(10,10,10,.05) |
+| `--hero-panel` (pill, chip) | ink-900 / rgba(20,20,20,.92) | rgba(253,251,246,.92) |
+| `--hero-accent` (kicker, status text; today red-400 #ff5a5a) | red-400 | red-800 #b80000 |
+| `--hero-btn-fg` (ghost/secondary/CV) | cream | ink-950 |
+| `--hero-frame-shadow` | 0 32px 72px rgba(0,0,0,.65) | 0 30px 60px -20px rgba(10,10,10,.28) |
+| `--hero-img-filter` | grayscale(1) contrast(1.08) | grayscale(1) sepia(.12) contrast(1.02) |
+
+The badge (ink seal) and the red dot stay the same in both. In dark, `--hero-img-filter: grayscale(1) contrast(1.18) brightness(.94)` gives a harder night print.
+
+**Images.** Brand B9.5 says photos are unchanged across themes, so project screenshots keep full colour and a 1px `--vn-line` border in both modes. Only the hero portrait is art-directed: a warm silver-gelatin print on a white mat in light, a hard high-contrast print emerging from Tinta in dark. These are static filters only and are never transitioned (the filter-animation ban holds). The LCP image keeps no hidden state. hero-fx.ts's hover sheen grid literal `rgba(244,234,212,.2)` becomes `color-mix(in srgb, currentColor 20%, transparent)` so it shows on paper.
+
+**Cursor and trail ink.** cursor-trail.ts already picks its ink from the computed ground: `signal` gives INK, luminance < .45 gives RED_HOT, otherwise RED. With the new grounds this is correct in both modes with **no code change**: red #f50000 on paper/creme, hot red on tinta/night/graphite (including light-mode Numbers), ink on Contact (where U6b turns the trail off anyway). Decision: keep the trail red in both modes (it is the brand's one motion motif). An ink-wash trail for the day mode was considered and rejected. The cursor `ring` zone (U6a, "1px creme ring") would vanish on the paper hero, so that becomes post-merge step PM2.
+
+**theme-color.** Light #fdfbf6, dark #0a0a0a. It is set on load as well as on toggle (it is wrong on load today).
+
+**Toggle transition (View Transition, a different signature per direction).** These rules replace theme-vt.css:
+- **To dark, "ink spill":** `::view-transition-new(root)` clips `circle(0 → var(--vt-r))` at the toggle, with `scale: 1.04 → 1`, over .8s `cubic-bezier(.25,1,.5,1)` (the era "Out" ease). `--vt-r` is the exact distance to the farthest corner (theme.ts), so the full duration is spent on screen. Today 150% wastes about a third of it off screen.
+- **To light, "dawn":** new root `clip-path: inset(100% 0 0 0 round 50% 50% 0 0) → inset(0 round 0)`, a horizon arch rising from the bottom, over .9s with the same ease.
+- **The toggle itself:** `#vn-theme-toggle { view-transition-name: vn-toggle }`, then `::view-transition-new(vn-toggle)` spins from `rotate: -180deg; scale: .4` and the old one is hidden. The sun/moon turns while the world flips.
+- Selected by `:root[data-theme=dark|light]::view-transition-new(root)`. The pseudos match the new state, so no JS is needed for direction. Everything sits inside `@media (prefers-reduced-motion: no-preference)`. Under reduce, theme.ts already skips `startViewTransition`, so the switch is instant. Only `clip-path`, `scale` and `rotate` are animated.
+
+### U6k.5 Budget
+
+Measured by appending a minified draft of `themes.css` to the real inline CSS of `dist/index.html`: base 12670 B gz (the budget script reports 12762) → **+728 B gz**, or **+664 B** once theme-vt.css is removed. Deleting the now-dead colour declarations from the `.vn-chapter--*` rules in motion.css saves about 40 B more. The hero var refactor is about byte-neutral. **U6k cap: +650 B gz net.** Alone that lands at about 13.41 KB. Together with U6.3's ≤ +400 B, it lands at about 13.8 KB, which is under the 14336 hard max but over the 13312 warn. Recommendation: accept, and raise `inlineCssGzWarnBytes` to 13824 as post-merge PM3 (budget.json belongs to U6c). If LHCI or the revisor objects, the trims are: drop the ember gradient (−40 B), drop the toggle spin (−60 B), merge `night` into `tinta` (−50 B). First-load JS grows by about 70 B gz (theme.ts), within 8192. Lazy JS is unchanged.
+
+### U6k.6 Subtasks (disjoint from U6a–U6h; worktree `../site-u6k`, branch `u6k`)
+
+| Id | Role | Owns (exclusive) | Work | Acceptance |
+|---|---|---|---|---|
+| U6k-1 | executor | `src/styles/sections/themes.css` (new), `src/styles/site.css`, `src/styles/sections/motion.css`, `src/styles/sections/theme-vt.css` (moved to `D:\GitHub\pode_apagar\site-theme-vt.css`, not deleted) | `@layer site`. `:root { --vn-ref-paper: #fdfbf6 }`, the light root overrides, the 6 presets and the shared mapping rule of §U6k.3, the section map of §U6k.4 (ids `#inicio #quem-sou #numeros #expertise #jornada #projetos #servicos #perguntas`, `.vn-site-footer`), the dark Numbers ember, the light/dark `--hero-*` values, the VT rules and keyframes `vn-dusk`, `vn-dawn` and `vn-spin`. In site.css, replace the `theme-vt.css` import with `themes.css` (same position, before `responsive.css`). In motion.css, remove only `background`, `color` and `--vn-text-muted` from `.vn-chapter--ink` / `.vn-chapter--creme` (keep position and the `::before` wedge) | Probe table = §U6k.4 exactly in both themes. Inline CSS delta ≤ +650 B gz against the base build. axe 0 in both themes at 390 and 1366. No `!important`. Standard gate green |
+| U6k-2 | executor | `src/scripts/theme.ts`, `e2e/theme.spec.ts`, `e2e/thorough-themes.spec.ts` | Constants `#fdfbf6` / `#0a0a0a`. `setMeta(t)` writes **every** `meta[name=theme-color]` (forward-compatible with PM1). `init()` calls `setMeta(current)` once. Before `startViewTransition`, set `--vt-r` = `Math.hypot(max(x, innerWidth−x), max(y, innerHeight−y))` px. Specs: `'#f4ead4'` → `'#fdfbf6'` (theme.spec line 40, thorough-themes line 6) | On load in light the meta is `#fdfbf6` without a click. Toggle and reduced-motion tests still pass. First-load JS ≤ 8192 |
+| U6k-3 | executor | `src/styles/sections/hero.css`, `src/scripts/hero-fx.ts` | Replace the hero's hardcoded colours (lines 8–9, 25–26, 50–56, 105, 131, 151, 164–182, 199, 206, 220, 231–233, 268–270, 317) with the `--hero-*` vars of §U6k.4, using today's values as defaults (`.vn-hero` declares them). Leave the badge, the red dot and `--vn-ref-red-450` fills alone. hero-fx.ts sheen grid → `color-mix(in srgb, currentColor 20%, transparent)` | Dark hero pixel-identical to today (Playwright screenshot diff ≤ 0.1%). No layout change. hero-fx chunk size not increased by more than 20 B |
+| U6k-4 | executor | `e2e/themes-rhythm.spec.ts` (new) | Tests in §U6k.7, written against the §U6k.4 table (it can be drafted in parallel and goes green after U6k-1..3) | 18 tests green on chromium, 0 flaky over `--repeat-each=3` |
+| U6k-5 | revisor (read-only) | — | Contrast of every text style per preset (including red small text = `--vn-signal-ink`), `color-scheme` leakage into form controls in Contact, VT under reduce, LHCI 100 ×4 mobile + desktop on `/`, `/en/`, `/privacidade/`, `/projetos/caato/` in both color schemes, budget numbers | Findings by severity. No high open |
+
+Parallelism: U6k-1, U6k-2, U6k-3 and U6k-4 run in parallel (disjoint files). The `--hero-*` names and the probe table are the contract. U6k-5 runs after all four. **Merge order:** after U6b → U6a → U6c (so the inline budget is measured on top of the engines), any time relative to U6d–U6h (no shared files), and **before U6i**, whose axe sweep in both themes then validates the new grounds.
+
+### U6k.7 New e2e (`e2e/themes-rhythm.spec.ts`, home at 1440×900 unless noted)
+
+1–2. Per theme: each of the 10 grounds has the exact computed `background-color` of §U6k.4.
+3. `background-color` differs between modes for all 9 non-signal grounds. `#contato` is `rgb(245, 0, 0)` in both.
+4–5. Per theme: no two adjacent grounds share a `background-color`.
+6. Light: every ground except `#numeros` and `#contato` has relative luminance ≥ 0.6, and `#numeros` < 0.01. Dark: every ground except `#contato` < 0.015.
+7–8. Per theme and per ground: `h2` ≥ 3:1 and the first `p` and `.vn-eyebrow` ≥ 4.5:1 against the ground (computed colours, WCAG formula, alpha flattened over the ground).
+9. `color-scheme`: light → `#numeros` `dark` and the paper/creme grounds `light`. Dark → all non-signal grounds `dark`.
+10. Chapter wedges: `getComputedStyle(el, '::before').backgroundColor` equals the section ground for About, Numbers, Expertise and FAQ in both themes.
+11. `theme-color` equals `#fdfbf6` / `#0a0a0a` on load (stored light / dark, no click) and after each toggle.
+12. To dark: `document.getAnimations()` holds an animation named `vn-dusk` on `::view-transition-new(root)` and `vn-spin` on `::view-transition-new(vn-toggle)`. To light: `vn-dawn`. 13. Under `reducedMotion: 'reduce'`, no `::view-transition` animation and the switch is instant.
+14. Trail ink (`__vnTrailInk` after pointer moves): light About → `0.96,0,0`, dark About → `1,0.2,0.17`, light Numbers → `1,0.2,0.17`.
+15. Hero portrait `filter` differs between themes, and the LCP image has opacity 1 at first paint in both.
+16. `/privacidade/` and `/projetos/mte/` in light: body `rgb(253, 251, 246)`. 17. The same at 390 px: tests 1 and 4 hold (no responsive override flips a ground). 18. Full-page screenshots of both themes are attached to the report (not compared, for review).
+
+### U6k.8 Post-merge steps (files owned by U6a–U6h) and upstream
+
+- **PM1** `src/layouts/Base.astro`: replace the single meta with two, `<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fdfbf6">` and `<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0a">` (B9.6). The inline init script sets both `content` attributes to the stored theme's colour when an override exists. That fixes the first paint before theme.ts runs. e2e test 11 then also passes with JS disabled for the OS-preference case.
+- **PM2** `src/scripts/cursor.ts` (U6a): the `ring` zone ring is `#e8dec5` at 1px, which is invisible on the paper hero. Give the ring `mix-blend-mode: difference` (a cream ring stays cream on ink and becomes near-black on paper). This costs 0 B of inline CSS. Add one case to `e2e/cursor-zones.spec.ts` in light.
+- **PM3** `budget.json` (U6c): `inlineCssGzWarnBytes` 13312 → 13824 only if the combined U6 + U6k build exceeds 13312. The max stays at 14336.
+- **PM4** `src/components/home/Contact.astro` / contact.css: none required. The signal band is unchanged.
+- **PM5 (U7.2 tie-in):** the header ground flip should also write `theme-color` to the current section's ground (lamalama-style browser chrome). It is out of U6k scope.
+- **Follow-up U6l:** a ground rhythm for the case-study pages (today they inherit paper + the brand inverse hero, which is consistent but not choreographed).
+
+**Upstream to `D:\GitHub\brand` (proposal for 1.1, ADR in the brand repo, not blocking U6k):**
+1. `[data-surface="inverse"] { color-scheme: dark }` and `[data-surface="signal"] { color-scheme: light }` in vn.base. This is the root cause of the hardcoding.
+2. Fix vn.base resetting `:root { color-scheme: light dark }` after vn.tokens (site base.css carries a workaround).
+3. New ref `paper-50 #fdfbf6`, light `--vn-surface` → paper, `--vn-surface-soft` → cream-100, and B9.6 light theme-color → #fdfbf6. This is a semantic change for every consumer, so it needs a minor bump and a contrast test run.
+4. A `data-ground="paper|creme|tinta|night|graphite|signal"` preset API in vn.base (the presets of §U6k.3). The site would then put `data-ground-light` / `data-ground-dark` in markup instead of id selectors.
+
+After brand 1.1 is vendored, `themes.css` keeps only the section map and the VT rules (about −300 B gz).
