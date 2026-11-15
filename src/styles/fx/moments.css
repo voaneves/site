@@ -2,3 +2,21 @@
    Rules outside @supports are BASE (always adopted under reduced-motion: no-preference).
    Scroll-timeline rules go in a top-level @supports (animation-timeline: view()) { ... } block (TL, dropped when unsupported)
    and inside @media screen and (prefers-reduced-motion: no-preference). Identity at scrollY 0; composited properties only. */
+@media (min-width:1100px) and (min-height:760px) {
+  .vn-chart-panel { position: sticky; top: calc(var(--nav-h, 73px) + 2rem); }
+}
+@supports (animation-timeline: view()) {
+  @media screen and (prefers-reduced-motion: no-preference) {
+    @keyframes vn-jt-in { from { scale: .92; translate: 0 3rem; } }
+    @keyframes vn-jt-out { to { scale: .92; } }
+    .vn-numbers-lower { view-timeline: --vn-nl block; }
+    html.js .vn-chart-svg__fill { animation-name: vn-bar; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: --vn-nl; animation-range: entry 50% cover 50%; }
+    html.js .vn-journey-card {
+      animation-name: vn-jt-in, vn-jt-out;
+      animation-timing-function: linear;
+      animation-fill-mode: both, forwards;
+      animation-timeline: view(inline), view(inline);
+      animation-range: entry 0% entry 100%, exit 0% exit 100%;
+    }
+  }
+}
