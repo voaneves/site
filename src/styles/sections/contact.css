@@ -20,6 +20,11 @@
     margin-block-end: var(--vn-space-5);
   }
 
+  .vn-contact-top .vn-eyebrow {
+    margin: 0;
+    color: var(--vn-ink);
+  }
+
   .vn-contact-sla {
     padding: 5px 12px;
     border-radius: var(--vn-radius-pill);

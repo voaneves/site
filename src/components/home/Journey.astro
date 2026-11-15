@@ -8,6 +8,14 @@ export interface Props {
 
 const { locale } = Astro.props;
 const c = PORTFOLIO[locale];
+const [eyebrowNum, ...eyebrowRest] = (c.journey.tag).split(' · ');
+const eyebrowTag = eyebrowRest.join(' · ');
+const splitTail = (s: string): [string, string] => {
+  const w = s.split(' ');
+  const n = w.length > 3 ? 2 : 1;
+  return [w.slice(0, -n).join(' ') + ' ', w.slice(-n).join(' ')];
+};
+const [titlePre, titleEm] = splitTail(c.journey.title);
 const L = {
   'pt-br': { region: 'Trajetória profissional, galeria rolável horizontalmente' },
   en: { region: 'Career timeline, horizontally scrollable gallery' },
@@ -21,13 +29,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
   <div class="vn-container">
     <div class="vn-sec-split vn-reveal">
       <div>
-        <span class="vn-type-tag vn-sec-tag">{c.journey.tag}</span>
-        <h2 class="vn-type-h2">{c.journey.title}</h2>
-        <p class="vn-type-body vn-muted">{c.journey.subtitle}</p>
+        <p class="vn-eyebrow"><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
+        <h2 class="vn-type-h2 vn-split-title">{titlePre}<em>{titleEm}</em></h2>
+        <p class="vn-type-body vn-muted vn-sec-sub">{c.journey.subtitle}</p>
       </div>
       <div class="vn-journey-controls">
         <span class="vn-type-micro vn-muted vn-journey-hint">{c.journey.dragHint}</span>
-        <span class="vn-journey-count vn-type-micro" data-journey-count aria-live="polite" aria-atomic="true">01 / {pad(total)}</span>
+        <span class="vn-journey-count vn-type-micro" data-journey-count>01 / {pad(total)}</span>
         <button
           type="button"
           class="vn-icon-btn"

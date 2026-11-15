@@ -30,6 +30,7 @@ export function init(band: HTMLElement): void {
   };
 
   const draw = () => {
+    if (!n) return;
     cx.setTransform(dpr, 0, 0, dpr, 0, 0);
     cx.clearRect(0, 0, W, H);
     cx.fillStyle = ink;
@@ -58,7 +59,7 @@ export function init(band: HTMLElement): void {
   };
 
   const step = (t: number) => {
-    const k = Math.min((t - last) / 16.7 || 1, 2.5);
+    const k = Math.max(0, Math.min((t - last) / 16.7 || 1, 2.5));
     const dm = D ** k;
     last = t;
     let e = 0;
@@ -131,7 +132,8 @@ export function init(band: HTMLElement): void {
     go();
   }, { passive: true });
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden && raf) {
+    if (!document.hidden) go();
+    else if (raf) {
       cancelAnimationFrame(raf);
       raf = 0;
       flag();

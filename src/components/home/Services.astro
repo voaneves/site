@@ -10,15 +10,23 @@ export interface Props {
 
 const { locale } = Astro.props;
 const c = PORTFOLIO[locale];
+const [eyebrowNum, ...eyebrowRest] = (c.services.tag).split(' · ');
+const eyebrowTag = eyebrowRest.join(' · ');
+const splitTail = (s: string): [string, string] => {
+  const w = s.split(' ');
+  const n = w.length > 3 ? 2 : 1;
+  return [w.slice(0, -n).join(' ') + ' ', w.slice(-n).join(' ')];
+};
+const [titlePre, titleEm] = splitTail(c.services.title);
 ---
 
 <section data-section="06" id="servicos" class="vn-section vn-site-anchor-target" data-surface="soft">
   <span id="services" class="vn-sr-only"></span>
   <div class="vn-container">
     <div class="vn-sec-head vn-reveal">
-      <span class="vn-type-tag vn-sec-tag">{c.services.tag}</span>
-      <h2 class="vn-type-h2 vn-measure">{c.services.title}</h2>
-      <p class="vn-type-body vn-muted vn-measure">{c.services.subtitle}</p>
+      <p class="vn-eyebrow"><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
+      <h2 class="vn-type-h2 vn-measure vn-split-title">{titlePre}<em>{titleEm}</em></h2>
+      <p class="vn-type-body vn-muted vn-measure vn-sec-sub">{c.services.subtitle}</p>
     </div>
 
     <div class="vn-bento-grid">

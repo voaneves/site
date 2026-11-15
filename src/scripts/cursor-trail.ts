@@ -116,6 +116,7 @@ function webgl(canvas: HTMLCanvasElement): Renderer | null {
   const free = () => {
     progs.forEach((p) => gl.deleteProgram(p));
     gl.deleteBuffer(buf);
+    gl.getExtension('WEBGL_lose_context')?.loseContext(); // release the context slot (also on failed init)
   };
   if (!sim || !disp) return free(), null;
 
@@ -250,7 +251,6 @@ function webgl(canvas: HTMLCanvasElement): Renderer | null {
       canvas.removeEventListener('webglcontextlost', onLost);
       drop();
       free();
-      gl.getExtension('WEBGL_lose_context')?.loseContext();
     },
   };
 }
@@ -320,6 +320,10 @@ let lastEl: Element | null | undefined;
 let sig = false;
 let theme: string | undefined;
 let hidden = false;
+let fade = 0;
+let gx = 0;
+let gy = 0;
+let gn = 0;
 let resizeRaf = 0;
 const mql = matchMedia('(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference)');
 
@@ -335,17 +339,39 @@ function groundDark(el: Element | null, fallback: boolean): boolean {
 function stop() {
   if (raf) cancelAnimationFrame(raf);
   raf = 0;
+  clearTimeout(fade);
+  fade = 0;
   r?.clear();
   flag('__vnTrailRunning', false);
 }
 
 function tick(now: number) {
   if (!r || !canvas) return;
-  if (now - lastMove > TRAIL_STOP_MS) return stop();
-  const dt = Math.min(50, now - lastT) || 16.67;
+  if (now - lastMove > TRAIL_STOP_MS) {
+    // fade out instead of clearing abruptly (the canvas already transitions opacity)
+    raf = 0;
+    canvas.style.opacity = '0';
+    fade = window.setTimeout(stop, 300);
+    return;
+  }
+  const dt = Math.max(0, Math.min(50, now - lastT)) || 16.67;
   lastT = now;
-  const el = document.elementFromPoint(px, py);
+  // The ground check (hit test + computed style) only runs after the pointer moved > 24px, or every 6th frame.
   const th = document.documentElement.dataset.theme;
+  if (Math.hypot(px - gx, py - gy) > 24 || gn++ % 6 === 0 || th !== theme) {
+    gx = px;
+    gy = py;
+    ground(th);
+  }
+  r.frame(qx, qy, px, py, dt, dark);
+  qx = px;
+  qy = py;
+  raf = requestAnimationFrame(tick);
+}
+
+function ground(th: string | undefined) {
+  if (!r || !canvas) return;
+  const el = document.elementFromPoint(px, py);
   if (el !== lastEl || th !== theme) {
     lastEl = el;
     theme = th;
@@ -357,10 +383,6 @@ function tick(now: number) {
     dark = groundDark(el, th === 'dark');
     canvas.style.opacity = sig ? '0' : String(r.base);
   }
-  r.frame(qx, qy, px, py, dt, dark);
-  qx = px;
-  qy = py;
-  raf = requestAnimationFrame(tick);
 }
 
 function onMove(e: PointerEvent) {
@@ -368,10 +390,16 @@ function onMove(e: PointerEvent) {
   px = e.clientX;
   py = e.clientY;
   lastMove = performance.now();
+  if (fade) {
+    // moved again during the fade-out: wipe now and restore the opacity on the next ground check
+    stop();
+    lastEl = undefined;
+  }
   if (!raf) {
     qx = px;
     qy = py;
     lastT = lastMove;
+    gn = 0;
     flag('__vnTrailRunning', true);
     raf = requestAnimationFrame(tick);
   }

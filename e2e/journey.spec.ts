@@ -21,9 +21,14 @@ test.describe('journey gallery', () => {
     await expect(count).toHaveText(/^02 \//);
   });
 
-  test('counter is a polite live region and the track is a labelled focusable region', async ({ page }) => {
+  test('counter text updates (not a live region) and the track is a labelled focusable region', async ({ page }) => {
     await page.goto('/en/');
-    await expect(page.locator('[data-journey-count]')).toHaveAttribute('aria-live', 'polite');
+    const count = page.locator('[data-journey-count]');
+    await expect(count).not.toHaveAttribute('aria-live', /.+/);
+    await expect(count).toHaveText(/^01 \/ \d\d$/);
+    await page.locator('[data-vn-journey]').focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(count).toHaveText(/^02 \//, { timeout: 1500 });
     const track = page.locator('[data-vn-journey]');
     await expect(track).toHaveAttribute('role', 'region');
     await expect(track).toHaveAttribute('tabindex', '0');

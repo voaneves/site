@@ -61,3 +61,37 @@ for (const { route, sections } of CASES) {
     });
   });
 }
+
+const HEADS = [
+  { id: 'jornada', num: '04' },
+  { id: 'projetos', num: '05' },
+  { id: 'servicos', num: '06' },
+  { id: 'contato', num: '08' },
+];
+
+for (const route of ['/', '/en/']) {
+  for (const { id, num } of HEADS) {
+    test(`${route} #${id}: bracketed eyebrow, brackets aria-hidden, tag text exposed`, async ({ page }) => {
+      await page.goto(route);
+      const eyebrow = page.locator(`#${id} .vn-eyebrow`);
+      await expect(eyebrow).toHaveCount(1);
+      const info = await eyebrow.evaluate((el) => {
+        const hidden = [...el.querySelectorAll('[aria-hidden="true"]')].map((n) => n.textContent ?? '');
+        const clone = el.cloneNode(true) as HTMLElement;
+        clone.querySelectorAll('[aria-hidden="true"]').forEach((n) => n.remove());
+        return { hidden, exposed: (clone.textContent ?? '').trim() };
+      });
+      expect(info.hidden).toEqual([`[ ${num} — `, ' ]']);
+      expect(info.exposed.length).toBeGreaterThan(2);
+      expect(info.exposed).not.toMatch(/[\[\]]|\d\d\s*·/);
+      await expect(page.locator(`#${id} .vn-type-tag.vn-sec-tag`)).toHaveCount(0);
+    });
+  }
+
+  test(`${route} split-italic headlines on projects, services, journey`, async ({ page }) => {
+    await page.goto(route);
+    for (const id of ['jornada', 'projetos', 'servicos']) {
+      await expect(page.locator(`#${id} h2.vn-split-title em`)).toHaveCount(1);
+    }
+  });
+}

@@ -9,6 +9,8 @@ export interface Props {
 
 const { locale } = Astro.props;
 const c = PORTFOLIO[locale];
+const [eyebrowNum, ...eyebrowRest] = (c.contact.tag).split(' · ');
+const eyebrowTag = eyebrowRest.join(' · ');
 
 const L = {
   'pt-br': { line: 'Bora fazer', em: 'sinal', end: '?' },
@@ -20,7 +22,7 @@ const L = {
   <span id="contact" class="vn-sr-only"></span>
   <div class="vn-container">
     <div class="vn-contact-top">
-      <span class="vn-type-tag">{c.contact.tag}</span>
+      <p class="vn-eyebrow"><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
       <span class="vn-contact-sla">{c.contact.sla}</span>
     </div>
 

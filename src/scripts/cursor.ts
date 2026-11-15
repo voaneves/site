@@ -11,11 +11,9 @@ const SNAP_MAX_W = 240; // [data-magnetic] snapping only for small targets
 const CSS = `.vn-cursor{&:not([data-state=hidden]){opacity:1}
 &:not([data-state=hidden]),&[data-f]{transition-duration:.05s;transition-delay:0s}
 :root[data-theme=dark] &,&[data-ground=ink]{--b:#f4ead4;--t:#0a0a0a}
-&[data-ground=signal][data-state]{--b:#0a0a0a;--t:#f4ead4}
-&[data-state=link]{--k:3;&:not([data-ground=signal]){mix-blend-mode:difference}}
+&[data-ground=signal][data-state]{--b:#0a0a0a;--t:#f4ead4;--d:#0a0a0a}
+&[data-state=link]{--k:3;&:not([data-ground=signal]){mix-blend-mode:difference;--d:#fff}}
 &[data-pressed]{--p:.85}
-&[data-ground=signal] .vn-cursor__dot{background:var(--b)}
-&[data-state=link]:not([data-ground=signal]) .vn-cursor__dot{background:#fff}
 &:is([data-state=label],[data-state=media]){.vn-cursor__pill{opacity:1;scale:1}span{translate:0}}
 &[data-state=media] .vn-cursor__media{opacity:1;scale:1}}`;
 
@@ -58,7 +56,7 @@ function init(): void {
     media.style.translate = `${Math.min(Math.max(px, MEDIA_HALF_W), innerWidth - MEDIA_HALF_W)}px ${Math.max(py, MEDIA_MIN_Y)}px`;
   };
   const tick = (t: number) => {
-    const dt = Math.min(t - last, 64);
+    const dt = Math.max(0, Math.min(t - last, 64));
     last = t;
     const a = 1 - Math.exp(-dt / TAU_DOT_MS);
     const b = 1 - Math.exp(-dt / TAU_PILL_MS);
@@ -88,7 +86,7 @@ function init(): void {
     const k = el.closest(LNK);
     const s = m ? 'media' : l ? 'label' : k ? 'link' : 'idle';
     mag = s === 'link' || s === 'label' ? el.closest('[data-magnetic]') : null;
-    if (l) lab.textContent = l.dataset.cursorLabel!;
+    lab.textContent = l?.dataset.cursorLabel ?? '';
     if (m) img.src = m.dataset.cursorMedia!;
     const g = el.closest(GROUND);
     root.dataset.ground = !g ? '' : g.matches(SIGNAL) ? 'signal' : 'ink';
@@ -112,7 +110,7 @@ function init(): void {
     else kick();
   }, opt);
   document.addEventListener('pointerdown', () => root.toggleAttribute('data-pressed', true), opt);
-  document.addEventListener('pointerup', () => root.removeAttribute('data-pressed'), opt);
+  for (const t of ['pointerup', 'pointercancel']) document.addEventListener(t, () => root.removeAttribute('data-pressed'), opt);
   document.addEventListener('pointerout', (e) => e.relatedTarget || hide(), opt);
   document.addEventListener('keydown', () => hide(true), opt);
   document.addEventListener('scrollend', () => {

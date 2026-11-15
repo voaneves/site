@@ -14,7 +14,8 @@
     left: -4px;
     transform: none;
     scale: calc(var(--k, 1) * var(--p, 1));
-    transition: scale 0.2s var(--e), background-color 0.2s;
+    background-color: var(--d, var(--vn-signal));
+    transition: scale 0.2s var(--e);
   }
 
   .vn-cursor__pill,
