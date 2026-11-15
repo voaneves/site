@@ -14,6 +14,19 @@ const barScale = (page: Page) =>
 test.describe('moments, no-preference', () => {
   test.use({ reducedMotion: 'no-preference' });
 
+  test('sticky panel never traps content at the 1100x760 gate', async ({ page }) => {
+    await page.setViewportSize({ width: 1100, height: 760 });
+    await page.goto('/');
+    await ready(page);
+    const m = await page.evaluate(() => {
+      const p = document.querySelector('.vn-chart-panel') as HTMLElement;
+      const nav = document.querySelector('.vn-navbar') as HTMLElement;
+      return { h: p.getBoundingClientRect().height, nav: nav.offsetHeight, vh: innerHeight, pos: getComputedStyle(p).position };
+    });
+    expect(m.pos).toBe('sticky');
+    expect(m.h + m.nav + 32).toBeLessThanOrEqual(m.vh - 32);
+  });
+
   for (const theme of ['light', 'dark']) {
     test(`sticky panel engages at 1280 and not at 1024 (${theme})`, async ({ page }) => {
       await page.addInitScript((t) => localStorage.setItem('vn-theme', t), theme);

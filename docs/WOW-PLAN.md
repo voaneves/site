@@ -418,7 +418,7 @@ $env:LHCI_FORM='desktop'; npx --yes @lhci/cli autorun --config=lighthouserc.cjs
 If LHCI cannot start wrangler, start the server manually first with `npx wrangler pages dev dist --port 8788`. Then run `npx --yes lighthouse http://localhost:8788/ --preset=desktop --only-categories=performance,accessibility,best-practices,seo --output=json --output-path=./.lighthouseci/home-desktop.json`, and the same without `--preset` for mobile.
 
 - [ ] Lighthouse is 100 ×4 on mobile + desktop for every URL in `lighthouserc.cjs`.
-- [ ] `check:budget` shows first-load max ≤ 8192 B gz; lazy total ≤ 9216; cursor ≤ 1536, cursor-trail ≤ 4096, magnetic ≤ 614, signal-field ≤ 2560; inline CSS ≤ 13 KB gz on every page.
+- [ ] `check:budget` matches `budget.json`: first-load max ≤ 8192 B gz; lazy total ≤ 17408; per-chunk limits cursor ≤ 3072, cursor-trail ≤ 9216, magnetic ≤ 614, signal-field ≤ 2560, hero-fx ≤ 3584, hover-fx ≤ 1408, scroll-fx ≤ 2304; inline CSS warn at 13312 and max 14336 B gz on every page. LHCI runs 3 times per URL (`numberOfRuns: 3`).
 - [ ] axe is at 0 on all routes × light/dark × 390/1366.
 - [ ] `gates.spec.ts` is green: reflow, target size, focus not obscured, text spacing, reduced motion, CLS ≤ 0.01, no-JS visibility.
 - [ ] The cursor specs are green: lazy on first move, no load under reduce/touch, states, Tab hides, native cursor kept.
