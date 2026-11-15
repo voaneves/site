@@ -24,10 +24,13 @@ for (const route of ROUTES) {
       await page.goto(route);
       await page.evaluate(async (mode) => {
         document.documentElement.dataset.theme = mode;
-        // Flipping the theme flips color-scheme, which starts colour transitions; audit the settled state.
+        // Flipping the theme flips color-scheme, which starts colour transitions, and entrances (vn-beat) fade in; audit the settled state.
         await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
         await Promise.all(
-          document.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.finished.catch(() => {})),
+          document
+            .getAnimations()
+            .filter((a) => a instanceof CSSTransition || (a instanceof CSSAnimation && Number.isFinite(a.effect?.getComputedTiming().endTime as number)))
+            .map((a) => a.finished.catch(() => {})),
         );
       }, theme);
       const results = await new AxeBuilder({ page })
