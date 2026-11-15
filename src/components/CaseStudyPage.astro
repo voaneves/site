@@ -1,0 +1,151 @@
+---
+import Icon from '@voaneves/brand/astro/Icon.astro';
+import type { Locale } from '../i18n/ui';
+import { PORTFOLIO, type ProjectCase } from '../data/portfolio';
+
+export interface Props {
+  locale: Locale;
+  project: ProjectCase;
+  prevProject: ProjectCase;
+  nextProject: ProjectCase;
+}
+
+const { locale, project, prevProject, nextProject } = Astro.props;
+const c = PORTFOLIO[locale];
+const homeHref = locale === 'en' ? '/en/' : '/';
+const caseBase = locale === 'en' ? '/en/projects' : '/projetos';
+---
+
+<article class="vn-case">
+  <section class="vn-case-hero" data-surface="inverse">
+    <div class="vn-container">
+      <nav class="vn-case-crumb" aria-label="Breadcrumb">
+        <a href={homeHref}>{c.caseUi.breadcrumbHome}</a>
+        <span aria-hidden="true">/</span>
+        <a href={`${homeHref}#projetos`}>{c.caseUi.breadcrumbProjects}</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{project.index}</span>
+      </nav>
+
+      <div class="vn-case-hero__meta">
+        <span class="vn-type-tag vn-sec-tag-dark">{project.category} · {project.year}</span>
+        <span class="vn-case-badge">{project.metricBadge}</span>
+      </div>
+
+      <h1 class="vn-type-h1 vn-case-hero__title">{project.title}</h1>
+      <p class="vn-type-lead vn-numbers-sub vn-measure">{project.summary}</p>
+
+      <div class="vn-case-kpis">
+        {project.heroMetrics.map((kpi) => (
+          <div class="vn-case-kpi">
+            <span class="vn-type-h2 vn-case-kpi__val">{kpi.value}</span>
+            <span class="vn-type-body-sm vn-numbers-sub">{kpi.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="vn-section">
+    <div class="vn-container">
+      <div class="vn-case-media">
+        <img
+          src={project.image}
+          alt={project.imageAlt}
+          width="1600"
+          height="800"
+          loading="eager"
+          decoding="async"
+          class="vn-case-media__img"
+        />
+      </div>
+
+      <div class="vn-case-grid">
+        <aside class="vn-case-aside">
+          <dl class="vn-spec-list">
+            <div class="vn-spec-list__row">
+              <dt class="vn-type-label vn-muted">{c.caseUi.clientLabel}</dt>
+              <dd class="vn-type-body-strong">{project.client}</dd>
+            </div>
+            <div class="vn-spec-list__row">
+              <dt class="vn-type-label vn-muted">{c.caseUi.yearLabel}</dt>
+              <dd class="vn-type-body-strong">{project.year}</dd>
+            </div>
+            <div class="vn-spec-list__row">
+              <dt class="vn-type-label vn-muted">{c.caseUi.categoryLabel}</dt>
+              <dd class="vn-type-body-strong">{project.category}</dd>
+            </div>
+          </dl>
+
+          <div class="vn-case-block">
+            <h2 class="vn-type-label vn-sec-tag">{c.caseUi.deliverablesTitle}</h2>
+            <ul class="vn-service-card__list">
+              {project.deliverables.map((d) => (
+                <li class="vn-type-body-sm">{d}</li>
+              ))}
+            </ul>
+          </div>
+
+          <ul class="vn-chip-list">
+            {project.tags.map((tag) => (
+              <li class="vn-chip">{tag}</li>
+            ))}
+          </ul>
+
+          {project.externalUrl && (
+            <a
+              class="vn-btn vn-btn--primary vn-btn--md"
+              href={project.externalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Icon name="globe" size={18} />
+              <span>{c.caseUi.liveLinkLabel}</span>
+            </a>
+          )}
+        </aside>
+
+        <div class="vn-case-prose">
+          <section class="vn-case-chapter">
+            <h2 class="vn-type-h3">{c.caseUi.challengeTitle}</h2>
+            <p class="vn-type-lead vn-muted">{project.challenge}</p>
+          </section>
+
+          <section class="vn-case-chapter">
+            <h2 class="vn-type-h3">{c.caseUi.architectureTitle}</h2>
+            <p class="vn-type-lead vn-muted">{project.architecture}</p>
+          </section>
+
+          <section class="vn-case-chapter">
+            <h2 class="vn-type-h3">{c.caseUi.outcomesTitle}</h2>
+            <ul class="vn-case-outcomes">
+              {project.outcomes.map((out) => (
+                <li class="vn-type-lead">{out}</li>
+              ))}
+            </ul>
+          </section>
+        </div>
+      </div>
+
+      <nav class="vn-case-pager" aria-label="Project navigation">
+        <a class="vn-case-pager__link" href={`${caseBase}/${prevProject.slug}/`}>
+          <span class="vn-type-micro vn-muted">← {c.caseUi.prevProject}</span>
+          <strong class="vn-type-body-strong">{prevProject.title}</strong>
+        </a>
+        <a class="vn-case-pager__link vn-case-pager__link--next" href={`${caseBase}/${nextProject.slug}/`}>
+          <span class="vn-type-micro vn-muted">{c.caseUi.nextProject} →</span>
+          <strong class="vn-type-body-strong">{nextProject.title}</strong>
+        </a>
+      </nav>
+    </div>
+  </section>
+
+  <section class="vn-section" data-surface="signal">
+    <div class="vn-container vn-case-cta">
+      <h2 class="vn-type-h2">{c.caseUi.ctaHeading}</h2>
+      <a class="vn-btn vn-btn--primary vn-btn--lg" href={`${homeHref}#contato`}>
+        <span>{c.caseUi.ctaButton}</span>
+      </a>
+    </div>
+  </section>
+</article>

@@ -90,7 +90,7 @@ for (const { route, html } of parsed) {
 
     if (href.startsWith('/')) {
       const [rawPath, hash] = href.split('#');
-      if (/\.(?:ico|svg|png|woff2|pdf|webmanifest|xml)$/i.test(rawPath)) {
+      if (/\.(?:ico|svg|png|webp|woff2|pdf|webmanifest|xml)$/i.test(rawPath)) {
         const assetPath = path.join(DIST, rawPath.slice(1));
         await fs.access(assetPath);
         continue;

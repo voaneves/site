@@ -1,0 +1,563 @@
+---
+import Icon from '@voaneves/brand/astro/Icon.astro';
+import { UI, type Locale } from '../i18n/ui';
+import { PORTFOLIO } from '../data/portfolio';
+
+export interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = UI[locale];
+const c = PORTFOLIO[locale];
+const projectBase = locale === 'en' ? '/en/projects' : '/projetos';
+const badgeLoop = `${c.hero.badgeText}${c.hero.badgeText}`;
+---
+
+<section id="inicio" class="vn-hero vn-site-anchor-target" data-surface="inverse">
+  <span id="home" class="vn-sr-only"></span>
+  <div class="vn-hero__grid" aria-hidden="true"></div>
+  <div class="vn-hero__glow" aria-hidden="true"></div>
+
+  <div class="vn-hero__bg-marquee" aria-hidden="true">
+    <div class="vn-hero__bg-track">
+      {[...c.hero.bgMarquee, ...c.hero.bgMarquee].map((word) => (
+        <span>{word} ·</span>
+      ))}
+    </div>
+  </div>
+
+  <div class="vn-container vn-hero__inner">
+    <div class="vn-hero__copy">
+      <div class="vn-hero__meta">
+        <span class="vn-status-pill vn-hero-pill">
+          <span class="vn-status-pill__dot" aria-hidden="true"></span>
+          <span>{t.statusAvailable}</span>
+        </span>
+        <span class="vn-type-tag vn-hero__kicker">{c.hero.kicker}</span>
+      </div>
+
+      <h1 class="vn-hero__title">
+        <span class="vn-hero__line">{c.hero.firstName}</span>
+        <span class="vn-hero__line vn-hero__line--accent">{c.hero.lastName}<span class="vn-hero__dot" aria-hidden="true">.</span></span>
+      </h1>
+
+      <p class="vn-hero__essence">{c.hero.essence}</p>
+      <p class="vn-type-lead vn-hero__sub">{c.hero.sub}</p>
+
+      <div class="vn-hero__actions">
+        <a
+          class="vn-btn vn-btn--signal vn-btn--lg vn-magnetic"
+          href="#contato"
+          data-cursor-label={locale === 'en' ? 'START' : 'INICIAR'}
+        >
+          <span class="vn-btn__dot" aria-hidden="true"></span>
+          <span>{c.hero.ctaPrimary}</span>
+        </a>
+        <a
+          class="vn-btn vn-btn--secondary vn-btn--lg vn-hero-btn-ghost vn-magnetic"
+          href="#projetos"
+          data-cursor-label={locale === 'en' ? 'CASES' : 'CASES'}
+        >
+          <span>{c.hero.ctaSecondary}</span>
+        </a>
+        <a
+          class="vn-btn vn-btn--ghost vn-btn--lg vn-hero-btn-cv"
+          href={c.contact.cvUrl}
+          download
+        >
+          <Icon name="cloud-download" size={18} />
+          <span>{c.hero.ctaCv}</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="vn-hero__stage" data-vn-hero-stage>
+      <div class="vn-hero-portrait" data-vn-portrait-wrap>
+        <img
+          src="/assets/img/main_1.webp"
+          alt={c.hero.portraitAlt}
+          width="333"
+          height="500"
+          loading="eager"
+          decoding="async"
+          fetchpriority="high"
+          class="vn-hero-portrait__img"
+        />
+        <canvas class="vn-hero-portrait__canvas" width="333" height="500" aria-hidden="true"></canvas>
+        <div class="vn-hero-portrait__frame" aria-hidden="true"></div>
+        <span class="vn-hero-portrait__hint vn-type-micro">{c.hero.portraitCaption}</span>
+      </div>
+
+      {c.hero.chips.map((chip) => (
+        <div
+          class={`vn-hero-chip vn-hero-chip--${chip.pos} vn-magnetic`}
+          data-depth={chip.depth}
+        >
+          <span class="vn-hero-chip__dot" aria-hidden="true"></span>
+          <span>{chip.label}</span>
+        </div>
+      ))}
+
+      <div class="vn-hero-badge" aria-hidden="true">
+        <svg viewBox="0 0 120 120" width="112" height="112" class="vn-hero-badge__svg">
+          <defs>
+            <path id={`badge-circle-${locale}`} d="M 60, 60 m -44, 0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0" />
+          </defs>
+          <text font-size="8.2" font-weight="700" letter-spacing="2.2">
+            <textPath href={`#badge-circle-${locale}`}>{badgeLoop}</textPath>
+          </text>
+        </svg>
+        <span class="vn-hero-badge__center">VN</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="quem-sou" class="vn-section vn-site-anchor-target">
+  <span id="who" class="vn-sr-only"></span>
+  <div class="vn-container">
+    <div class="vn-sec-head vn-reveal">
+      <span class="vn-type-tag vn-sec-tag">{c.about.tag}</span>
+    </div>
+
+    <div class="vn-about-grid vn-reveal">
+      <div>
+        <h2 class="vn-type-h1 vn-about-statement">
+          {c.about.statementPre}<em>{c.about.statementEm1}</em>{c.about.statementMid}<em>{c.about.statementEm2}</em>{c.about.statementPost}
+        </h2>
+        <div class="vn-about-prose">
+          <p class="vn-type-lead">{c.about.p1}</p>
+          <p class="vn-type-body vn-muted">{c.about.p2}</p>
+        </div>
+      </div>
+
+      <dl class="vn-spec-list">
+        {c.about.specs.map((spec) => (
+          <div class="vn-spec-list__row">
+            <dt class="vn-type-label vn-muted">{spec.k}</dt>
+            <dd class="vn-type-body-strong">{spec.v}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+
+    <div class="vn-awards-wrap vn-reveal">
+      <h3 class="vn-type-label vn-awards-title">{c.about.awardsTitle}</h3>
+      <div class="vn-awards-grid">
+        {c.about.awards.map((award) => (
+          <article class="vn-award-card">
+            <span class="vn-award-card__place">{award.place}</span>
+            <h4 class="vn-type-body-strong vn-award-card__title">{award.title}</h4>
+            <p class="vn-type-body-sm vn-award-card__detail">{award.detail}</p>
+            <p class="vn-type-micro vn-muted">{award.meta}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="numeros" class="vn-section vn-numbers-band vn-site-anchor-target" data-surface="inverse">
+  <span id="work" class="vn-sr-only"></span>
+  <div class="vn-container">
+    <div class="vn-sec-head vn-reveal">
+      <span class="vn-type-tag vn-sec-tag-dark">{c.numbers.tag}</span>
+      <h2 class="vn-type-h2 vn-measure">{c.numbers.title}</h2>
+      <p class="vn-type-body vn-numbers-sub vn-measure">{c.numbers.subtitle}</p>
+    </div>
+
+    <div class="vn-stats-hero-grid vn-reveal">
+      {c.numbers.stats.map((s) => (
+        <div class="vn-stat-hero">
+          <span class="vn-type-numeral vn-stat-hero__val">{s.value}</span>
+          <span class="vn-type-body-sm vn-stat-hero__lbl">{s.label}</span>
+        </div>
+      ))}
+    </div>
+
+    <div class="vn-numbers-lower vn-reveal">
+      <div class="vn-impact-grid">
+        {c.numbers.impacts.map((imp) => (
+          <article class="vn-impact-card">
+            <span class="vn-impact-card__metric">{imp.metric}</span>
+            <h3 class="vn-type-body-strong vn-impact-card__label">{imp.label}</h3>
+            <p class="vn-type-micro vn-impact-card__src">{imp.source}</p>
+          </article>
+        ))}
+      </div>
+
+      <aside class="vn-chart-panel" aria-labelledby={`chart-title-${locale}`}>
+        <div class="vn-chart-panel__head">
+          <h3 id={`chart-title-${locale}`} class="vn-type-h4">{c.numbers.chartTitle}</h3>
+          <p class="vn-type-caption vn-chart-panel__cap">{c.numbers.chartCaption}</p>
+        </div>
+
+        <svg
+          class="vn-chart-svg"
+          viewBox="0 0 360 156"
+          role="img"
+          aria-labelledby={`chart-title-${locale}`}
+        >
+          {c.numbers.chartBars.map((bar, idx) => {
+            const y = 14 + idx * 48;
+            const barWidth = Math.round((bar.value / 100) * 210);
+            return (
+              <g>
+                <text x="0" y={y + 13} class="vn-chart-svg__label">{bar.label}</text>
+                <rect x="0" y={y + 20} width="210" height="12" rx="6" class="vn-chart-svg__track" />
+                <rect x="0" y={y + 20} width={barWidth} height="12" rx="6" class="vn-chart-svg__fill" />
+                <text x="224" y={y + 29} class="vn-chart-svg__val">{bar.unit}</text>
+              </g>
+            );
+          })}
+        </svg>
+
+        <table class="vn-sr-only">
+          <caption>{c.numbers.chartTitle}</caption>
+          <thead>
+            <tr>
+              <th>{locale === 'en' ? 'Project' : 'Projeto'}</th>
+              <th>{locale === 'en' ? 'Score' : 'Pontuação'}</th>
+              <th>{locale === 'en' ? 'Metric' : 'Métrica'}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {c.numbers.chartBars.map((bar) => (
+              <tr>
+                <td>{bar.label}</td>
+                <td>{bar.unit}</td>
+                <td>{bar.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section id="expertise" class="vn-section vn-site-anchor-target">
+  <div class="vn-container">
+    <div class="vn-sec-split vn-reveal">
+      <div>
+        <span class="vn-type-tag vn-sec-tag">{c.expertise.tag}</span>
+        <h2 class="vn-type-h2">{c.expertise.title}</h2>
+      </div>
+      <button
+        type="button"
+        class="vn-btn vn-btn--secondary vn-btn--sm"
+        data-marquee-toggle
+        data-label-pause={c.expertise.pauseLabel}
+        data-label-resume={c.expertise.resumeLabel}
+        aria-pressed="false"
+      >
+        {c.expertise.pauseLabel}
+      </button>
+    </div>
+  </div>
+
+  <div class="vn-marquee-stack" data-vn-marquee-root>
+    {c.expertise.tracks.map((track, idx) => (
+      <div class={`vn-marquee vn-marquee--${idx % 2 === 1 ? 'rev' : 'fwd'}`}>
+        <div class="vn-marquee__track">
+          {[...track, ...track].map((item, jdx) => (
+            <span class={`vn-marquee__item ${(idx + jdx) % 2 === 1 ? 'vn-marquee__item--accent' : ''}`}>
+              {item}
+            </span>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="vn-container">
+    <div class="vn-pillars-grid vn-reveal">
+      {c.expertise.pillars.map((pillar) => (
+        <article class="vn-pillar-card">
+          <h3 class="vn-type-h4">{pillar.title}</h3>
+          <ul class="vn-chip-list">
+            {pillar.items.map((item) => (
+              <li class="vn-chip">{item}</li>
+            ))}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section id="jornada" class="vn-section vn-site-anchor-target" data-surface="soft">
+  <span id="timeline" class="vn-sr-only"></span>
+  <div class="vn-container">
+    <div class="vn-sec-split vn-reveal">
+      <div>
+        <span class="vn-type-tag vn-sec-tag">{c.journey.tag}</span>
+        <h2 class="vn-type-h2">{c.journey.title}</h2>
+        <p class="vn-type-body vn-muted">{c.journey.subtitle}</p>
+      </div>
+      <div class="vn-journey-controls">
+        <span class="vn-type-micro vn-muted vn-journey-hint">{c.journey.dragHint}</span>
+        <button
+          type="button"
+          class="vn-icon-btn"
+          data-journey-prev
+          aria-label={c.journey.prevLabel}
+        >
+          ←
+        </button>
+        <button
+          type="button"
+          class="vn-icon-btn"
+          data-journey-next
+          aria-label={c.journey.nextLabel}
+        >
+          →
+        </button>
+      </div>
+    </div>
+
+    <div
+      class="vn-journey-track"
+      data-vn-journey
+      tabindex="0"
+      role="region"
+      aria-label={c.journey.title}
+    >
+      {c.journey.items.map((item, idx) => (
+        <article class={`vn-journey-card ${item.current ? 'vn-journey-card--current' : ''}`}>
+          <div class="vn-journey-card__top">
+            <img
+              src={item.logo}
+              alt={item.logoAlt}
+              width="330"
+              height="180"
+              loading="lazy"
+              decoding="async"
+              class="vn-journey-card__logo"
+            />
+            <span class="vn-type-micro vn-journey-card__idx">0{idx + 1}</span>
+          </div>
+          <p class="vn-type-label vn-journey-card__period">{item.period} · {item.location}</p>
+          <h3 class="vn-type-h4">{item.role}</h3>
+          <p class="vn-type-body-strong vn-journey-card__company">{item.company}</p>
+          <p class="vn-type-body-sm vn-muted">{item.summary}</p>
+          <ul class="vn-journey-card__bullets">
+            {item.highlights.map((h) => (
+              <li class="vn-type-caption">{h}</li>
+            ))}
+          </ul>
+        </article>
+      ))}
+    </div>
+
+    <details class="vn-archive-details vn-reveal">
+      <summary class="vn-archive-summary">
+        <span class="vn-type-body-strong">{c.journey.archiveSummary}</span>
+        <span class="vn-archive-icon" aria-hidden="true">+</span>
+      </summary>
+      <div class="vn-archive-body">
+        <div>
+          <h3 class="vn-type-label vn-sec-tag">{c.journey.educationTitle}</h3>
+          <ul class="vn-archive-list">
+            {c.journey.education.map((ed) => (
+              <li>
+                <strong>{ed.title}</strong>
+                <span>{ed.org} · {ed.period}{ed.detail ? ` (${ed.detail})` : ''}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h3 class="vn-type-label vn-sec-tag">{c.journey.certsTitle}</h3>
+          <ul class="vn-archive-list">
+            {c.journey.certifications.map((cert) => (
+              <li>
+                <strong>{cert.title}</strong>
+                <span>{cert.org} · {cert.period}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h3 class="vn-type-label vn-sec-tag">{c.journey.languagesTitle}</h3>
+          <ul class="vn-archive-list">
+            {c.journey.languages.map((lang) => (
+              <li>
+                <strong>{lang.title}</strong>
+                <span>{lang.org} · {lang.period}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<section id="projetos" class="vn-section vn-site-anchor-target">
+  <span id="portfolio" class="vn-sr-only"></span>
+  <div class="vn-container">
+    <div class="vn-sec-head vn-reveal">
+      <span class="vn-type-tag vn-sec-tag">{c.projects.tag}</span>
+      <h2 class="vn-type-h2">{c.projects.title}</h2>
+      <p class="vn-type-body vn-muted vn-measure">{c.projects.subtitle}</p>
+    </div>
+
+    <div class="vn-projects-list">
+      {c.projects.items.map((proj) => (
+        <a
+          class="vn-work-row vn-project-row"
+          href={`${projectBase}/${proj.slug}/`}
+          data-cursor-media={proj.image}
+          data-cursor-label={c.projects.cursorPreviewPrefix}
+        >
+          <div class="vn-project-row__left">
+            <span class="vn-type-price vn-project-row__idx">{proj.index}</span>
+            <img
+              src={proj.image}
+              alt={proj.imageAlt}
+              width="1600"
+              height="800"
+              loading="lazy"
+              decoding="async"
+              class="vn-project-row__thumb"
+            />
+            <div class="vn-project-row__text">
+              <span class="vn-type-micro vn-muted">{proj.category} · {proj.year}</span>
+              <h3 class="vn-type-h3">{proj.title}</h3>
+              <p class="vn-type-body-sm vn-muted">{proj.summary}</p>
+            </div>
+          </div>
+
+          <div class="vn-project-row__right">
+            <span class="vn-chip vn-project-row__metric">{proj.metricBadge}</span>
+            <span class="vn-type-label vn-project-row__cta">{c.projects.viewCaseLabel} →</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section id="servicos" class="vn-section vn-site-anchor-target" data-surface="soft">
+  <span id="services" class="vn-sr-only"></span>
+  <div class="vn-container">
+    <div class="vn-sec-head vn-reveal">
+      <span class="vn-type-tag vn-sec-tag">{c.services.tag}</span>
+      <h2 class="vn-type-h2 vn-measure">{c.services.title}</h2>
+      <p class="vn-type-body vn-muted vn-measure">{c.services.subtitle}</p>
+    </div>
+
+    <div class="vn-bento-grid">
+      {c.services.items.map((srv) => {
+        const waHref = `https://wa.me/5563999999337?text=${encodeURIComponent(srv.waMessage)}`;
+        return (
+          <article class={`vn-service-card ${srv.featured ? 'vn-service-card--featured' : ''}`}>
+            <div class="vn-service-card__head">
+              <span class="vn-type-tag vn-muted">{srv.n} · {srv.tag}</span>
+              <span class="vn-service-card__price">
+                <small>{srv.unit}</small>
+                <strong>{srv.price}</strong>
+              </span>
+            </div>
+            <h3 class="vn-type-h3">{srv.title}</h3>
+            <p class="vn-type-body-sm vn-muted">{srv.description}</p>
+            <ul class="vn-service-card__list">
+              {srv.deliverables.map((deliv) => (
+                <li class="vn-type-caption">{deliv}</li>
+              ))}
+            </ul>
+            <a
+              class="vn-btn vn-btn--secondary vn-btn--sm vn-service-card__cta"
+              href={waHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${c.services.ctaLabel}: ${srv.title}`}
+            >
+              <Icon name="whatsapp" size={16} />
+              <span>{c.services.ctaLabel}</span>
+            </a>
+          </article>
+        );
+      })}
+    </div>
+  </div>
+</section>
+
+<section id="perguntas" class="vn-section vn-site-anchor-target">
+  <span id="faq" class="vn-sr-only"></span>
+  <div class="vn-container vn-faq-layout">
+    <div class="vn-reveal">
+      <span class="vn-type-tag vn-sec-tag">{c.faq.tag}</span>
+      <h2 class="vn-type-h2">{c.faq.title}</h2>
+      <p class="vn-type-body vn-muted">{c.faq.subtitle}</p>
+    </div>
+
+    <div class="vn-faq-list vn-reveal">
+      {c.faq.items.map((item) => (
+        <details name={`faq-${locale}`} class="vn-faq-item">
+          <summary class="vn-faq-item__q">
+            <span class="vn-type-body-strong">{item.q}</span>
+            <span class="vn-faq-item__icon" aria-hidden="true">+</span>
+          </summary>
+          <p class="vn-type-body-sm vn-muted vn-faq-item__a">{item.a}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section id="contato" class="vn-section vn-contact-band vn-site-anchor-target" data-surface="signal">
+  <span id="contact" class="vn-sr-only"></span>
+  <div class="vn-container">
+    <div class="vn-contact-top">
+      <span class="vn-type-tag">{c.contact.tag}</span>
+      <span class="vn-contact-sla">{c.contact.sla}</span>
+    </div>
+
+    <h2 class="vn-type-display vn-contact-title">{c.contact.title}</h2>
+    <p class="vn-type-lead vn-contact-sub vn-measure">{c.contact.subtitle}</p>
+
+    <div class="vn-contact-actions">
+      <a
+        class="vn-btn vn-btn--primary vn-btn--xl vn-magnetic"
+        href={c.contact.koalendarUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <Icon name="calendar-check" size={20} />
+        <span>{c.contact.koalendarLabel}</span>
+      </a>
+
+      <a
+        class="vn-btn vn-btn--secondary vn-btn--xl vn-contact-secondary vn-magnetic"
+        href={c.contact.whatsappUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <Icon name="whatsapp" size={20} />
+        <span>{c.contact.whatsappLabel}</span>
+      </a>
+
+      <a
+        class="vn-btn vn-btn--secondary vn-btn--xl vn-contact-secondary"
+        href={`mailto:${c.contact.emailAddress}`}
+      >
+        <Icon name="envelope-open" size={20} />
+        <span>{c.contact.emailLabel}</span>
+      </a>
+
+      <a
+        class="vn-btn vn-btn--secondary vn-btn--xl vn-contact-secondary"
+        href={c.contact.cvUrl}
+        download
+      >
+        <Icon name="cloud-download" size={20} />
+        <span>{c.contact.cvLabel}</span>
+      </a>
+    </div>
+
+    <p class="vn-type-caption vn-contact-note">{c.contact.note}</p>
+  </div>
+</section>

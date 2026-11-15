@@ -4,6 +4,7 @@ import Icon from '@voaneves/brand/astro/Icon.astro';
 import Credit from '@voaneves/brand/astro/Credit.astro';
 import '../styles/site.css';
 import { UI, type Locale } from '../i18n/ui';
+import { PORTFOLIO } from '../data/portfolio';
 import { alternatePathForLocale, routeAlternates } from '../i18n/routes.mjs';
 
 export interface Props {
@@ -11,6 +12,7 @@ export interface Props {
   title?: string;
   description?: string;
   schemaJson?: object[];
+  preloadHeroImage?: string;
 }
 
 const {
@@ -18,19 +20,36 @@ const {
   title,
   description,
   schemaJson = [],
+  preloadHeroImage,
 } = Astro.props;
 
 const t = UI[locale];
+const c = PORTFOLIO[locale];
 const htmlLang = locale === 'en' ? 'en' : 'pt-BR';
 const pageTitle = title ?? t.metaTitleHome;
 const pageDescription = description ?? t.metaDescHome;
 
-const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? 'https://voaneves.com').toString();
+const siteOrigin = Astro.site ?? 'https://voaneves.com';
+const canonicalUrl = new URL(Astro.url.pathname, siteOrigin).toString();
+const ogImageUrl = new URL('/assets/img/og-img.webp', siteOrigin).toString();
 const alternates = routeAlternates(canonicalUrl);
 const targetLocale: Locale = locale === 'en' ? 'pt-br' : 'en';
 const switchHref = alternatePathForLocale(Astro.url.pathname, targetLocale);
 const homePrefix = locale === 'en' ? '/en/' : '/';
 const privacyHref = locale === 'en' ? '/en/privacy/' : '/privacidade/';
+const normalizedPath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
+const isHome = normalizedPath === '/' || normalizedPath === '/en/';
+const navTarget = (hash: string) => (isHome ? `#${hash}` : `${homePrefix}#${hash}`);
+
+const navLinks = [
+  { n: '01', hash: 'quem-sou', label: t.navAbout },
+  { n: '02', hash: 'numeros', label: t.navNumbers },
+  { n: '03', hash: 'jornada', label: t.navJourney },
+  { n: '04', hash: 'projetos', label: t.navProjects },
+  { n: '05', hash: 'servicos', label: t.navServices },
+  { n: '06', hash: 'perguntas', label: t.navFaq },
+  { n: '07', hash: 'contato', label: t.navContact },
+];
 
 const defaultSchema = [
   {
@@ -39,12 +58,47 @@ const defaultSchema = [
     name: 'Victor Neves',
     alternateName: 'voaneves',
     url: 'https://voaneves.com',
-    jobTitle: locale === 'en' ? 'Product Engineer & Design Technologist' : 'Engenheiro de Produto e Design Technologist',
+    image: ogImageUrl,
+    jobTitle: locale === 'en'
+      ? 'Process Office Manager, Web Developer & Data Scientist'
+      : 'Gestor do Escritório de Processos, Web Developer e Cientista de Dados',
+    description: pageDescription,
+    alumniOf: {
+      '@type': 'CollegeOrUniversity',
+      name: 'UNICAMP — Universidade Estadual de Campinas',
+    },
+    worksFor: {
+      '@type': 'Organization',
+      name: 'SEBRAE Tocantins',
+    },
+    knowsLanguage: ['pt-BR', 'en', 'es', 'ko', 'de'],
+    award: [
+      '1º Lugar · Santander Bootcamp 2025 Back-End Python (11.434 inscritos)',
+      '1º Lugar · Santander Bootcamp 2023 Ciência de Dados (17.600 inscritos)',
+      '1º Lugar · Bootcamp Nexa IA Generativa & Claude 3',
+    ],
     sameAs: [
       'https://github.com/voaneves',
       'https://www.linkedin.com/in/voaneves/',
       'https://www.youtube.com/@voaneves',
     ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ProfessionalService',
+    name: 'voaneves — Victor Neves',
+    url: 'https://voaneves.com',
+    areaServed: ['BR', 'Global'],
+    priceRange: 'R$ 90 - R$ 1.500+',
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: locale === 'en' ? 'Digital & Management Services' : 'Serviços Digitais e de Gestão',
+      itemListElement: c.services.items.map((s) => ({
+        '@type': 'Offer',
+        name: s.title,
+        description: s.description,
+      })),
+    },
   },
   {
     '@context': 'https://schema.org',
@@ -64,7 +118,7 @@ const graphs = schemaJson.length > 0 ? schemaJson : defaultSchema;
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{pageTitle}</title>
   <meta name="description" content={pageDescription} />
-  <meta name="theme-color" content="#fff8f8" />
+  <meta name="theme-color" content="#0a0a0a" />
   <link rel="canonical" href={canonicalUrl} />
   {alternates.map((alt) => (
     <link rel="alternate" hreflang={alt.lang} href={alt.url} />
@@ -73,15 +127,22 @@ const graphs = schemaJson.length > 0 ? schemaJson : defaultSchema;
   <meta property="og:title" content={pageTitle} />
   <meta property="og:description" content={pageDescription} />
   <meta property="og:url" content={canonicalUrl} />
-  <meta name="twitter:card" content="summary" />
+  <meta property="og:image" content={ogImageUrl} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
   <meta name="twitter:description" content={pageDescription} />
+  <meta name="twitter:image" content={ogImageUrl} />
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="preload" as="font" type="font/woff2" href="/fonts/fraunces-italic-display.woff2" crossorigin />
   <link rel="preload" as="font" type="font/woff2" href="/fonts/schibsted-grotesk.woff2" crossorigin />
+  {preloadHeroImage && (
+    <link rel="preload" as="image" type="image/webp" href={preloadHeroImage} fetchpriority="high" />
+  )}
   {graphs.map((entry) => (
     <script type="application/ld+json" set:html={JSON.stringify(entry)} />
   ))}
@@ -99,18 +160,22 @@ const graphs = schemaJson.length > 0 ? schemaJson : defaultSchema;
 </head>
 <body>
   <a class="vn-skip-link" href="#main">{t.skipToContent}</a>
+  <div class="vn-scroll-progress" id="vn-scroll-progress" aria-hidden="true"></div>
 
   <header class="vn-navbar">
     <div class="vn-container vn-navbar__inner">
       <a class="vn-navbar__brand" href={homePrefix} aria-label="voaneves">
         <Logo variant="signature" tone="mono" />
       </a>
+
       <nav class="vn-navbar__nav" aria-label={t.navLabel}>
-        <a class="vn-type-label" href={`${homePrefix}#quem-sou`}>{t.navAbout}</a>
-        <a class="vn-type-label" href={`${homePrefix}#servicos`}>{t.navServices}</a>
-        <a class="vn-type-label" href={`${homePrefix}#projetos`}>{t.navProjects}</a>
-        <a class="vn-type-label" href={`${homePrefix}#contato`}>{t.navContact}</a>
+        {navLinks.map((item) => (
+          <a class="vn-type-label vn-navbar__link" href={navTarget(item.hash)} data-nav-hash={item.hash}>
+            {item.label}
+          </a>
+        ))}
       </nav>
+
       <div class="vn-navbar__actions">
         <a class="vn-btn vn-btn--ghost vn-btn--sm" href={switchHref} aria-label={t.langSwitchLabel}>
           {t.langSwitchText}
@@ -123,9 +188,59 @@ const graphs = schemaJson.length > 0 ? schemaJson : defaultSchema;
         >
           <Icon name="adjust" size={18} />
         </button>
+        <a class="vn-btn vn-btn--primary vn-btn--sm vn-navbar__cta" href={navTarget('contato')}>
+          <span class="vn-btn__dot" aria-hidden="true"></span>
+          <span>{t.bookCall}</span>
+        </a>
+        <button
+          id="vn-menu-btn"
+          class="vn-icon-btn vn-navbar__menu-btn"
+          type="button"
+          aria-label={t.menuOpen}
+          aria-controls="vn-mobile-drawer"
+          aria-expanded="false"
+        >
+          <span class="vn-menu-bars" aria-hidden="true"></span>
+        </button>
       </div>
     </div>
   </header>
+
+  <dialog
+    id="vn-mobile-drawer"
+    class="vn-mobile-drawer"
+    aria-label={locale === 'en' ? 'Mobile navigation drawer' : 'Menu de navegação móvel'}
+  >
+    <div class="vn-mobile-drawer__head">
+      <Logo variant="signature" tone="reverse" />
+      <button id="vn-drawer-close" class="vn-icon-btn vn-drawer-close" type="button" aria-label={t.menuClose}>
+        ×
+      </button>
+    </div>
+
+    <nav class="vn-mobile-drawer__nav" aria-label={locale === 'en' ? 'Mobile navigation' : 'Navegação móvel'}>
+      {navLinks.map((item) => (
+        <a class="vn-drawer__link" href={navTarget(item.hash)} data-drawer-link>
+          <span class="vn-type-h3">{item.label}</span>
+          <span class="vn-type-label vn-drawer-num">{item.n}</span>
+        </a>
+      ))}
+    </nav>
+
+    <div class="vn-mobile-drawer__foot">
+      <a class="vn-btn vn-btn--signal vn-btn--md" href={navTarget('contato')} data-drawer-link>
+        <span class="vn-btn__dot" aria-hidden="true"></span>
+        <span>{t.bookCall}</span>
+      </a>
+      <a class="vn-btn vn-btn--secondary vn-btn--md vn-drawer-btn-light" href="/assets/cv-pt.pdf" download>
+        <Icon name="cloud-download" size={18} />
+        <span>{t.downloadCv}</span>
+      </a>
+      <a class="vn-btn vn-btn--ghost vn-btn--sm vn-drawer-btn-light" href={switchHref} aria-label={t.langSwitchLabel}>
+        {t.langSwitchText}
+      </a>
+    </div>
+  </dialog>
 
   <main id="main">
     <slot />
@@ -136,21 +251,286 @@ const graphs = schemaJson.length > 0 ? schemaJson : defaultSchema;
       <Credit variant="inline" lang={locale === 'en' ? 'en' : 'pt-BR'} utmSource="voaneves-site" />
       <div class="vn-site-footer__links">
         <a class="vn-type-micro" href={privacyHref}>{t.footerPrivacy}</a>
-        <a class="vn-type-micro" href="https://github.com/voaneves" rel="noopener">GitHub</a>
-        <a class="vn-type-micro" href="https://www.linkedin.com/in/voaneves/" rel="noopener">LinkedIn</a>
+        <a class="vn-type-micro" href="/assets/cv-pt.pdf" download>CV PDF</a>
+        <a class="vn-type-micro" href="https://github.com/voaneves" rel="noopener noreferrer" target="_blank">GitHub</a>
+        <a class="vn-type-micro" href="https://www.linkedin.com/in/voaneves/" rel="noopener noreferrer" target="_blank">LinkedIn</a>
+        <a class="vn-type-micro" href="https://www.youtube.com/@voaneves" rel="noopener noreferrer" target="_blank">YouTube</a>
       </div>
     </div>
   </footer>
 
+  <div class="vn-cursor" id="vn-cursor" aria-hidden="true">
+    <div class="vn-cursor__dot"></div>
+    <div class="vn-cursor__lens"></div>
+    <div class="vn-cursor__label"></div>
+    <div class="vn-cursor__media">
+      <img src="/assets/img/port/caato.webp" alt="" width="320" height="220" loading="lazy" decoding="async" />
+    </div>
+  </div>
+
   <script>
-    const btn = document.getElementById('vn-theme-toggle');
-    btn?.addEventListener('click', () => {
-      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+    const applyTheme = (next: string) => {
       document.documentElement.dataset.theme = next;
       try {
         localStorage.setItem('vn-theme', next);
-      } catch {}
+      } catch {
+        /* ignore storage error */
+      }
+    };
+
+    document.getElementById('vn-theme-toggle')?.addEventListener('click', () => {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      const startVt = (document as Document & { startViewTransition?: (cb: () => void) => void }).startViewTransition;
+      if (startVt && !reduced) {
+        startVt.call(document, () => applyTheme(next));
+      } else {
+        applyTheme(next);
+      }
     });
+
+    const drawer = document.getElementById('vn-mobile-drawer') as HTMLDialogElement | null;
+    const menuBtn = document.getElementById('vn-menu-btn');
+    const closeDrawer = () => {
+      drawer?.close();
+      menuBtn?.setAttribute('aria-expanded', 'false');
+    };
+    menuBtn?.addEventListener('click', () => {
+      if (!drawer) return;
+      drawer.showModal();
+      menuBtn.setAttribute('aria-expanded', 'true');
+    });
+    document.getElementById('vn-drawer-close')?.addEventListener('click', closeDrawer);
+    drawer?.addEventListener('click', (e) => {
+      if (e.target === drawer) closeDrawer();
+    });
+    drawer?.addEventListener('close', () => menuBtn?.setAttribute('aria-expanded', 'false'));
+    drawer?.querySelectorAll('[data-drawer-link]').forEach((el) => {
+      el.addEventListener('click', closeDrawer);
+    });
+
+    const progressEl = document.getElementById('vn-scroll-progress');
+    if (progressEl) {
+      let ticking = false;
+      const updateProgress = () => {
+        ticking = false;
+        const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+        const pct = Math.min(1, Math.max(0, scrollY / max));
+        progressEl.style.transform = `scaleX(${pct.toFixed(4)})`;
+      };
+      addEventListener('scroll', () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(updateProgress);
+        }
+      }, { passive: true });
+      updateProgress();
+    }
+
+    const revealEls = document.querySelectorAll('.vn-reveal');
+    if (revealEls.length > 0 && 'IntersectionObserver' in window) {
+      const revObs = new IntersectionObserver((entries, obs) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-in');
+            obs.unobserve(entry.target);
+          }
+        }
+      }, { threshold: 0.08, rootMargin: '0px 0px 40px 0px' });
+      revealEls.forEach((el) => revObs.observe(el));
+    } else {
+      revealEls.forEach((el) => el.classList.add('is-in'));
+    }
+
+    const navAnchors = [...document.querySelectorAll<HTMLAnchorElement>('.vn-navbar__link[data-nav-hash]')];
+    const sections = navAnchors
+      .map((a) => document.getElementById(a.dataset.navHash || ''))
+      .filter((el): el is HTMLElement => Boolean(el));
+    if (sections.length > 0 && 'IntersectionObserver' in window) {
+      const navObs = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          for (const a of navAnchors) {
+            const match = a.dataset.navHash === entry.target.id;
+            a.classList.toggle('is-active', match);
+          }
+        }
+      }, { rootMargin: '-38% 0px -54% 0px' });
+      sections.forEach((sec) => navObs.observe(sec));
+    }
+
+    const mqToggle = document.querySelector<HTMLButtonElement>('[data-marquee-toggle]');
+    const mqRoot = document.querySelector<HTMLElement>('[data-vn-marquee-root]');
+    mqToggle?.addEventListener('click', () => {
+      if (!mqRoot) return;
+      const paused = mqRoot.classList.toggle('is-paused');
+      mqToggle.setAttribute('aria-pressed', String(paused));
+      mqToggle.textContent = paused
+        ? (mqToggle.dataset.labelResume || 'Resume')
+        : (mqToggle.dataset.labelPause || 'Pause');
+    });
+
+    const jTrack = document.querySelector<HTMLElement>('[data-vn-journey]');
+    if (jTrack) {
+      document.querySelector('[data-journey-prev]')?.addEventListener('click', () => {
+        jTrack.scrollBy({ left: -360, behavior: reduced ? 'auto' : 'smooth' });
+      });
+      document.querySelector('[data-journey-next]')?.addEventListener('click', () => {
+        jTrack.scrollBy({ left: 360, behavior: reduced ? 'auto' : 'smooth' });
+      });
+
+      let dragging = false;
+      let startX = 0;
+      let startScroll = 0;
+      jTrack.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0 || e.pointerType === 'touch') return;
+        dragging = true;
+        startX = e.clientX;
+        startScroll = jTrack.scrollLeft;
+        jTrack.classList.add('is-dragging');
+      });
+      addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        jTrack.scrollLeft = startScroll - (e.clientX - startX);
+      }, { passive: true });
+      addEventListener('pointerup', () => {
+        if (!dragging) return;
+        dragging = false;
+        jTrack.classList.remove('is-dragging');
+      });
+    }
+
+    if (finePointer && !reduced) {
+      const stage = document.querySelector<HTMLElement>('[data-vn-hero-stage]');
+      const chips = [...document.querySelectorAll<HTMLElement>('.vn-hero-chip[data-depth]')];
+      const portraitWrap = document.querySelector<HTMLElement>('[data-vn-portrait-wrap]');
+      const canvas = portraitWrap?.querySelector<HTMLCanvasElement>('.vn-hero-portrait__canvas');
+      const portraitImg = portraitWrap?.querySelector<HTMLImageElement>('.vn-hero-portrait__img');
+
+      if (stage && chips.length > 0) {
+        stage.addEventListener('pointermove', (e) => {
+          const r = stage.getBoundingClientRect();
+          const nx = (e.clientX - r.left) / r.width - 0.5;
+          const ny = (e.clientY - r.top) / r.height - 0.5;
+          for (const chip of chips) {
+            const d = Number(chip.dataset.depth || 12);
+            chip.style.transform = `translate3d(${(nx * d).toFixed(1)}px, ${(ny * d).toFixed(1)}px, 0)`;
+          }
+        }, { passive: true });
+        stage.addEventListener('pointerleave', () => {
+          for (const chip of chips) chip.style.transform = '';
+        });
+      }
+
+      if (portraitWrap && canvas && portraitImg) {
+        addEventListener('load', () => {
+          const ctx = canvas.getContext('2d');
+          const mask = document.createElement('canvas');
+          mask.width = canvas.width;
+          mask.height = canvas.height;
+          const mctx = mask.getContext('2d');
+          if (!ctx || !mctx) return;
+
+          const renderBrush = () => {
+            if (!portraitImg.complete || !portraitImg.naturalWidth) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.drawImage(mask, 0, 0);
+            ctx.globalCompositeOperation = 'source-in';
+            ctx.drawImage(portraitImg, 0, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = 'source-over';
+          };
+
+          portraitWrap.addEventListener('pointermove', (e) => {
+            const r = portraitWrap.getBoundingClientRect();
+            const x = ((e.clientX - r.left) / r.width) * canvas.width;
+            const y = ((e.clientY - r.top) / r.height) * canvas.height;
+            mctx.globalCompositeOperation = 'source-over';
+            const grad = mctx.createRadialGradient(x, y, 8, x, y, 52);
+            grad.addColorStop(0, 'rgba(0,0,0,1)');
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            mctx.fillStyle = grad;
+            mctx.beginPath();
+            mctx.arc(x, y, 52, 0, Math.PI * 2);
+            mctx.fill();
+            renderBrush();
+          }, { passive: true });
+
+          portraitWrap.addEventListener('pointerleave', () => {
+            mctx.clearRect(0, 0, mask.width, mask.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+          });
+        }, { once: true });
+      }
+
+      const cursor = document.getElementById('vn-cursor');
+      if (cursor) {
+        const dot = cursor.querySelector<HTMLElement>('.vn-cursor__dot');
+        const lens = cursor.querySelector<HTMLElement>('.vn-cursor__lens');
+        const label = cursor.querySelector<HTMLElement>('.vn-cursor__label');
+        const media = cursor.querySelector<HTMLElement>('.vn-cursor__media');
+        const mediaImg = media?.querySelector<HTMLImageElement>('img');
+
+        let tx = -200;
+        let ty = -200;
+        let lx = -200;
+        let ly = -200;
+        let active = false;
+
+        const loop = () => {
+          lx += (tx - lx) * 0.22;
+          ly += (ty - ly) * 0.22;
+          if (dot) dot.style.transform = `translate3d(${tx - 4}px, ${ty - 4}px, 0)`;
+          if (lens) lens.style.transform = `translate3d(${lx - 28}px, ${ly - 28}px, 0)`;
+          if (label) label.style.transform = `translate3d(${lx + 24}px, ${ly - 24}px, 0)`;
+          if (media) media.style.transform = `translate3d(${lx + 28}px, ${ly - 110}px, 0)`;
+          if (active) requestAnimationFrame(loop);
+        };
+
+        document.addEventListener('pointermove', (e) => {
+          tx = e.clientX;
+          ty = e.clientY;
+          if (!active) {
+            active = true;
+            lx = tx;
+            ly = ty;
+            cursor.classList.add('is-ready');
+            requestAnimationFrame(loop);
+          }
+
+          const target = (e.target as HTMLElement | null)?.closest<HTMLElement>('[data-cursor-media], [data-cursor-label], a, button');
+          const surf = (e.target as HTMLElement | null)?.closest<HTMLElement>('[data-surface]')?.dataset.surface || '';
+          cursor.dataset.surface = surf;
+
+          const mediaUrl = target?.dataset.cursorMedia;
+          if (media && mediaImg && mediaUrl) {
+            if (mediaImg.getAttribute('src') !== mediaUrl) mediaImg.setAttribute('src', mediaUrl);
+            media.classList.add('is-visible');
+          } else {
+            media?.classList.remove('is-visible');
+          }
+
+          const lbl = target?.dataset.cursorLabel;
+          if (label && lbl) {
+            label.textContent = lbl;
+            label.classList.add('is-visible');
+          } else {
+            label?.classList.remove('is-visible');
+          }
+        }, { passive: true });
+
+        document.addEventListener('pointerdown', () => { cursor.dataset.pressed = 'true'; });
+        document.addEventListener('pointerup', () => { cursor.dataset.pressed = 'false'; });
+        document.addEventListener('mouseleave', () => {
+          active = false;
+          cursor.classList.remove('is-ready');
+          media?.classList.remove('is-visible');
+          label?.classList.remove('is-visible');
+        });
+      }
+    }
   </script>
 </body>
 </html>

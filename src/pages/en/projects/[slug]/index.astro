@@ -1,0 +1,38 @@
+---
+import Base from '../../../../layouts/Base.astro';
+import CaseStudyPage from '../../../../components/CaseStudyPage.astro';
+import { PORTFOLIO, type ProjectCase } from '../../../../data/portfolio';
+
+export function getStaticPaths() {
+  const items = PORTFOLIO.en.projects.items;
+  return items.map((project, idx) => ({
+    params: { slug: project.slug },
+    props: {
+      project,
+      prevProject: items[(idx - 1 + items.length) % items.length],
+      nextProject: items[(idx + 1) % items.length],
+    },
+  }));
+}
+
+interface Props {
+  project: ProjectCase;
+  prevProject: ProjectCase;
+  nextProject: ProjectCase;
+}
+
+const { project, prevProject, nextProject } = Astro.props;
+---
+
+<Base
+  locale="en"
+  title={`${project.title} — Victor Neves`}
+  description={project.summary}
+>
+  <CaseStudyPage
+    locale="en"
+    project={project}
+    prevProject={prevProject}
+    nextProject={nextProject}
+  />
+</Base>
