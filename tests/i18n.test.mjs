@@ -17,6 +17,18 @@ test('UI dictionaries maintain identical keys between pt-br and en', async () =>
   assert.ok(enMatch, 'en dictionary block missing');
 
   assert.deepEqual(extractKeys(ptMatch[1]), extractKeys(enMatch[1]));
+
+  const extractString = (block, key) => block.match(new RegExp(`^\\s+${key}:\\s*'([^']*)'`, 'm'))?.[1] ?? '';
+  for (const [name, block] of [['pt-br', ptMatch[1]], ['en', enMatch[1]]]) {
+    const label = extractString(block, 'langSwitchLabel');
+    const text = extractString(block, 'langSwitchText');
+    assert.ok(text.length > 0, `${name}.langSwitchText missing`);
+    assert.match(
+      label,
+      new RegExp(`\\b${text}\\b`, 'i'),
+      `${name}.langSwitchLabel ("${label}") must contain visible text "${text}" (WCAG 2.5.3)`,
+    );
+  }
 });
 
 test('routeAlternates emits pt-BR, en, and x-default hreflang links', () => {
