@@ -8,14 +8,22 @@ export interface Props {
 
 const { locale } = Astro.props;
 const c = PORTFOLIO[locale];
+const [eyebrowNum, ...eyebrowRest] = (c.expertise.tag).split(' · ');
+const eyebrowTag = eyebrowRest.join(' · ');
+const splitTail = (s: string): [string, string] => {
+  const w = s.split(' ');
+  const n = w.length > 3 ? 2 : 1;
+  return [w.slice(0, -n).join(' ') + ' ', w.slice(-n).join(' ')];
+};
+const [titlePre, titleEm] = splitTail(c.expertise.title);
 ---
 
-<section data-section="03" id="expertise" class="vn-section vn-site-anchor-target">
+<section data-section="03" id="expertise" class="vn-section vn-chapter--creme vn-site-anchor-target">
   <div class="vn-container">
     <div class="vn-sec-split vn-reveal">
       <div>
-        <span class="vn-type-tag vn-sec-tag">{c.expertise.tag}</span>
-        <h2 class="vn-type-h2">{c.expertise.title}</h2>
+        <p class="vn-eyebrow"><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
+        <h2 class="vn-type-h2 vn-split-title">{titlePre}<em>{titleEm}</em></h2>
       </div>
       <button
         type="button"

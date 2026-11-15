@@ -44,4 +44,39 @@
     padding-bottom: var(--vn-space-5);
     max-width: 39.13em; /* = 64ch of Schibsted Grotesk, independent of the fallback */
   }
+
+  #perguntas { color-scheme: light; }
+
+  #perguntas::before {
+    top: 0;
+    translate: none;
+    background: #000;
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+  }
+
+  .vn-faq-layout .vn-split-title {
+    margin-block-end: var(--vn-space-3);
+  }
+
+  .vn-split-title em {
+    font-style: italic;
+    font-variation-settings: "WONK" 1;
+    color: var(--vn-signal-ink);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports selector(::details-content) {
+      .vn-faq-item::details-content {
+        opacity: 0;
+        translate: 0 -0.5rem;
+        transition: opacity 320ms var(--vn-ease-out), translate 320ms var(--vn-ease-out),
+          content-visibility 320ms allow-discrete;
+      }
+
+      .vn-faq-item[open]::details-content {
+        opacity: 1;
+        translate: 0 0;
+      }
+    }
+  }
 }

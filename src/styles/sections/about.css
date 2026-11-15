@@ -12,7 +12,6 @@
   }
 
   .vn-about-statement em {
-    font-style: italic;
     color: var(--vn-signal-ink);
   }
 
@@ -67,5 +66,20 @@
     font-weight: 700;
     letter-spacing: 0.14em;
     color: var(--vn-signal-ink);
+  }
+
+  #quem-sou { color-scheme: light; }
+
+  #quem-sou::before {
+    top: 0;
+    translate: none;
+    background: #000;
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+  }
+
+  .vn-about-statement em,
+  .vn-split-title em {
+    font-style: italic;
+    font-variation-settings: "WONK" 1;
   }
 }

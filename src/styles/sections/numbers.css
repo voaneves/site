@@ -1,7 +1,6 @@
 @layer site {
   /* 02 Numbers & Impact */
   .vn-numbers-band {
-    background-color: var(--vn-ref-ink-950);
     color: var(--vn-cream);
   }
 
@@ -111,5 +110,45 @@
     font-family: var(--vn-font-mono);
     font-size: 12px;
     font-weight: 700;
+  }
+
+  #numeros { color-scheme: dark; }
+
+  #numeros::before {
+    top: 0;
+    translate: none;
+    background: #e8dec5;
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+  }
+
+  .vn-split-title em {
+    font-style: italic;
+    font-variation-settings: "WONK" 1;
+    color: var(--vn-ref-red-400);
+  }
+
+  .vn-stat-hero__val {
+    font-family: var(--vn-font-display);
+    font-style: italic;
+    font-size: clamp(3.25rem, 7vw, 6rem);
+    line-height: 0.95;
+    font-variation-settings: "WONK" 1;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      @keyframes vn-bar {
+        from { scale: 0 1; }
+        to { scale: 1 1; }
+      }
+
+      html.js .vn-chart-svg__fill {
+        transform-box: fill-box;
+        transform-origin: left center;
+        animation: vn-bar linear both;
+        animation-timeline: view();
+        animation-range: entry 20% cover 40%;
+      }
+    }
   }
 }
