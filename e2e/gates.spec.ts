@@ -119,7 +119,15 @@ for (const route of ROUTES) {
           return {
             id: `${el.tagName.toLowerCase()}.${String(el.className).split(/\s+/)[0]} "${(el.textContent || '').trim().slice(0, 24)}"`,
             nav: (nav && nav.contains(el)) || onTop ? 0 : cover(rect, visibleRect('.vn-navbar')),
-            cursor: cover(rect, visibleRect('.vn-cursor')),
+            // The cursor root is a full-viewport, pointer-events:none layer; only its visible parts
+            // (dot, pill, media) can cover anything, and only while it is not in the hidden state.
+            cursor: document.querySelector('.vn-cursor:not([data-state="hidden"])')
+              ? Math.max(
+                  cover(rect, visibleRect('.vn-cursor__dot')),
+                  cover(rect, visibleRect('.vn-cursor__pill')),
+                  cover(rect, visibleRect('.vn-cursor__media')),
+                )
+              : 0,
             offscreen: rect.bottom <= 0 || rect.top >= innerHeight,
           };
         });
