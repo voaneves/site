@@ -2,3 +2,16 @@
    Rules outside @supports are BASE (always adopted under reduced-motion: no-preference).
    Scroll-timeline rules go in a top-level @supports (animation-timeline: view()) { ... } block (TL, dropped when unsupported)
    and inside @media screen and (prefers-reduced-motion: no-preference). Identity at scrollY 0; composited properties only. */
+
+@supports (animation-timeline: view()) {
+  @media screen and (prefers-reduced-motion: no-preference) {
+    /* Sink & lift: the hero content lags the scroll and the media drifts inside its clip. Identity at scrollY 0 (LCP never moved at load). */
+    .vn-case-hero { overflow: clip; }
+    .vn-case-hero > .vn-container, .vn-case-media img { animation-timing-function: linear; animation-fill-mode: both; animation-timeline: scroll(root); animation-range: 0 100svh; }
+    .vn-case-hero > .vn-container { animation-name: vn-cs; }
+    .vn-case-media img { animation-name: vn-cz; }
+    .vn-case-hero > .vn-container:focus-within { animation: none; }
+    @keyframes vn-cs { to { translate: 0 10vh; } }
+    @keyframes vn-cz { to { scale: 1.1; translate: 0 5%; } }
+  }
+}
