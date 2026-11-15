@@ -19,10 +19,6 @@
     .vn-marquee-stack .vn-marquee__track {
       animation: none;
     }
-
-    .vn-reveal {
-      transform: none;
-    }
   }
 
   @media (max-width: 1080px) {
