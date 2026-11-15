@@ -1,0 +1,59 @@
+@layer site {
+  /* Below-the-fold home sections skip style, layout and paint until they approach the
+     viewport. This keeps the first layout to the hero and stops fonts used only down the page
+     (fraunces-roman) from being requested before LCP. The hero, nav and first screen are never
+     deferred. Anchors, find-in-page, focus and IntersectionObserver still work: skipped content
+     activates on demand. `auto` in contain-intrinsic-block-size remembers the real height once
+     rendered, so the seeded values only need to be close (CLS gate <= 0.01). */
+  #quem-sou,
+  #numeros,
+  #expertise,
+  #jornada,
+  #projetos,
+  #servicos,
+  #perguntas,
+  #contato {
+    content-visibility: auto;
+  }
+
+  /* >= 1201px */
+  #quem-sou { contain-intrinsic-block-size: auto 1370px; }
+  #numeros { contain-intrinsic-block-size: auto 1470px; }
+  #expertise { contain-intrinsic-block-size: auto 1125px; }
+  #jornada { contain-intrinsic-block-size: auto 1110px; }
+  #projetos { contain-intrinsic-block-size: auto 1500px; }
+  #servicos { contain-intrinsic-block-size: auto 1760px; }
+  #perguntas { contain-intrinsic-block-size: auto 600px; }
+  #contato { contain-intrinsic-block-size: auto 880px; }
+
+  @media (max-width: 1200px) {
+    #quem-sou { contain-intrinsic-block-size: auto 1550px; }
+    #numeros { contain-intrinsic-block-size: auto 1465px; }
+    #expertise { contain-intrinsic-block-size: auto 1400px; }
+    #jornada { contain-intrinsic-block-size: auto 1090px; }
+    #servicos { contain-intrinsic-block-size: auto 1810px; }
+    #perguntas { contain-intrinsic-block-size: auto 545px; }
+    #contato { contain-intrinsic-block-size: auto 800px; }
+  }
+
+  @media (max-width: 1000px) {
+    #quem-sou { contain-intrinsic-block-size: auto 1570px; }
+    #numeros { contain-intrinsic-block-size: auto 1750px; }
+    #jornada { contain-intrinsic-block-size: auto 1050px; }
+    #projetos { contain-intrinsic-block-size: auto 2000px; }
+    #servicos { contain-intrinsic-block-size: auto 2100px; }
+    #perguntas { contain-intrinsic-block-size: auto 630px; }
+    #contato { contain-intrinsic-block-size: auto 700px; }
+  }
+
+  @media (max-width: 600px) {
+    #quem-sou { contain-intrinsic-block-size: auto 2400px; }
+    #numeros { contain-intrinsic-block-size: auto 2650px; }
+    #expertise { contain-intrinsic-block-size: auto 1850px; }
+    #jornada { contain-intrinsic-block-size: auto 1120px; }
+    #projetos { contain-intrinsic-block-size: auto 2350px; }
+    #servicos { contain-intrinsic-block-size: auto 3850px; }
+    #perguntas { contain-intrinsic-block-size: auto 730px; }
+    #contato { contain-intrinsic-block-size: auto 800px; }
+  }
+}

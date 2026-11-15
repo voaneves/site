@@ -19,6 +19,7 @@
 @import "./sections/transitions.css";
 @import "./sections/theme-vt.css";
 @import "./sections/signal-field.css";
+@import "./sections/render-cost.css";
 @import "./sections/responsive.css";
 
 @font-face {

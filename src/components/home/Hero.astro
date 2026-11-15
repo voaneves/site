@@ -113,3 +113,27 @@ const badgeLoop = `${c.hero.badgeText}${c.hero.badgeText}`;
     </div>
   </div>
 </section>
+
+<!-- Sections below the fold are rendered on demand (content-visibility), so fraunces-roman is no longer
+     requested by the first layout. Warm it right after LCP (wide screens: immediately) so the swap never
+     lands inside a section the visitor is already scrolling through. -->
+<script>
+  (() => {
+    let warmed = false;
+    const warm = () => {
+      if (warmed) return;
+      warmed = true;
+      try {
+        document.fonts.load('400 1em Fraunces');
+      } catch {}
+    };
+    if (matchMedia('(min-width: 1024px)').matches) {
+      warm();
+      return;
+    }
+    try {
+      new PerformanceObserver(warm).observe({ type: 'largest-contentful-paint', buffered: true });
+    } catch {}
+    addEventListener('load', () => setTimeout(warm, 1500));
+  })();
+</script>
