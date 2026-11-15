@@ -29,7 +29,7 @@ const caseBase = locale === 'en' ? '/en/projects' : '/projetos';
       </nav>
 
       <div class="vn-case-hero__meta">
-        <p class="vn-eyebrow vn-case-eyebrow"><span aria-hidden="true">[ </span>Case — {project.year}<span aria-hidden="true"> ]</span></p>
+        <p class="vn-eyebrow vn-case-eyebrow" data-fx="scramble"><span aria-hidden="true">[ </span>Case — {project.year}<span aria-hidden="true"> ]</span></p>
         <span class="vn-case-badge">{project.metricBadge}</span>
       </div>
 
@@ -107,17 +107,17 @@ const caseBase = locale === 'en' ? '/en/projects' : '/projetos';
         </aside>
 
         <div class="vn-case-prose">
-          <section class="vn-case-chapter" data-stagger>
+          <section class="vn-case-chapter" data-cursor-zone="read" data-stagger>
             <h2 class="vn-type-h3" data-enter="mask"><Words text={c.caseUi.challengeTitle} /></h2>
             <p class="vn-type-lead vn-muted" data-enter>{project.challenge}</p>
           </section>
 
-          <section class="vn-case-chapter" data-stagger>
+          <section class="vn-case-chapter" data-cursor-zone="read" data-stagger>
             <h2 class="vn-type-h3" data-enter="mask"><Words text={c.caseUi.architectureTitle} /></h2>
             <p class="vn-type-lead vn-muted" data-enter>{project.architecture}</p>
           </section>
 
-          <section class="vn-case-chapter">
+          <section class="vn-case-chapter" data-cursor-zone="read">
             <h2 class="vn-type-h3" data-enter="mask"><Words text={c.caseUi.outcomesTitle} /></h2>
             <ul class="vn-case-outcomes" data-stagger>
               {project.outcomes.map((out) => (
@@ -144,7 +144,7 @@ const caseBase = locale === 'en' ? '/en/projects' : '/projetos';
   <section class="vn-section" data-surface="signal">
     <div class="vn-container vn-case-cta" data-stagger>
       <h2 class="vn-type-h2" data-enter="mask"><Words text={c.caseUi.ctaHeading} /></h2>
-      <div data-enter><a class="vn-btn vn-btn--primary vn-btn--lg" href={`${homeHref}#contato`}>
+      <div data-enter><a class="vn-btn vn-btn--primary vn-btn--lg vn-magnetic" data-magnetic data-cursor-label={locale === 'en' ? 'TALK' : 'FALAR'} href={`${homeHref}#contato`}>
         <span>{c.caseUi.ctaButton}</span>
       </a></div>
     </div>
