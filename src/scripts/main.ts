@@ -6,7 +6,7 @@ import { init as nav } from './nav';
 import { init as marquee } from './marquee';
 import { init as hero } from './hero';
 import { init as afterLcp } from './after-lcp';
-import { onIdle, motionOK } from './lazy';
+import { onIdle, onFirstPointer, motionOK } from './lazy';
 
 theme();
 drawer();
@@ -40,4 +40,6 @@ afterLcp();
       void import('./signal-field').then((m) => m.init(band));
     }, { rootMargin: '100% 0px' }).observe(band);
   });
+  // W16: fluid cursor trail, only after the first real pointer move (Lighthouse never pays for it).
+  onFirstPointer(() => motionOK() && import('./cursor-trail'));
 }
