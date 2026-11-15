@@ -4,7 +4,10 @@
      (fraunces-roman) from being requested before LCP. The hero, nav and first screen are never
      deferred. Anchors, find-in-page, focus and IntersectionObserver still work: skipped content
      activates on demand. `auto` in contain-intrinsic-block-size remembers the real height once
-     rendered, so the seeded values only need to be close (CLS gate <= 0.01). */
+     rendered, so the seeded values only need to be close (CLS gate <= 0.01).
+     --ci is the section's full measured height; the property sizes the content box, so the section's own
+     padding-block is subtracted (otherwise every unrendered section is ~2 paddings too tall and anchor jumps
+     overshoot while the page shrinks under a smooth scroll). */
   #quem-sou,
   #numeros,
   #expertise,
@@ -14,55 +17,21 @@
   #perguntas,
   #contato {
     content-visibility: auto;
+    contain-intrinsic-block-size: auto
+      calc(var(--ci) - 2 * clamp(var(--vn-layout-pad-y-min), 10vw, var(--vn-layout-pad-y-max)));
   }
 
-  /* >= 1201px */
-  #quem-sou { contain-intrinsic-block-size: auto 1370px; }
-  #numeros { contain-intrinsic-block-size: auto 1470px; }
-  #expertise { contain-intrinsic-block-size: auto 1125px; }
-  #jornada { contain-intrinsic-block-size: auto 1110px; }
-  #projetos { contain-intrinsic-block-size: auto 1640px; }
-  #servicos { contain-intrinsic-block-size: auto 3030px; }
-  #perguntas { contain-intrinsic-block-size: auto 600px; }
-  #contato { contain-intrinsic-block-size: auto 920px; }
-
-  @media (max-width: 1200px) {
-    #quem-sou { contain-intrinsic-block-size: auto 1550px; }
-    #numeros { contain-intrinsic-block-size: auto 1465px; }
-    #expertise { contain-intrinsic-block-size: auto 1400px; }
-    #jornada { contain-intrinsic-block-size: auto 1090px; }
-    #projetos { contain-intrinsic-block-size: auto 1700px; }
-    #servicos { contain-intrinsic-block-size: auto 2960px; }
-    #perguntas { contain-intrinsic-block-size: auto 545px; }
-    #contato { contain-intrinsic-block-size: auto 840px; }
+  /* nav.ts adds this before an in-page jump so the target is computed against real heights, not seeds. */
+  .vn-cv-off :is(#quem-sou, #numeros, #expertise, #jornada, #projetos, #servicos, #perguntas, #contato) {
+    content-visibility: visible;
   }
 
-  @media (max-width: 1000px) {
-    #quem-sou { contain-intrinsic-block-size: auto 1570px; }
-    #numeros { contain-intrinsic-block-size: auto 1750px; }
-    #jornada { contain-intrinsic-block-size: auto 1050px; }
-    #projetos { contain-intrinsic-block-size: auto 2200px; }
-    #perguntas { contain-intrinsic-block-size: auto 630px; }
-    #contato { contain-intrinsic-block-size: auto 725px; }
-  }
-
-  /* Services stack as sticky cards from 900px; below it is the plain grid. */
-  @media (max-width: 899px) {
-    #servicos { contain-intrinsic-block-size: auto 2190px; }
-  }
-
-  @media (max-width: 720px) {
-    #projetos { contain-intrinsic-block-size: auto 3500px; }
-  }
-
-  @media (max-width: 600px) {
-    #quem-sou { contain-intrinsic-block-size: auto 2400px; }
-    #numeros { contain-intrinsic-block-size: auto 2650px; }
-    #expertise { contain-intrinsic-block-size: auto 1850px; }
-    #jornada { contain-intrinsic-block-size: auto 1120px; }
-    #projetos { contain-intrinsic-block-size: auto 3250px; }
-    #servicos { contain-intrinsic-block-size: auto 3850px; }
-    #perguntas { contain-intrinsic-block-size: auto 730px; }
-    #contato { contain-intrinsic-block-size: auto 770px; }
-  }
+  /* --ci: full section heights measured at 1366 / 1100 / 950 / 850 / 700 / 390 px (larger of pt-BR and en). Only a
+     scrollbar hint now; e2e/render-cost.spec.ts fails and prints fresh values when one drifts > 15%. */
+  #quem-sou{--ci:1341px}#numeros{--ci:1482px}#expertise{--ci:1137px}#jornada{--ci:1138px}#projetos{--ci:1657px}#servicos{--ci:3032px}#perguntas{--ci:595px}#contato{--ci:944px}
+  @media (max-width: 1200px) { #quem-sou{--ci:1570px}#numeros{--ci:1448px}#expertise{--ci:1372px}#jornada{--ci:1131px}#projetos{--ci:1749px}#servicos{--ci:2960px}#perguntas{--ci:541px}#contato{--ci:819px} }
+  @media (max-width: 1000px) { #quem-sou{--ci:1559px}#numeros{--ci:1630px}#expertise{--ci:1403px}#jornada{--ci:1087px}#projetos{--ci:1941px}#servicos{--ci:3038px}#perguntas{--ci:671px}#contato{--ci:753px} }
+  @media (max-width: 899px) { #quem-sou{--ci:1517px}#numeros{--ci:1833px}#expertise{--ci:1222px}#jornada{--ci:1058px}#projetos{--ci:2436px}#servicos{--ci:2065px}#perguntas{--ci:641px}#contato{--ci:709px} }
+  @media (max-width: 720px) { #quem-sou{--ci:1667px}#numeros{--ci:1822px}#expertise{--ci:1314px}#jornada{--ci:1024px}#projetos{--ci:3603px}#servicos{--ci:3366px}#perguntas{--ci:602px}#contato{--ci:711px} }
+  @media (max-width: 600px) { #quem-sou{--ci:2374px}#numeros{--ci:2618px}#expertise{--ci:1883px}#jornada{--ci:1146px}#projetos{--ci:3300px}#servicos{--ci:3824px}#perguntas{--ci:739px}#contato{--ci:766px} }
 }

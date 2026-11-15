@@ -1,4 +1,17 @@
+// Deferred sections (content-visibility: auto in render-cost.css) hold only seeded heights until rendered.
+// Before any in-page jump, render them all, so the browser resolves the target against the real layout
+// (the jump is the click's default action, which runs after this capture listener). Same for a hash on load.
+function renderAll(): void {
+  document.documentElement.classList.add('vn-cv-off');
+}
+
 export function init(): void {
+  if (location.hash) renderAll();
+  document.addEventListener('click', (e) => {
+    const a = (e.target as Element | null)?.closest?.('a[href*="#"]') as HTMLAnchorElement | null;
+    if (a && a.hash && a.pathname === location.pathname) renderAll();
+  }, { capture: true });
+  addEventListener('hashchange', renderAll);
   const navAnchors = [...document.querySelectorAll<HTMLAnchorElement>('.vn-navbar__link[data-nav-hash]')];
   const sections = navAnchors
     .map((a) => document.getElementById(a.dataset.navHash || ''))
