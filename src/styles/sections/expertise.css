@@ -60,6 +60,8 @@
     background: var(--vn-surface-raised);
   }
 
+  .vn-pillar-card:focus-within .vn-chip { border-color: var(--vn-signal-ink) }
+
   .vn-chip-list {
     display: flex;
     flex-wrap: wrap;
