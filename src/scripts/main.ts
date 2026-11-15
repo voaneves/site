@@ -40,6 +40,16 @@ afterLcp();
       void import('./signal-field').then((m) => m.init(band));
     }, { rootMargin: '100% 0px' }).observe(band);
   });
+  // U4: stat count-up, lazy, once #numeros is within one viewport (not under reduced motion).
+  onIdle(() => {
+    const sec = document.getElementById('numeros');
+    if (!sec || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    new IntersectionObserver((e, o) => {
+      if (!e.some((x) => x.isIntersecting)) return;
+      o.disconnect();
+      void import('./count').then((m) => m.init(sec));
+    }, { rootMargin: '100% 0px' }).observe(sec);
+  });
   // W16: fluid cursor trail, only after the first real pointer move (Lighthouse never pays for it).
   onFirstPointer(() => motionOK() && import('./cursor-trail'));
   // W15: cursor dot + label pill, same trigger.

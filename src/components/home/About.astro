@@ -1,6 +1,7 @@
 ---
 import type { Locale } from '../../i18n/ui';
 import { PORTFOLIO } from '../../data/portfolio';
+import Words from '../Words.astro';
 
 export interface Props {
   locale: Locale;
@@ -15,24 +16,24 @@ const eyebrowTag = eyebrowRest.join(' · ');
 <section data-section="01" id="quem-sou" class="vn-section vn-chapter--creme vn-site-anchor-target">
   <span id="who" class="vn-sr-only"></span>
   <div class="vn-container">
-    <div class="vn-sec-head vn-reveal">
-      <p class="vn-eyebrow"><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
+    <div class="vn-sec-head">
+      <p class="vn-eyebrow" data-enter="right"><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
     </div>
 
-    <div class="vn-about-grid vn-reveal">
+    <div class="vn-about-grid">
       <div>
-        <h2 class="vn-type-h1 vn-about-statement">
-          {c.about.statementPre}<em>{c.about.statementEm1}</em>{c.about.statementMid}<em>{c.about.statementEm2}</em>{c.about.statementPost}
+        <h2 class="vn-type-h1 vn-about-statement" data-enter="mask">
+          <Words text={c.about.statementPre} /><Words text={c.about.statementEm1} em /><Words text={c.about.statementMid} /><Words text={c.about.statementEm2} em tail={c.about.statementPost} />
         </h2>
-        <div class="vn-about-prose">
-          <p class="vn-type-lead">{c.about.p1}</p>
-          <p class="vn-type-body vn-muted">{c.about.p2}</p>
+        <div class="vn-about-prose" data-stagger>
+          <p class="vn-type-lead" data-enter>{c.about.p1}</p>
+          <p class="vn-type-body vn-muted" data-enter>{c.about.p2}</p>
         </div>
       </div>
 
-      <dl class="vn-spec-list">
+      <dl class="vn-spec-list" data-stagger>
         {c.about.specs.map((spec) => (
-          <div class="vn-spec-list__row">
+          <div class="vn-spec-list__row" data-enter="right">
             <dt class="vn-type-label vn-muted">{spec.k}</dt>
             <dd class="vn-type-body-strong">{spec.v}</dd>
           </div>
@@ -40,11 +41,11 @@ const eyebrowTag = eyebrowRest.join(' · ');
       </dl>
     </div>
 
-    <div class="vn-awards-wrap vn-reveal">
-      <h3 class="vn-type-label vn-awards-title">{c.about.awardsTitle}</h3>
-      <div class="vn-awards-grid">
+    <div class="vn-awards-wrap">
+      <h3 class="vn-type-label vn-awards-title" data-enter>{c.about.awardsTitle}</h3>
+      <div class="vn-awards-grid" data-stagger>
         {c.about.awards.map((award) => (
-          <article class="vn-award-card">
+          <article class="vn-award-card" data-enter="scale">
             <span class="vn-award-card__place">{award.place}</span>
             <h4 class="vn-type-body-strong vn-award-card__title">{award.title}</h4>
             <p class="vn-type-body-sm vn-award-card__detail">{award.detail}</p>

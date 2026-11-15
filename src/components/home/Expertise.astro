@@ -1,6 +1,7 @@
 ---
 import type { Locale } from '../../i18n/ui';
 import { PORTFOLIO } from '../../data/portfolio';
+import Words from '../Words.astro';
 
 export interface Props {
   locale: Locale;
@@ -20,25 +21,27 @@ const [titlePre, titleEm] = splitTail(c.expertise.title);
 
 <section data-section="03" id="expertise" class="vn-section vn-chapter--creme vn-site-anchor-target">
   <div class="vn-container">
-    <div class="vn-sec-split vn-reveal">
-      <div>
-        <p class="vn-eyebrow"><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
-        <h2 class="vn-type-h2 vn-split-title">{titlePre}<em>{titleEm}</em></h2>
+    <div class="vn-sec-split">
+      <div data-stagger>
+        <p class="vn-eyebrow" data-enter><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
+        <h2 class="vn-type-h2 vn-split-title" data-enter="mask"><Words text={titlePre} /><em><Words text={titleEm} /></em></h2>
       </div>
-      <button
-        type="button"
-        class="vn-btn vn-btn--secondary vn-btn--sm"
-        data-marquee-toggle
-        data-label-pause={c.expertise.pauseLabel}
-        data-label-resume={c.expertise.resumeLabel}
-        aria-pressed="false"
-      >
-        {c.expertise.pauseLabel}
-      </button>
+      <div data-enter="right">
+        <button
+          type="button"
+          class="vn-btn vn-btn--secondary vn-btn--sm"
+          data-marquee-toggle
+          data-label-pause={c.expertise.pauseLabel}
+          data-label-resume={c.expertise.resumeLabel}
+          aria-pressed="false"
+        >
+          {c.expertise.pauseLabel}
+        </button>
+      </div>
     </div>
   </div>
 
-  <div class="vn-marquee-stack" data-vn-marquee-root>
+  <div class="vn-marquee-stack" data-vn-marquee-root data-enter="clip">
     {c.expertise.tracks.map((track, idx) => (
       <div class={`vn-marquee vn-marquee--${idx % 2 === 1 ? 'rev' : 'fwd'}`}>
         <div class="vn-marquee__track">
@@ -53,9 +56,9 @@ const [titlePre, titleEm] = splitTail(c.expertise.title);
   </div>
 
   <div class="vn-container">
-    <div class="vn-pillars-grid vn-reveal">
+    <div class="vn-pillars-grid" data-stagger>
       {c.expertise.pillars.map((pillar) => (
-        <article class="vn-pillar-card">
+        <article class="vn-pillar-card" data-enter>
           <h3 class="vn-type-h4">{pillar.title}</h3>
           <ul class="vn-chip-list">
             {pillar.items.map((item) => (

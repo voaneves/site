@@ -1,6 +1,7 @@
 ---
 import type { Locale } from '../../i18n/ui';
 import { PORTFOLIO } from '../../data/portfolio';
+import Words from '../Words.astro';
 
 export interface Props {
   locale: Locale;
@@ -21,25 +22,25 @@ const [titlePre, titleEm] = splitTail(c.numbers.title);
 <section data-section="02" id="numeros" class="vn-section vn-numbers-band vn-chapter--ink vn-site-anchor-target" data-surface="inverse">
   <span id="work" class="vn-sr-only"></span>
   <div class="vn-container">
-    <div class="vn-sec-head vn-reveal">
-      <p class="vn-eyebrow"><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
-      <h2 class="vn-type-h2 vn-measure vn-split-title">{titlePre}<em>{titleEm}</em></h2>
-      <p class="vn-type-body vn-numbers-sub vn-measure">{c.numbers.subtitle}</p>
+    <div class="vn-sec-head" data-stagger>
+      <p class="vn-eyebrow" data-enter><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
+      <h2 class="vn-type-h2 vn-measure vn-split-title" data-enter="mask"><Words text={titlePre} /><em><Words text={titleEm} /></em></h2>
+      <p class="vn-type-body vn-numbers-sub vn-measure" data-enter>{c.numbers.subtitle}</p>
     </div>
 
-    <div class="vn-stats-hero-grid vn-reveal">
+    <div class="vn-stats-hero-grid" data-stagger>
       {c.numbers.stats.map((s) => (
-        <div class="vn-stat-hero">
-          <span class="vn-type-numeral vn-stat-hero__val">{s.value}</span>
+        <div class="vn-stat-hero" data-enter>
+          <span class="vn-type-numeral vn-stat-hero__val" data-count>{s.value}</span>
           <span class="vn-type-body-sm vn-stat-hero__lbl">{s.label}</span>
         </div>
       ))}
     </div>
 
-    <div class="vn-numbers-lower vn-reveal">
+    <div class="vn-numbers-lower">
       <div class="vn-impact-grid">
         {c.numbers.impacts.map((imp) => (
-          <article class="vn-impact-card">
+          <article class="vn-impact-card" data-enter>
             <span class="vn-impact-card__metric">{imp.metric}</span>
             <h3 class="vn-type-body-strong vn-impact-card__label">{imp.label}</h3>
             <p class="vn-type-micro vn-impact-card__src">{imp.source}</p>
@@ -47,7 +48,7 @@ const [titlePre, titleEm] = splitTail(c.numbers.title);
         ))}
       </div>
 
-      <aside class="vn-chart-panel vn-sr" aria-labelledby={`chart-title-${locale}`}>
+      <aside class="vn-chart-panel" data-enter="right" aria-labelledby={`chart-title-${locale}`}>
         <div class="vn-chart-panel__head">
           <h3 id={`chart-title-${locale}`} class="vn-type-h4">{c.numbers.chartTitle}</h3>
           <p class="vn-type-caption vn-chart-panel__cap">{c.numbers.chartCaption}</p>

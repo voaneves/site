@@ -23,8 +23,13 @@
   }
 
   .vn-stat-hero__val {
+    position: relative;
     color: var(--vn-cream);
   }
+
+  /* count.ts: the real number stays in place (transparent ink) under an aria-hidden running overlay. */
+  .is-counting { -webkit-text-fill-color: transparent; }
+  .vn-count { position: absolute; inset: 0; white-space: nowrap; -webkit-text-fill-color: currentColor; }
 
   .vn-stat-hero__lbl {
     color: var(--vn-ref-sand-500);

@@ -3,6 +3,7 @@ import Icon from '../Icon.astro';
 import type { Locale } from '../../i18n/ui';
 import { PORTFOLIO } from '../../data/portfolio';
 import { waLink } from '../../data/contact';
+import Words from '../Words.astro';
 
 export interface Props {
   locale: Locale;
@@ -23,41 +24,43 @@ const [titlePre, titleEm] = splitTail(c.services.title);
 <section data-section="06" id="servicos" class="vn-section vn-site-anchor-target" data-surface="soft">
   <span id="services" class="vn-sr-only"></span>
   <div class="vn-container">
-    <div class="vn-sec-head vn-reveal">
-      <p class="vn-eyebrow"><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
-      <h2 class="vn-type-h2 vn-measure vn-split-title">{titlePre}<em>{titleEm}</em></h2>
-      <p class="vn-type-body vn-muted vn-measure vn-sec-sub">{c.services.subtitle}</p>
+    <div class="vn-sec-head" data-stagger>
+      <p class="vn-eyebrow" data-enter><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
+      <h2 class="vn-type-h2 vn-measure vn-split-title" data-enter="mask"><Words text={titlePre} /><em><Words text={titleEm} /></em></h2>
+      <p class="vn-type-body vn-muted vn-measure vn-sec-sub" data-enter>{c.services.subtitle}</p>
     </div>
 
     <div class="vn-bento-grid">
       {c.services.items.map((srv, idx) => {
         const waHref = waLink(srv.waMessage);
         return (
-          <article class={`vn-service-card vn-svc-${idx + 1} ${srv.featured ? 'vn-service-card--featured' : ''}`}>
-            <div class="vn-service-card__head">
+          <article class={`vn-service-card vn-svc-${idx + 1} ${srv.featured ? 'vn-service-card--featured' : ''}`} data-stagger>
+            <div class="vn-service-card__head" data-enter>
               <span class="vn-type-tag vn-muted">{srv.n} · {srv.tag}</span>
               <span class="vn-service-card__price">
                 <small>{srv.unit}</small>
                 <strong>{srv.price}</strong>
               </span>
             </div>
-            <h3 class="vn-type-h3">{srv.title}</h3>
-            <p class="vn-type-body-sm vn-muted">{srv.description}</p>
-            <ul class="vn-service-card__list">
+            <h3 class="vn-type-h3" data-enter>{srv.title}</h3>
+            <p class="vn-type-body-sm vn-muted" data-enter>{srv.description}</p>
+            <ul class="vn-service-card__list" data-enter="right">
               {srv.deliverables.map((deliv) => (
                 <li class="vn-type-caption">{deliv}</li>
               ))}
             </ul>
-            <a
-              class="vn-btn vn-btn--secondary vn-btn--sm vn-service-card__cta"
-              href={waHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${c.services.ctaLabel}: ${srv.title}`}
-            >
-              <Icon name="whatsapp" size={16} />
-              <span>{c.services.ctaLabel}</span>
-            </a>
+            <div data-enter>
+              <a
+                class="vn-btn vn-btn--secondary vn-btn--sm vn-service-card__cta"
+                href={waHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${c.services.ctaLabel}: ${srv.title}`}
+              >
+                <Icon name="whatsapp" size={16} />
+                <span>{c.services.ctaLabel}</span>
+              </a>
+            </div>
           </article>
         );
       })}

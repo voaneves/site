@@ -43,7 +43,14 @@
     margin-block-end: var(--vn-space-5);
   }
 
+  /* The two display lines drift in from opposite sides as the band scrolls in ([data-drift], motion.css). */
+  .vn-contact-l1 {
+    display: inline-block;
+    --dx: -6vw;
+  }
+
   .vn-contact-title em {
+    --dx: 10vw;
     display: block;
     padding-inline-start: 0.35em;
     font-style: italic;
