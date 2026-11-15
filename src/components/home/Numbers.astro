@@ -26,7 +26,7 @@ const [titlePre, titleEm] = splitTail(c.numbers.title);
     <div class="vn-sec-head" data-stagger>
       <p class="vn-eyebrow" data-enter data-fx="scramble"><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
       <h2 class="vn-type-h2 vn-measure vn-split-title" data-enter="mask"><Words text={titlePre} /><em><Words text={titleEm} /></em></h2>
-      <p class="vn-type-body vn-numbers-sub vn-measure" data-enter>{c.numbers.subtitle}</p>
+      <p class="vn-type-body vn-numbers-sub vn-measure" data-enter="lines">{c.numbers.subtitle}</p>
     </div>
 
     <div class="vn-stats-hero-grid" data-stagger>

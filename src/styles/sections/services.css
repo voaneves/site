@@ -107,7 +107,9 @@
 
     @supports (animation-timeline: view()) {
       .vn-service-card {
-        animation: vn-svc-under linear both;
+        animation-name: vn-svc-under;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
         animation-timeline: var(--nx, none);
         animation-range: entry 60% contain 70%;
       }

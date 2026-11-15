@@ -84,6 +84,10 @@
     gap: var(--vn-space-4);
   }
 
+  @media (min-width: 1100px) and (min-height: 760px) {
+    .vn-chart-panel { position: sticky; top: calc(var(--nav-h) + 2rem); }
+  }
+
   .vn-chart-panel__cap {
     color: var(--vn-ref-sand-500);
     margin-block-start: 4px;
@@ -149,7 +153,9 @@
       html.js .vn-chart-svg__fill {
         transform-box: fill-box;
         transform-origin: left center;
-        animation: vn-bar linear both;
+        animation-name: vn-bar;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
         animation-timeline: view();
         animation-range: entry 20% cover 40%;
       }

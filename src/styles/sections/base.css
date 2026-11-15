@@ -55,15 +55,6 @@
     margin-block-end: var(--vn-space-7);
   }
 
-  .vn-reveal {
-    transform: translateY(14px);
-    transition: transform var(--vn-dur-line) var(--vn-ease-out);
-  }
-
-  .vn-reveal.is-in {
-    transform: translateY(0);
-  }
-
   @media (prefers-reduced-motion: no-preference) {
     /* The entrance starts from opacity 0, so it is gated on html.js: without JS the content is simply there. */
     html.js .vn-beat { animation: vn-beat 0.8s cubic-bezier(0.25, 1, 0.5, 1) backwards; }

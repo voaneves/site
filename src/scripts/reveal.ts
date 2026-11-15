@@ -1,4 +1,4 @@
-// U4: group the .vn-w words of a [data-enter=mask] headline into rendered lines (--l), so lines rise in turn.
+// U4: group the .vn-w words of a [data-enter=mask|lines] block into rendered lines (--l), so lines rise in turn.
 function lines(el: Element): void {
   let top = -1e9;
   let l = -1;
@@ -12,28 +12,13 @@ function lines(el: Element): void {
 }
 
 export function init(): void {
-  const revealEls = document.querySelectorAll('.vn-reveal');
-  if (revealEls.length > 0 && 'IntersectionObserver' in window) {
-    const revObs = new IntersectionObserver((entries, obs) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-in');
-          obs.unobserve(entry.target);
-        }
-      }
-    }, { threshold: 0.08, rootMargin: '0px 0px 40px 0px' });
-    revealEls.forEach((el) => revObs.observe(el));
-  } else {
-    revealEls.forEach((el) => el.classList.add('is-in'));
-  }
-
   // U4 choreography: a lone [data-enter], or a [data-stagger] group, enters once when it is ~10% into the viewport.
   const enterEls = document.querySelectorAll('[data-stagger], [data-enter]:not([data-stagger] > *)');
   const enter = (el: Element) => {
     if (el.classList.contains('is-in')) return;
-    for (const m of [el, ...el.children]) if (m.matches('[data-enter=mask]')) lines(m);
+    for (const m of [el, ...el.children]) if (m.matches('[data-enter=mask], [data-enter=lines]')) lines(m);
     el.classList.add('is-in');
-    // Longest transition (1.8s) + stagger/line delays; then motion.css stops owning the element's transition.
+    // Longest transition (1.2s) + stagger/line delays; then motion.css stops owning the element's transition.
     setTimeout(() => el.classList.add('is-done'), 3200);
   };
   if ('IntersectionObserver' in window) {
@@ -58,25 +43,4 @@ export function init(): void {
   } else {
     enterEls.forEach(enter);
   }
-
-  // .vn-sr: CSS owns it when scroll-driven animations exist.
-  const srEls = document.querySelectorAll('.vn-sr');
-  if (srEls.length === 0) return;
-  if (CSS.supports('animation-timeline: view()')) {
-    srEls.forEach((el) => el.classList.add('is-in'));
-    return;
-  }
-  if (!('IntersectionObserver' in window)) {
-    srEls.forEach((el) => el.classList.add('is-in'));
-    return;
-  }
-  const srObs = new IntersectionObserver((entries, obs) => {
-    for (const entry of entries) {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-in');
-        obs.unobserve(entry.target);
-      }
-    }
-  }, { threshold: 0.2, rootMargin: '0px 0px -10% 0px' });
-  srEls.forEach((el) => srObs.observe(el));
 }

@@ -48,7 +48,9 @@ function notSettled(sel: string) {
   return [...document.querySelectorAll(sel)]
     .filter((e) => {
       const cs = getComputedStyle(e);
-      const zero = (v: string) => v === 'none' || v.split(' ').every((n) => parseFloat(n) === 0);
+      // a scrubbed [data-drift] is scroll-driven, so its resting offset depends on the scroll position
+      const tol = e.hasAttribute('data-drift') ? 1e4 : 0;
+      const zero = (v: string) => v === 'none' || v.split(' ').every((n) => Math.abs(parseFloat(n)) <= tol);
       return cs.opacity !== '1' || !zero(cs.translate) || !['none', '1'].includes(cs.scale) || cs.transform !== 'none';
     })
     .map((e) => `${e.tagName.toLowerCase()}.${String(e.className).split(/\s+/)[0]}[${e.getAttribute('data-enter')}]`);

@@ -79,7 +79,9 @@
       @keyframes vn-jc-out { to { opacity: .6; scale: .94; } }
 
       html.js .vn-journey-card {
-        animation: vn-jc-in linear both, vn-jc-out linear forwards;
+        animation-name: vn-jc-in, vn-jc-out;
+        animation-timing-function: linear, linear;
+        animation-fill-mode: both, forwards;
         animation-timeline: view(inline), view(inline);
         animation-range: entry 0% entry 100%, exit 0% exit 100%;
       }
