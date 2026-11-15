@@ -6,12 +6,12 @@ const cursor = (page: Page) => page.locator('.vn-cursor');
 const label = (page: Page) => page.locator('.vn-cursor__pill span');
 
 async function wake(page: Page) {
-  await page.mouse.move(400, 300);
+  await page.mouse.move(400, 80);
   await page.locator('.vn-cursor').waitFor({ state: 'attached' });
-  await page.mouse.move(420, 320);
+  await page.mouse.move(420, 90);
 }
 
-/** Two fixed bands (#za at y=100, #zb at y=300), each with a link on the right, injected before the first move. */
+/** Two fixed bands (#za at y=220, #zb at y=420), each with a link on the right, injected before the first move. */
 async function setup(page: Page, zoneA: string, idleA = '', zoneB = 'read') {
   await page.goto('/');
   await page.waitForLoadState('networkidle');
@@ -23,11 +23,16 @@ async function setup(page: Page, zoneA: string, idleA = '', zoneB = 'read') {
         d.dataset.cursorZone = zone;
         if (idle) d.dataset.cursorIdle = idle;
         d.style.cssText = `position:fixed;left:0;width:100%;height:150px;top:${top}px;z-index:8000`;
-        d.innerHTML = '<a href="#x" style="position:absolute;right:20px;top:20px;width:80px;height:40px;background:#ccc">go</a>';
+        // CSSOM only: the site CSP blocks inline style attributes parsed from markup
+        const a = document.createElement('a');
+        a.href = '#x';
+        a.textContent = 'go';
+        a.style.cssText = 'position:absolute;right:20px;top:20px;width:80px;height:40px;background:#ccc';
+        d.append(a);
         document.body.append(d);
       };
-      mk('za', 100, zoneA, idleA);
-      mk('zb', 300, zoneB, '');
+      mk('za', 220, zoneA, idleA);
+      mk('zb', 420, zoneB, '');
     },
     { zoneA, idleA, zoneB },
   );
@@ -67,8 +72,8 @@ test.describe('cursor zones', () => {
       await expect(cursor(page)).toHaveAttribute('data-zone', 'plus', { timeout: 300 });
     }).toPass();
     await expect(async () => {
-      await page.mouse.move(300, 600);
-      await page.mouse.move(310, 610);
+      await page.mouse.move(300, 20);
+      await page.mouse.move(310, 30);
       await expect(cursor(page)).toHaveAttribute('data-zone', '', { timeout: 300 });
     }).toPass();
   });
@@ -112,7 +117,7 @@ test.describe('cursor zones', () => {
 
   test('no idle label when entering straight onto a link', async ({ page }) => {
     await setup(page, 'ring', 'OI·HELLO');
-    await page.mouse.move(700, 600);
+    await page.mouse.move(700, 20);
     await onLink(page);
     await expect(cursor(page)).toHaveAttribute('data-state', 'link');
     await idleOff(page);
