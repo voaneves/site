@@ -8,13 +8,15 @@ export interface Props {
 
 const { locale } = Astro.props;
 const c = PORTFOLIO[locale];
+const [eyebrowNum, ...eyebrowRest] = (c.about.tag).split(' · ');
+const eyebrowTag = eyebrowRest.join(' · ');
 ---
 
-<section data-section="01" id="quem-sou" class="vn-section vn-site-anchor-target">
+<section data-section="01" id="quem-sou" class="vn-section vn-chapter--creme vn-site-anchor-target">
   <span id="who" class="vn-sr-only"></span>
   <div class="vn-container">
     <div class="vn-sec-head vn-reveal">
-      <span class="vn-type-tag vn-sec-tag">{c.about.tag}</span>
+      <p class="vn-eyebrow"><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
     </div>
 
     <div class="vn-about-grid vn-reveal">

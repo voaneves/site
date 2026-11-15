@@ -8,14 +8,22 @@ export interface Props {
 
 const { locale } = Astro.props;
 const c = PORTFOLIO[locale];
+const [eyebrowNum, ...eyebrowRest] = (c.faq.tag).split(' · ');
+const eyebrowTag = eyebrowRest.join(' · ');
+const splitTail = (s: string): [string, string] => {
+  const w = s.split(' ');
+  const n = w.length > 3 ? 2 : 1;
+  return [w.slice(0, -n).join(' ') + ' ', w.slice(-n).join(' ')];
+};
+const [titlePre, titleEm] = splitTail(c.faq.title);
 ---
 
-<section data-section="07" id="perguntas" class="vn-section vn-site-anchor-target">
+<section data-section="07" id="perguntas" class="vn-section vn-chapter--creme vn-faq-chapter vn-site-anchor-target">
   <span id="faq" class="vn-sr-only"></span>
   <div class="vn-container vn-faq-layout">
     <div class="vn-reveal">
-      <span class="vn-type-tag vn-sec-tag">{c.faq.tag}</span>
-      <h2 class="vn-type-h2">{c.faq.title}</h2>
+      <p class="vn-eyebrow"><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
+      <h2 class="vn-type-h2 vn-split-title">{titlePre}<em>{titleEm}</em></h2>
       <p class="vn-type-body vn-muted">{c.faq.subtitle}</p>
     </div>
 

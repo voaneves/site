@@ -65,4 +65,19 @@
     flex-wrap: wrap;
     gap: var(--vn-space-2);
   }
+
+  #expertise { color-scheme: light; }
+
+  #expertise::before {
+    top: 0;
+    translate: none;
+    background: #000;
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+  }
+
+  .vn-split-title em {
+    font-style: italic;
+    font-variation-settings: "WONK" 1;
+    color: var(--vn-signal-ink);
+  }
 }
