@@ -58,8 +58,6 @@
      wipe: an inset rounded band opens to full bleed. Settled state: opacity 1, no offset, no scale.
      [data-drift] is the one scroll-scrubbed effect: a horizontal drift by --dx while the element scrolls in. */
   @media (prefers-reduced-motion: no-preference) {
-    /* left/right entrances start up to 3.5rem off-axis: clip so they never widen the page on phones. */
-    html.js main { overflow-x: clip; }
     html.js [data-enter] {
       --h: 0;
       opacity: calc(1 - var(--h) * var(--o, 1));

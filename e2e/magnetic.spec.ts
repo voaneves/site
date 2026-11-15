@@ -26,9 +26,13 @@ test.describe('magnetic', () => {
     await expect.poll(() => hits.length).toBeGreaterThan(0);
     await page.waitForTimeout(300);
 
-    await page.mouse.move(box.x + box.width - 4, box.y + box.height / 2, { steps: 5 });
     const tx = () => btn.evaluate((el) => parseFloat(getComputedStyle(el).translate.split(' ')[0]) || 0);
-    await expect.poll(tx).toBeGreaterThan(0.5);
+    // The chunk can finish evaluating after a single sweep; keep the pointer moving until it has listened.
+    let wiggle = 0;
+    await expect(async () => {
+      await page.mouse.move(box.x + box.width - 4 - (wiggle++ % 2), box.y + box.height / 2, { steps: 3 });
+      expect(await tx()).toBeGreaterThan(0.5);
+    }).toPass({ timeout: 6000 });
     expect(await tx()).toBeLessThanOrEqual(6.01);
 
     await page.mouse.move(5, 5, { steps: 5 });

@@ -102,6 +102,7 @@
   }
 
   .vn-case-outcomes {
+    overflow-x: clip; /* items enter from 3.5rem right: never widen the page */
     display: grid;
     gap: var(--vn-space-3);
     padding-left: var(--vn-space-5);
