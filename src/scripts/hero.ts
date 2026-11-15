@@ -49,19 +49,6 @@ export function init(): void {
     });
   }
 
-  document.querySelectorAll<HTMLElement>('.vn-magnetic').forEach((el) => {
-    if (el.hasAttribute('data-depth')) return;
-    el.addEventListener('pointermove', (e) => {
-      const r = el.getBoundingClientRect();
-      const dx = ((e.clientX - r.left) / r.width - 0.5) * 10;
-      const dy = ((e.clientY - r.top) / r.height - 0.5) * 8;
-      el.style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0)`;
-    }, { passive: true });
-    el.addEventListener('pointerleave', () => {
-      el.style.transform = '';
-    });
-  });
-
   if (portraitWrap && canvas && portraitImg) {
     const setup = () => {
       const ctx = canvas.getContext('2d');

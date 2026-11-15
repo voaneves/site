@@ -44,4 +44,6 @@ afterLcp();
   onFirstPointer(() => motionOK() && import('./cursor-trail'));
   // W15: cursor dot + label pill, same trigger.
   onFirstPointer(() => motionOK() && import('./cursor'));
+  // W14: magnetic buttons, lazy, first fine-pointer move only.
+  onFirstPointer(() => motionOK() && matchMedia('(pointer: fine)').matches && import('./magnetic'));
 }
