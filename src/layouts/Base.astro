@@ -153,6 +153,7 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
         const s = localStorage.getItem('vn-theme');
         const m = s === 'light' || s === 'dark' ? s : matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
         document.documentElement.dataset.theme = m;
+        document.querySelector('meta[name=theme-color]')?.setAttribute('content', m === 'dark' ? '#0a0a0a' : '#fdfbf6');
         if (localStorage.getItem('vn-fonts') === '1') document.documentElement.classList.add('vn-fonts');
       } catch {
         document.documentElement.dataset.theme = 'light';

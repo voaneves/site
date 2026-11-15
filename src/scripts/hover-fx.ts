@@ -1,13 +1,14 @@
 const E = 'cubic-bezier(.25,1,.5,1)';
 const S = new CSSStyleSheet();
+// In @layer site: the entrance transition (motion.css, more specific) keeps winning until .is-done.
 S.replaceSync(
-  `[data-fx=tilt]{transform:perspective(800px) translateY(var(--ly,0)) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .8s ${E}}` +
+  `@layer site{[data-fx=tilt]{transform:perspective(800px) translateY(var(--ly,0)) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .8s ${E}}` +
   `[data-fx=tilt]:hover{--ly:-4px}` +
   `[data-fx=tilt] .vn-chip{box-shadow:0 0 0 1px transparent;transition:box-shadow .4s ${E};transition-delay:0s}` +
   `[data-fx=tilt]:hover .vn-chip{box-shadow:0 0 0 1px var(--vn-signal);transition-delay:calc(var(--i,0)*30ms)}` +
   `:where([data-fx=spot]){position:relative}` +
   `[data-fx=spot]::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .4s ${E};background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),color-mix(in srgb,var(--vn-signal) 30%,transparent),transparent 70%)}` +
-  `[data-fx=spot]:hover::after{opacity:1}`
+  `[data-fx=spot]:hover::after{opacity:1}}`
 );
 document.adoptedStyleSheets = [...document.adoptedStyleSheets, S];
 const ac = new AbortController();

@@ -176,6 +176,9 @@ function init(): void {
       root.toggleAttribute('data-idle', true);
       clearTimeout(it);
       it = window.setTimeout(() => root.removeAttribute('data-idle'), IDLE_MS);
+    } else if (z !== zone) {
+      clearTimeout(it);
+      root.removeAttribute('data-idle');
     }
     zone = z;
   };
@@ -188,6 +191,7 @@ function init(): void {
     ac.abort();
     cancelAnimationFrame(raf);
     clearTimeout(it);
+    rot.clear();
     root.remove();
     document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== sheet);
   };
