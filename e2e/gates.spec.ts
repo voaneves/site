@@ -178,9 +178,20 @@ for (const route of ROUTES) {
       await page.addInitScript(() => {
         const w = window as unknown as { __cls: number };
         w.__cls = 0;
+        // Attribution, so a failure on CI says which element moved, when, and whether the late fonts had landed.
+        const log: string[] = ((window as unknown as { __clsLog: string[] }).__clsLog = []);
+        type Src = { node: Node | null; previousRect: DOMRectReadOnly; currentRect: DOMRectReadOnly };
         new PerformanceObserver((list) => {
-          for (const e of list.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) {
-            if (!e.hadRecentInput) w.__cls += e.value;
+          for (const e of list.getEntries() as unknown as { value: number; hadRecentInput: boolean; startTime: number; sources: Src[] }[]) {
+            if (e.hadRecentInput) continue;
+            w.__cls += e.value;
+            const src = e.sources.slice(0, 3).map((x) => {
+              const el = x.node instanceof Element ? x.node : x.node?.parentElement;
+              const where = el?.closest('section, footer, header');
+              const r = (q: DOMRectReadOnly) => `${Math.round(q.x)},${Math.round(q.y)} ${Math.round(q.width)}x${Math.round(q.height)}`;
+              return `${el?.tagName}.${String(el?.className ?? '').slice(0, 30)} in ${where?.id || where?.tagName} ${r(x.previousRect)} -> ${r(x.currentRect)}`;
+            });
+            log.push(`${e.value.toFixed(4)} t=${Math.round(e.startTime)} y=${Math.round(scrollY)} fonts=${document.documentElement.classList.contains('vn-fonts')} :: ${src.join(' | ')}`);
           }
         }).observe({ type: 'layout-shift', buffered: true });
       });
@@ -190,8 +201,11 @@ for (const route of ROUTES) {
       await page.evaluate(
         () => new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res))),
       );
-      const cls = await page.evaluate(() => (window as unknown as { __cls: number }).__cls);
-      expect(cls).toBeLessThanOrEqual(0.01);
+      const { cls, log } = await page.evaluate(() => ({
+        cls: (window as unknown as { __cls: number }).__cls,
+        log: (window as unknown as { __clsLog: string[] }).__clsLog,
+      }));
+      expect(cls, ['layout shifts:', ...log].join(' || ')).toBeLessThanOrEqual(0.01);
     });
   });
 }
