@@ -26,7 +26,7 @@
     /* Counter-drift, Hand-under, Sinal set: containers drift against the scroll as they leave. */
     :is(#numeros, #contato) > .vn-container, #jornada > .vn-container:first-of-type { animation-name: u-drift; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: view(); animation-range: exit 0% exit 100%; }
     #numeros > .vn-container { --u: -8vh; }
-    #jornada > .vn-container:first-of-type { --u: -4vh; --s: .96; }
+    #jornada > .vn-container:first-of-type { --u: -4vh; --us: .96; }
     #contato > .vn-container { --u: -10vh; animation-range: exit 0% exit 10%; } /* the footer is short, so the last exit never reaches 100% */
     @keyframes u-sink { to { translate: 0 14vh; } }
     @keyframes u-scrim { 45% { opacity: 0; } to { opacity: .55; } }
@@ -36,6 +36,6 @@
     @keyframes u-hor { from { clip-path: inset(4rem 0 0 round 50% 50% 0 0 / 4rem 4rem 0 0); } to { clip-path: inset(0 round 0); } }
     @keyframes u-lamp { from { clip-path: inset(4rem 5vw 0 round 3rem); } to { clip-path: inset(0 round 0); } }
     @keyframes u-rise { from { translate: 0 var(--r); } }
-    @keyframes u-drift { to { translate: 0 var(--u); scale: var(--s, 1); } }
+    @keyframes u-drift { to { translate: 0 var(--u); scale: var(--us, 1); } }
   }
 }
