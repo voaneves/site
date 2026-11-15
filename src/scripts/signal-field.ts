@@ -48,13 +48,13 @@ export function init(band: HTMLElement): void {
       if (i === sig || s <= 0.02) continue;
       cx.globalAlpha = Math.min(0.85, 0.18 + s * 0.28);
       cx.beginPath();
-      cx.arc((i % cols + 0.5) * G + st[i * 3], (((i / cols) | 0) + 0.5) * G + st[i * 3 + 1], 1.5 * (1 + s), 0, 6.2832);
+      cx.arc((i % cols + 0.5) * G + st[i * 3], (((i / cols) | 0) + 0.5) * G + st[i * 3 + 1], Math.max(0.2, 1.5 * (1 + s)), 0, 6.2832);
       cx.fill();
     }
     cx.globalAlpha = 1;
     cx.fillStyle = cream;
     cx.beginPath();
-    cx.arc((sig % cols + 0.5) * G + st[sig * 3], (((sig / cols) | 0) + 0.5) * G + st[sig * 3 + 1], 3.4 + st[sig * 3 + 2] * 2.4, 0, 6.2832);
+    cx.arc((sig % cols + 0.5) * G + st[sig * 3], (((sig / cols) | 0) + 0.5) * G + st[sig * 3 + 1], Math.max(0.5, 3.4 + st[sig * 3 + 2] * 2.4), 0, 6.2832);
     cx.fill();
   };
 
