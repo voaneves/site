@@ -47,7 +47,7 @@ const nameCase = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
 
       <div class="vn-hero__actions">
         <a
-          class="vn-btn vn-btn--signal vn-btn--lg vn-magnetic"
+          class="vn-btn vn-btn--signal vn-btn--lg vn-magnetic" data-magnetic
           href="#contato"
           data-cursor-label={locale === 'en' ? 'START' : 'INICIAR'}
         >
@@ -55,7 +55,7 @@ const nameCase = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
           <span>{c.hero.ctaPrimary}</span>
         </a>
         <a
-          class="vn-btn vn-btn--secondary vn-btn--lg vn-hero-btn-ghost vn-magnetic"
+          class="vn-btn vn-btn--secondary vn-btn--lg vn-hero-btn-ghost vn-magnetic" data-magnetic
           href="#projetos"
           data-cursor-label={locale === 'en' ? 'WORK' : 'PROJETOS'}
         >
