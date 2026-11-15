@@ -22,6 +22,8 @@ for (const route of ROUTES) {
     test(`axe WCAG 2.2 AA clean on ${route} (${theme}, ${vp.width}px)`, async ({ page }) => {
       await page.setViewportSize(vp);
       await page.goto(route);
+      // scroll-fx adopts its sheet on idle and its line reveals start transitions then; audit after that (404/privacy included: they load it too).
+      await page.waitForFunction(() => !!document.documentElement.dataset.scrollFx, null, { timeout: 5000 }).catch(() => {});
       await page.evaluate(async (mode) => {
         document.documentElement.dataset.theme = mode;
         // Flipping the theme flips color-scheme, which starts colour transitions, and entrances (vn-beat) fade in; audit the settled state.
