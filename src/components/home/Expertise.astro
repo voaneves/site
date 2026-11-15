@@ -17,13 +17,14 @@ const splitTail = (s: string): [string, string] => {
   return [w.slice(0, -n).join(' ') + ' ', w.slice(-n).join(' ')];
 };
 const [titlePre, titleEm] = splitTail(c.expertise.title);
+const idle = c.expertise.pillars.slice(0, 3).map((p) => p.title.split(/[ ,&]/)[0].toUpperCase()).join('|');
 ---
 
-<section data-section="03" id="expertise" class="vn-section vn-chapter--creme vn-site-anchor-target">
+<section data-section="03" id="expertise" class="vn-section vn-chapter--creme vn-site-anchor-target" data-cursor-zone="plus" data-cursor-idle={idle}>
   <div class="vn-container">
     <div class="vn-sec-split">
       <div data-stagger>
-        <p class="vn-eyebrow" data-enter><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
+        <p class="vn-eyebrow" data-enter data-fx="scramble"><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
         <h2 class="vn-type-h2 vn-split-title" data-enter="mask"><Words text={titlePre} /><em><Words text={titleEm} /></em></h2>
       </div>
       <div data-enter="right">
@@ -58,7 +59,7 @@ const [titlePre, titleEm] = splitTail(c.expertise.title);
   <div class="vn-container">
     <div class="vn-pillars-grid" data-stagger>
       {c.expertise.pillars.map((pillar) => (
-        <article class="vn-pillar-card" data-enter>
+        <article class="vn-pillar-card" data-enter data-fx="tilt">
           <h3 class="vn-type-h4">{pillar.title}</h3>
           <ul class="vn-chip-list">
             {pillar.items.map((item) => (

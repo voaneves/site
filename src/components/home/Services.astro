@@ -19,13 +19,14 @@ const splitTail = (s: string): [string, string] => {
   return [w.slice(0, -n).join(' ') + ' ', w.slice(-n).join(' ')];
 };
 const [titlePre, titleEm] = splitTail(c.services.title);
+const idle = [eyebrowTag, c.services.ctaLabel.toUpperCase(), c.services.items[0].price].join('|');
 ---
 
-<section data-section="06" id="servicos" class="vn-section vn-site-anchor-target" data-surface="soft">
+<section data-section="06" id="servicos" class="vn-section vn-site-anchor-target" data-surface="soft" data-cursor-zone="plus" data-cursor-idle={idle}>
   <span id="services" class="vn-sr-only"></span>
   <div class="vn-container">
     <div class="vn-sec-head" data-stagger>
-      <p class="vn-eyebrow" data-enter><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
+      <p class="vn-eyebrow" data-enter data-fx="scramble"><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
       <h2 class="vn-type-h2 vn-measure vn-split-title" data-enter="mask"><Words text={titlePre} /><em><Words text={titleEm} /></em></h2>
       <p class="vn-type-body vn-muted vn-measure vn-sec-sub" data-enter>{c.services.subtitle}</p>
     </div>
@@ -55,10 +56,13 @@ const [titlePre, titleEm] = splitTail(c.services.title);
                 href={waHref}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-magnetic
+                data-fx="arc"
                 aria-label={`${c.services.ctaLabel}: ${srv.title}`}
               >
                 <Icon name="whatsapp" size={16} />
                 <span>{c.services.ctaLabel}</span>
+                <svg class="vn-arc" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><circle cx="16" cy="16" r="14" pathLength="100" /></svg>
               </a>
             </div>
           </article>
