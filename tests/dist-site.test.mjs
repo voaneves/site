@@ -219,7 +219,7 @@ const shape = (p) => ({
   navs: p.q('nav').length,
   dialogs: p.q('dialog').length,
   internalLinks: p.q((e) => e.tag === 'a' && e.attrs.href?.startsWith('/')).length,
-  externalLinks: p.q((e) => e.tag === 'a' && /^https:/.test(e.attrs.href ?? '') && !e.attrs.href.startsWith(ORIGIN)).map((a) => new URL(a.attrs.href).hostname).sort(),
+  externalLinks: p.q((e) => e.tag === 'a' && (e.attrs.href ?? '').startsWith('https:') && !e.attrs.href.startsWith(ORIGIN)).map((a) => new URL(a.attrs.href).hostname).sort(),
   ldTypes: p.q((e) => e.tag === 'script' && e.attrs.type === 'application/ld+json').map((s) => JSON.parse(s.children[0].text)['@type']).sort(),
   sectionIds: p.q((e) => e.tag === 'section' && e.attrs.id).map((s) => s.attrs.id),
   scripts: p.q((e) => e.tag === 'script' && e.attrs.src).map((s) => s.attrs.src).sort(),

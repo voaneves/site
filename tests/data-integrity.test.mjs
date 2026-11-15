@@ -284,8 +284,8 @@ test('UI: every value differs between locales except neutral tokens', () => {
 
 test('UI: meta titles are 10-70 chars and descriptions 50-160 chars', () => {
   for (const loc of LOCALES) {
-    for (const k of Object.keys(UI[loc]).filter((x) => /^metaTitle/.test(x))) assert.ok(UI[loc][k].length >= 10 && UI[loc][k].length <= 70, `${loc}.${k}`);
-    for (const k of Object.keys(UI[loc]).filter((x) => /^metaDesc/.test(x))) {
+    for (const k of Object.keys(UI[loc]).filter((x) => x.startsWith('metaTitle'))) assert.ok(UI[loc][k].length >= 10 && UI[loc][k].length <= 70, `${loc}.${k}`);
+    for (const k of Object.keys(UI[loc]).filter((x) => x.startsWith('metaDesc'))) {
       const min = k === 'metaDescNotFound' ? 10 : 50;
       assert.ok(UI[loc][k].length >= 10 && UI[loc][k].length <= 160, `${loc}.${k} (${UI[loc][k].length})`);
       if (k.includes('Home') || k.includes('Privacy')) assert.ok(UI[loc][k].length >= min, `${loc}.${k}`);

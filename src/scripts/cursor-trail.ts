@@ -397,7 +397,10 @@ function tick(now: number) {
   if (nodye) {
     // opt-out region: no new dye, canvas fades out, residual ink is wiped once the fade is done
     canvas.style.opacity = '0';
-    if (nodye > 0 && now - nodye > 420) (r.clear(), (nodye = -nodye));
+    if (nodye > 0 && now - nodye > 420) {
+      r.clear();
+      nodye = -nodye;
+    }
     qx = px;
     qy = py;
   }

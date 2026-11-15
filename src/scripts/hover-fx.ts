@@ -58,7 +58,7 @@ document.addEventListener('pointerout', (e) => {
 }, opt);
 
 // scramble: mono eyebrow decodes from noise, text restored exactly
-const G = '#%&*+=<>/\_0123456789';
+const G = '#%&*+=<>/_0123456789';
 const busy = new WeakSet<HTMLElement>();
 document.addEventListener('pointerover', (e) => {
   const el = q(e.target, 'scramble');

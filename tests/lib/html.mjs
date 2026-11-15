@@ -14,7 +14,7 @@ export function decodeEntities(s) {
 
 function parseAttrs(src) {
   const attrs = {};
-  const re = /([^\s"'<>\/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
+  const re = /([^\s"'<>/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
   let m;
   while ((m = re.exec(src))) {
     const name = m[1].toLowerCase();
@@ -69,7 +69,7 @@ export function parseHtml(html) {
       j++;
     }
     const inner = html.slice(lt + 1, j);
-    const nameMatch = inner.match(/^([a-zA-Z][^\s\/>]*)/);
+    const nameMatch = inner.match(/^([a-zA-Z][^\s/>]*)/);
     if (!nameMatch) {
       cur.children.push({ text: '<', parent: cur });
       i = lt + 1;

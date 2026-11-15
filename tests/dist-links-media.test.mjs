@@ -206,7 +206,7 @@ eachPage('every <script src>, stylesheet and preload resolves in dist and is sam
     ...p.q((e) => e.tag === 'link' && ['stylesheet', 'preload', 'modulepreload', 'manifest'].includes(e.attrs.rel)).map((e) => e.attrs.href),
   ];
   for (const r of refs) {
-    if (/^https:\/\/static\.cloudflareinsights\.com\//.test(r)) continue;
+    if (r.startsWith('https://static.cloudflareinsights.com/')) continue;
     assert.ok(r.startsWith('/'), `${r} must be site-absolute`);
     assert.ok(resolveInDist(r.split('?')[0]), `${r} missing in dist`);
   }

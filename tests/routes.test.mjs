@@ -14,8 +14,8 @@ test('portfolio.ts slugs match PROJECT_SLUGS for pt and en', async () => {
   assert.equal(all.length, PROJECT_SLUGS.length * 2, 'expected each slug once per locale');
   const half = all.length / 2;
   const expected = [...PROJECT_SLUGS].sort();
-  assert.deepEqual([...all.slice(0, half)].sort(), expected, 'first locale slugs');
-  assert.deepEqual([...all.slice(half)].sort(), expected, 'second locale slugs');
+  assert.deepEqual(all.slice(0, half).sort(), expected, 'first locale slugs');
+  assert.deepEqual(all.slice(half).sort(), expected, 'second locale slugs');
 });
 
 test('every project slug has a pt/en route pair', () => {

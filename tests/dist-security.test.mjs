@@ -78,7 +78,7 @@ eachPage('no inline event handler attributes (on*)', (p) => {
 
 eachPage('no external <script src> except Cloudflare Web Analytics; none are async-less blocking in <head>', (p) => {
   for (const s of p.q((e) => e.tag === 'script' && e.attrs.src)) {
-    if (/^https:\/\/static\.cloudflareinsights\.com\//.test(s.attrs.src)) continue;
+    if (s.attrs.src.startsWith('https://static.cloudflareinsights.com/')) continue;
     assert.ok(s.attrs.src.startsWith('/'), s.attrs.src);
   }
 });
@@ -152,7 +152,7 @@ eachPage('JSON-LD every url / image is absolute https and resolves when same-ori
     else if (n && typeof n === 'object') {
       for (const [k, v] of Object.entries(n)) {
         if (['url', 'image', 'logo', '@id'].includes(k) && typeof v === 'string') {
-          if (!/^https:\/\//.test(v)) bad.push(`${k}=${v}`);
+          if (!v.startsWith('https://')) bad.push(`${k}=${v}`);
           else if (v.startsWith(ORIGIN)) {
             const pathname = new URL(v).pathname;
             if (!resolveInDist(pathname)) bad.push(`${k}=${v} not built`);
