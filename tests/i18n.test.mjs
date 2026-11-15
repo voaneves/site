@@ -8,7 +8,8 @@ import { alternatePathForLocale, routeAlternates } from '../src/i18n/routes.mjs'
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 test('UI dictionaries maintain identical keys between pt-br and en', async () => {
-  const source = await fs.readFile(path.join(ROOT, 'src', 'i18n', 'ui.ts'), 'utf8');
+  // Normalise CRLF (Windows checkouts) so the block regexes below match on every platform.
+  const source = (await fs.readFile(path.join(ROOT, 'src', 'i18n', 'ui.ts'), 'utf8')).replace(/\r\n/g, '\n');
   const extractKeys = (block) => [...block.matchAll(/^\s+([a-zA-Z0-9_]+):/gm)].map((m) => m[1]).sort();
 
   const ptMatch = source.match(/'pt-br':\s*\{([\s\S]*?)\n\s*\},\n\s*en:/);

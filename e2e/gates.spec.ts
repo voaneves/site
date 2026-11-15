@@ -84,11 +84,15 @@ for (const route of ROUTES) {
         const r = await page.evaluate(async () => {
           const el = document.activeElement as HTMLElement | null;
           if (!el || el === document.body) return null;
-          // scroll-into-view may be smooth: wait (bounded) until it settles.
-          for (let f = 0; f < 90; f++) {
-            const b = el.getBoundingClientRect();
-            if (b.bottom > 0 && b.top < innerHeight) break;
+          // scroll-into-view may be smooth (and Tab can wrap back to the top): wait, bounded, until
+          // the element's position has been still for 3 consecutive frames, not merely on screen.
+          let last = Number.NaN;
+          let still = 0;
+          for (let f = 0; f < 120 && still < 3; f++) {
             await new Promise((res) => requestAnimationFrame(res));
+            const top = el.getBoundingClientRect().top;
+            still = top === last ? still + 1 : 0;
+            last = top;
           }
           const rect = el.getBoundingClientRect();
           const cover = (a: DOMRect, b: DOMRect | null) => {
