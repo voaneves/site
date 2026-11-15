@@ -17,8 +17,8 @@ const splitTail = (s: string): [string, string] => {
 };
 const [titlePre, titleEm] = splitTail(c.journey.title);
 const L = {
-  'pt-br': { region: 'Trajetória profissional, galeria rolável horizontalmente' },
-  en: { region: 'Career timeline, horizontally scrollable gallery' },
+  'pt-br': { region: 'Trajetória profissional, galeria rolável horizontalmente', drag: 'Arraste' },
+  en: { region: 'Career timeline, horizontally scrollable gallery', drag: 'Drag' },
 };
 const total = c.journey.items.length;
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -54,16 +54,18 @@ const pad = (n: number) => String(n).padStart(2, '0');
         </button>
       </div>
     </div>
+  </div>
 
     <div
       class="vn-journey-track"
       data-vn-journey
+      data-cursor-label={L[locale].drag}
       tabindex="0"
       role="region"
       aria-label={L[locale].region}
     >
       {c.journey.items.map((item, idx) => (
-        <article class={`vn-journey-card vn-sr ${item.current ? 'vn-journey-card--current' : ''}`}>
+        <article class={`vn-journey-card ${item.current ? 'vn-journey-card--current' : ''}`}>
           <div class="vn-journey-card__top">
             <img
               src={item.logo}
@@ -88,6 +90,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
         </article>
       ))}
     </div>
+
+  <div class="vn-container">
+    <div class="vn-journey-progress" aria-hidden="true"><span data-journey-bar></span></div>
 
     <details class="vn-archive-details vn-reveal">
       <summary class="vn-archive-summary">
