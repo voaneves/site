@@ -122,7 +122,6 @@
   #numeros::before {
     top: 0;
     translate: none;
-    background: #e8dec5;
     clip-path: polygon(0 0, 100% 0, 0 100%);
   }
 

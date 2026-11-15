@@ -44,7 +44,18 @@
   :root[data-theme="dark"] #numeros {
     background-image: radial-gradient(60% 80% at 50% 0%, rgb(255 56 56 / 0.16), transparent 70%);
   }
-  :root[data-theme="dark"] #numeros::before { background: var(--vn-ref-ink-1000); }
+
+  /* Chapter wedges: the corner triangle of each chapter is the ground of the section above it (--w-*), per theme. */
+  :root[data-theme="light"] {
+    --w-hero: var(--vn-ref-paper); --w-about: var(--vn-ref-cream-300); --w-numbers: var(--vn-ref-ink-950); --w-services: var(--vn-ref-cream-300);
+  }
+  :root[data-theme="dark"] {
+    --w-hero: var(--vn-ref-ink-950); --w-about: var(--vn-ref-ink-1000); --w-numbers: var(--vn-ref-ink-900); --w-services: var(--vn-ref-ink-1000);
+  }
+  #quem-sou::before { background: var(--w-hero); }
+  #numeros::before { background: var(--w-about); }
+  #expertise::before { background: var(--w-numbers); }
+  #perguntas::before { background: var(--w-services); }
 
   /* Hero keeps today's cream-on-ink values as var defaults (hero.css). */
   #inicio {
