@@ -6,6 +6,7 @@ import { init as nav } from './nav';
 import { init as marquee } from './marquee';
 import { init as journey } from './journey';
 import { init as hero } from './hero';
+import { init as afterLcp } from './after-lcp';
 
 theme();
 drawer();
@@ -15,6 +16,7 @@ nav();
 marquee();
 journey();
 hero();
+afterLcp();
 
 // --- module registrations ---
 {

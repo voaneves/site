@@ -42,6 +42,6 @@
 
   .vn-faq-item__a {
     padding-bottom: var(--vn-space-5);
-    max-width: 64ch;
+    max-width: 39.13em; /* = 64ch of Schibsted Grotesk, independent of the fallback */
   }
 }

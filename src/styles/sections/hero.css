@@ -110,7 +110,7 @@
 
   .vn-hero__sub {
     color: var(--vn-ref-cream-300);
-    max-width: 58ch;
+    max-width: 35.46em; /* = 58ch of Schibsted Grotesk, independent of the fallback */
   }
 
   .vn-hero__actions {

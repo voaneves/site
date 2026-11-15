@@ -1,5 +1,5 @@
 {
-  "htmlGzMaxBytes": 35840,
+  "htmlGzMaxBytes": 32768,
   "inlineCssGzMaxBytes": 14336,
   "inlineCssGzWarnBytes": 13312,
   "firstLoadJsGzMaxBytes": 8192,

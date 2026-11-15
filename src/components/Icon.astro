@@ -1,0 +1,50 @@
+---
+// Sprite-free icon: same markup as @voaneves/brand/astro/Icon.astro, but the <symbol> is inlined the
+// first time an icon appears on a page instead of fetching /icons/sprite.svg. That request sat on the
+// LCP critical path (Lighthouse mobile: ~150 ms), and each page only needs 1-5 symbols.
+import sprite from '../assets/icons-sprite.svg?raw';
+
+export interface Props {
+  name: string;
+  size?: number;
+  label?: string;
+  class?: string;
+}
+
+const g = globalThis as typeof globalThis & {
+  __vnSymbols?: Map<string, string>;
+  __vnSeen?: WeakMap<object, Set<string>>;
+};
+g.__vnSymbols ??= new Map(
+  [...sprite.matchAll(/<symbol id="(vn-icon-[^"]+)"[\s\S]*?<\/symbol>/g)].map(
+    (m) => [m[1], m[0]],
+  ),
+);
+g.__vnSeen ??= new WeakMap();
+
+const { name, size = 24, label, class: className = '' } = Astro.props;
+const id = `vn-icon-${name}`;
+const symbol = g.__vnSymbols.get(id);
+if (!symbol) throw new Error(`Unknown icon "${name}"`);
+
+const seen = g.__vnSeen.get(Astro.request) ?? new Set<string>();
+g.__vnSeen.set(Astro.request, seen);
+const define = !seen.has(id);
+seen.add(id);
+const decorative = !label;
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width={size}
+  height={size}
+  viewBox="0 0 1024 1024"
+  fill="currentColor"
+  class={className}
+  role={decorative ? undefined : 'img'}
+  aria-label={decorative ? undefined : label}
+  aria-hidden={decorative ? 'true' : undefined}
+>
+  {define && <Fragment set:html={symbol} />}
+  <use href={`#${id}`} />
+</svg>

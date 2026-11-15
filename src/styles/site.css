@@ -24,20 +24,134 @@
 
 @font-face {
   font-family: "Fraunces Fallback";
-  src: local("Georgia");
-  ascent-override: 113%;
-  descent-override: 30%;
+  src: local("Times New Roman"), local("TimesNewRomanPSMT"), local("Liberation Serif");
+  font-style: normal;
+  font-weight: 400 500;
+  ascent-override: 93.1%;
+  descent-override: 24.3%;
   line-gap-override: 0%;
-  size-adjust: 87%;
+  size-adjust: 105.0%;
+}
+
+@font-face {
+  font-family: "Fraunces Fallback";
+  src: local("Times New Roman Bold"), local("TimesNewRomanPS-BoldMT"), local("Liberation Serif Bold");
+  font-style: normal;
+  font-weight: 600;
+  ascent-override: 89.2%;
+  descent-override: 23.2%;
+  line-gap-override: 0%;
+  size-adjust: 109.7%;
+}
+
+@font-face {
+  font-family: "Fraunces Fallback";
+  src: local("Times New Roman Bold"), local("TimesNewRomanPS-BoldMT"), local("Liberation Serif Bold");
+  font-style: normal;
+  font-weight: 700;
+  ascent-override: 87.9%;
+  descent-override: 22.9%;
+  line-gap-override: 0%;
+  size-adjust: 111.2%;
+}
+
+@font-face {
+  font-family: "Fraunces Fallback";
+  src: local("Times New Roman Bold"), local("TimesNewRomanPS-BoldMT"), local("Liberation Serif Bold");
+  font-style: normal;
+  font-weight: 800 900;
+  ascent-override: 99.4%;
+  descent-override: 25.9%;
+  line-gap-override: 0%;
+  size-adjust: 98.4%;
+}
+
+@font-face {
+  font-family: "Fraunces Fallback";
+  src: local("Times New Roman Italic"), local("TimesNewRomanPS-ItalicMT"), local("Liberation Serif Italic");
+  font-style: italic;
+  font-weight: 400 600;
+  ascent-override: 96.8%;
+  descent-override: 25.2%;
+  line-gap-override: 0%;
+  size-adjust: 101.0%;
+}
+
+@font-face {
+  font-family: "Fraunces Fallback";
+  src: local("Times New Roman Bold Italic"), local("TimesNewRomanPS-BoldItalicMT"), local("Liberation Serif Bold Italic");
+  font-style: italic;
+  font-weight: 700 800;
+  ascent-override: 102.9%;
+  descent-override: 26.8%;
+  line-gap-override: 0%;
+  size-adjust: 95.0%;
+}
+
+@font-face {
+  font-family: "Fraunces Fallback";
+  src: local("Times New Roman Bold Italic"), local("TimesNewRomanPS-BoldItalicMT"), local("Liberation Serif Bold Italic");
+  font-style: italic;
+  font-weight: 900;
+  ascent-override: 97.7%;
+  descent-override: 25.5%;
+  line-gap-override: 0%;
+  size-adjust: 100.1%;
 }
 
 @font-face {
   font-family: "Schibsted Grotesk Fallback";
-  src: local("Arial");
-  ascent-override: 93%;
-  descent-override: 22%;
+  src: local("Arial"), local("ArialMT"), local("Liberation Sans");
+  font-style: normal;
+  font-weight: 400 500;
+  ascent-override: 95.6%;
+  descent-override: 25.2%;
   line-gap-override: 0%;
-  size-adjust: 104%;
+  size-adjust: 102.2%;
+}
+
+@font-face {
+  font-family: "Schibsted Grotesk Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold");
+  font-style: normal;
+  font-weight: 600;
+  ascent-override: 98.0%;
+  descent-override: 25.9%;
+  line-gap-override: 0%;
+  size-adjust: 99.6%;
+}
+
+@font-face {
+  font-family: "Schibsted Grotesk Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold");
+  font-style: normal;
+  font-weight: 700 900;
+  ascent-override: 96.2%;
+  descent-override: 25.4%;
+  line-gap-override: 0%;
+  size-adjust: 101.5%;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Fallback";
+  src: local("Courier New"), local("CourierNewPSMT"), local("Liberation Mono");
+  font-style: normal;
+  font-weight: 400 500;
+  ascent-override: 102.0%;
+  descent-override: 30.0%;
+  line-gap-override: 0%;
+  size-adjust: 100.0%;
+}
+
+@font-face {
+  font-family: "JetBrains Mono Fallback";
+  src: local("Courier New Bold"), local("CourierNewPS-BoldMT"), local("Liberation Mono Bold");
+  font-style: normal;
+  font-weight: 600 900;
+  ascent-override: 102.0%;
+  descent-override: 30.0%;
+  line-gap-override: 0%;
+  size-adjust: 100.0%;
 }
 
 @font-face {
@@ -72,10 +186,26 @@
   font-display: swap;
 }
 
-/* Metric-adjusted fallbacks in the stacks, so the font swap does not shift layout (CLS). */
+/* First paint uses the metric-adjusted fallbacks only; the web fonts are requested after LCP
+   (src/scripts/after-lcp.ts adds .vn-fonts), which keeps ~100 KB out of the critical path. The fallbacks
+   are size-adjusted per weight so the swap does not move layout (CLS). Without JS the web fonts
+   load the usual way. */
 @layer site {
   :root {
-    --vn-font-display: Fraunces, "Fraunces Fallback", Georgia, serif;
+    --vn-font-display: "Fraunces Fallback", "Times New Roman", serif;
+    --vn-font-text: "Schibsted Grotesk Fallback", Arial, sans-serif;
+    --vn-font-mono: "JetBrains Mono Fallback", "Courier New", monospace;
+  }
+  html:not(.js),
+  html.vn-fonts {
+    --vn-font-display: Fraunces, "Fraunces Fallback", "Times New Roman", serif;
     --vn-font-text: "Schibsted Grotesk", "Schibsted Grotesk Fallback", Arial, sans-serif;
+    --vn-font-mono: "JetBrains Mono", "JetBrains Mono Fallback", "Courier New", monospace;
+  }
+  /* The brand signature logo hardcodes font-family="JetBrains Mono" on its <text>, which would pull the
+     mono font into first paint. A CSS rule beats the presentation attribute. */
+  .vn-navbar__brand text,
+  .vn-mobile-drawer__head text {
+    font-family: var(--vn-font-mono);
   }
 }

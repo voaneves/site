@@ -1,6 +1,6 @@
 ---
 import Logo from '@voaneves/brand/astro/Logo.astro';
-import Icon from '@voaneves/brand/astro/Icon.astro';
+import Icon from '../components/Icon.astro';
 import Credit from '@voaneves/brand/astro/Credit.astro';
 import '../styles/site.css';
 import { UI, type Locale } from '../i18n/ui';
@@ -137,12 +137,10 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <link rel="manifest" href="/manifest.webmanifest" />
+  {/* The manifest link is added by src/scripts/after-lcp.ts: fetched in the head it (and its icon) lands inside the LCP window. */}
   {preloadHeroImage && (
     <link rel="preload" as="image" type="image/webp" href={preloadHeroImage} fetchpriority="high" />
   )}
-  <link rel="preload" as="font" type="font/woff2" href="/fonts/fraunces-italic-display.woff2" crossorigin />
-  <link rel="preload" as="font" type="font/woff2" href="/fonts/schibsted-grotesk.woff2" crossorigin />
   {graphs.map((entry) => (
     <script type="application/ld+json" set:html={JSON.stringify(entry)} />
   ))}
@@ -153,6 +151,7 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
         const s = localStorage.getItem('vn-theme');
         const m = s === 'light' || s === 'dark' ? s : matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
         document.documentElement.dataset.theme = m;
+        if (localStorage.getItem('vn-fonts') === '1') document.documentElement.classList.add('vn-fonts');
       } catch {
         document.documentElement.dataset.theme = 'light';
       }

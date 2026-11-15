@@ -26,7 +26,7 @@
   }
 
   .vn-contact-title {
-    max-width: 14ch;
+    max-width: 9.34em; /* = 14ch of the web font (see .vn-case-hero__title) */
     margin-block-end: var(--vn-space-4);
   }
 
