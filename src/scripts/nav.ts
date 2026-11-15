@@ -28,4 +28,38 @@ export function init(): void {
     }, { rootMargin: '-38% 0px -54% 0px' });
     sections.forEach((sec) => navObs.observe(sec));
   }
+  groundFlip();
+}
+
+// Header ground flip: a 1px line at the header's mid-height copies the ground under it onto the navbar.
+function groundFlip(): void {
+  const nav = document.querySelector<HTMLElement>('.vn-navbar');
+  const secs = document.querySelectorAll('main > section, main > article > section, .vn-site-footer');
+  if (!nav || !secs.length) return;
+  let cur: Element | undefined;
+  let io: IntersectionObserver;
+  const ch = (x: string) => x.match(/\d+/g)!.slice(0, 3).map(Number);
+  const apply = () => {
+    if (!cur) return;
+    const c = getComputedStyle(cur);
+    const s = nav.style;
+    for (const p of ['--vn-text', '--vn-text-muted', '--vn-line']) s.setProperty(p, c.getPropertyValue(p));
+    s.setProperty('--vn-surface', c.backgroundColor);
+    s.color = c.color;
+    s.colorScheme = ch(c.color).reduce((a, n) => a + n) < 382 ? 'light' : 'dark';
+    const hex = '#' + ch(c.backgroundColor).map((n) => (n + 256).toString(16).slice(1)).join('');
+    document.querySelectorAll('meta[name=theme-color]').forEach((m) => m.setAttribute('content', hex));
+  };
+  const build = () => {
+    io?.disconnect();
+    const t = Math.round(nav.offsetHeight / 2);
+    io = new IntersectionObserver((es) => {
+      for (const e of es) if (e.isIntersecting) { cur = e.target; apply(); }
+    }, { rootMargin: `-${t}px 0px -${innerHeight - t - 1}px` });
+    secs.forEach((e) => io.observe(e));
+  };
+  build();
+  addEventListener('resize', build);
+  addEventListener('transitionend', (e) => e.target === cur && apply());
+  new MutationObserver(apply).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 }
