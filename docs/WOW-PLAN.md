@@ -437,3 +437,78 @@ If LHCI cannot start wrangler, start the server manually first with `npx wrangle
 
 Weighted target: 0.4·8.5 + 0.3·9 + 0.2·8 + 0.1·8 = **8.5**.
 Biggest risks to the score: a weak photo/thumbnail quality (mitigation: unveil + zoom treatment, consistent 1px line border in dark), and the trail reading as noise (mitigation: opacity ≤ 0.35, off on the Sinal band, tune in the §2a box only).
+
+---
+
+## U6. Cursor along the page, trail opt-out, a reaction in every section
+
+**Why.** A visitor who is not impressed in 5 s leaves. The answer is not more effects. Every scroll stop should give one small, earned reward within a viewport, and the next action (a case, the contact form, WhatsApp) should always be one move away. era-residence.com is the bar for craft. lamalama.com is the reference for the cursor pill.
+
+**What the references actually do** (read from their markup and scripts, described here in our own words):
+- *era:* it has no custom cursor. It uses native context cursors (grab/grabbing on drag, zoom-in/out on images), magnetic circle buttons whose SVG arc grows from a short dash to half a ring on hover, and links whose letters roll out and back in while an underline wipes away. Hover cards reveal a heading, a paragraph and a line in sequence. Accordions animate their height. Map pins pulse, and their "+" rotates −90°. Sliders show a progress bar and a "01" counter. On scroll: each section declares its ground (light/colour/dark) and the header flips colour as that section crosses it. The hero image zooms ×2 while the next section rises over it. Every image has a ±15% parallax inside a clip. Text reveals are split into heading, paragraph and line. Timing uses 3 durations (.4/.8/1.2 s) and an "Out" ease of `cubic-bezier(.25,1,.5,1)`.
+- *lamalama:* each section block carries its own set of 3–5 playful cursor labels and swaps the backdrop theme on entry. Mono eyebrow text decodes in. Cases use the media card plus the pill (we already ship both).
+
+### U6.1 Cursor zones (declarative API, read in `ev()`)
+
+- `data-cursor-zone="<variant>"` goes on the section. `ev()` resolves `el.closest('[data-cursor-zone]')` and writes `root.dataset.zone`. All styling is CSS inside the `CSS` string of cursor.ts, so it costs 0 inline bytes. Element rules still win over the zone: media > label > link.
+- `data-cursor-idle="A|B|C"` goes on the section (optional, bilingual in markup). When the pointer enters a new zone, the pill decodes the next label in rotation, holds it for 1.4 s, then retracts. It shows once per entry and never while a link, label or media state is active. It is decorative (`aria-hidden` root), and every label repeats something visible in the section.
+
+| Zone | Sections | Look (dot 8px Sinal by default) |
+|---|---|---|
+| `ring` | Hero, Numbers, 404 | 40px 1px creme ring around a 4px dot, scales 0.6 when pressed. Idle: `OI·HELLO`, `PROVA·PROOF` |
+| `read` | About, FAQ, footer, case chapters | 6px dot, `mix-blend-mode:difference`. Quiet over long text |
+| `plus` | Expertise, Services | 22px "+" (dot `::before`/`::after` bars). Rotates 90° on link hover (era pin) |
+| `drag` | Journey | existing `drag` label plus ‹ › chevrons that spread 6px while pressed |
+| `view` | Projects | unchanged media card. Idle: `CASES·WORK` |
+| `signal` | Contact | 14px ink ring with no fill. Magnetic pull kept. Ink trail off (U6.2) |
+
+### U6.2 Trail opt-out
+
+`data-trail="off"` goes on a region (Contact). The trail's `ground()` already hit-tests every 24px or every 6th frame, so it adds `off = !!el?.closest('[data-trail="off"]')` there. While `off`, `r.frame` advects with no new dye, so the ink already on screen dissipates naturally. The canvas fades to opacity 0 through the existing `.4s` transition. On leave it returns to 1. `flag('__vnTrailOff', off)` is set for tests. This costs about 120 B gz.
+
+### U6.3 One signature interaction per gap section (the rule is "decorate, never hide")
+
+| Section | Interaction (era/lamalama pattern) | Mechanism, where | Keyboard / touch / reduce |
+|---|---|---|---|
+| About award cards | lift −4px plus pointer tilt ≤ 4° and a 1px line wipe | `data-fx="tilt"` in hover-fx.ts | static, no info lost |
+| Numbers impact cards | pointer spotlight (radial Sinal glow at `--mx/--my`) on the ink band | `data-fx="spot"` in hover-fx.ts | static |
+| Expertise pillars | lift plus chips cascading to a Sinal outline (30 ms stagger) | `data-fx="tilt"` plus CSS in the hover-fx sheet | `:focus-within` gives the same chip state (inline) |
+| Services CTAs | era arc ring: the SVG dash grows to a half ring, magnetic | `data-fx="arc"`, inline CSS | `:focus-visible` gives the same arc |
+| FAQ | animated open (`::details-content` + `interpolate-size`), "+" rotates to "×", pill `ABRIR·OPEN`/`FECHAR·CLOSE` | inline CSS, `data-cursor-label` on summary | native details, so keyboard works as is. Snaps open under reduce |
+| Eyebrows (all sections) | mono `[bracket]` text decodes from noise on hover | `data-fx="scramble"` in hover-fx.ts | text in `aria-label` and the real DOM text restored. Off under reduce |
+| Footer and header nav links | letter roll (text-shadow copy clipped, translateY −100%) | `data-fx="roll"`, inline CSS | `:focus-visible` gives the same roll |
+| Header CTA, case CTA | `data-magnetic` plus `data-cursor-label` | markup only | — |
+| Case spec list rows | line wipe plus label shift 8px | inline in case.css | `:focus-within` |
+| 404 | `vn-beat` staggered entrance plus scrambling "404" | base.css, `data-fx="scramble"` | entrance off under reduce |
+
+**Where the bytes go.** New file `src/scripts/hover-fx.ts` (≤ 1280 B gz). It loads through `onFirstPointer(() => motionOK() && import('./hover-fx'))`, adopts its own constructable sheet (tilt, spot, chip cascade) and uses one delegated `pointermove`, rAF-throttled. It never touches layout: only `transform` and custom properties. Inline CSS grows ≤ 400 B gz in total (arc, roll, FAQ, spec rows, vn-beat), which stays under the 13312 warn.
+
+### U6.4 Subtasks (executor unless noted; every pair of parallel subtasks has disjoint files)
+
+| Id | Owns (exclusive) | Acceptance | New e2e |
+|---|---|---|---|
+| U6a | src/scripts/cursor.ts | zones and idle labels per U6.1. Element states still win. Chunk ≤ 3072 gz | e2e/cursor-zones.spec.ts: one test per zone sets `data-zone` (6), idle label shows and retracts, rotates on re-entry, no idle during link, Tab still hides (10) |
+| U6b | src/scripts/cursor-trail.ts | U6.2. Canvas opacity is 0 within 600 ms inside `#contato` and back on leave. No new dye while off | e2e/cursor-trail-optout.spec.ts: off in contact, on after leave, fades rather than cutting, ink colour unchanged elsewhere (4) |
+| U6c | src/scripts/hover-fx.ts (new), src/scripts/main.ts, budget.json | tilt/spot/scramble per U6.3. Not requested under reduce, touch or before the first move. 0 CLS | e2e/hover-fx.spec.ts: lazy on first move, absent under reduce/touch, spot vars update, tilt resets on leave, scramble restores text and aria (6) |
+| U6d | Hero.astro, About.astro, Numbers.astro, about.css, numbers.css | zone attributes, `data-fx` hooks, idle labels in PT/EN | covered by U6i |
+| U6e | Expertise.astro, Services.astro, expertise.css, services.css | `plus` zone, arc SVG (`aria-hidden`), `:focus-visible` parity | e2e/services-arc.spec.ts: arc on hover and on focus (2) |
+| U6f | Faq.astro, faq.css, Contact.astro, Journey.astro, Projects.astro | FAQ animation and labels, `data-trail="off"` + `signal` zone, `drag`/`view` zones | e2e/faq-fx.spec.ts: opens by Enter, icon rotates, reduce snaps open (3) |
+| U6g | src/layouts/Base.astro, chrome.css, footer.css | magnetic header CTA, roll on nav/footer links, footer `read` zone | e2e/chrome-fx.spec.ts: CTA magnetic, roll on focus, 2.4.11 not obscured (3) |
+| U6h | CaseStudyPage.astro, case.css, src/pages/404.astro, base.css | magnetic case CTA, spec rows, `read` zone, vn-beat | e2e/case-404-fx.spec.ts (4) |
+| U6i | e2e/u6-coverage.spec.ts | every home section and the footer has a zone and at least one `data-fx`/label/magnet. 0 axe in both themes. CLS ≤ 0.01 with the pointer moving | (6) |
+| U6j | revisor, read-only | R2 checklist, budgets, LHCI 100 ×4 on mobile and desktop | — |
+
+That is about 38 new tests. None of the subtasks touch reveal.ts, count.ts, motion.css, Words.astro or portfolio.ts. **The working-tree fixes to those files must be committed before the worktrees branch from HEAD.**
+
+**Parallelism and merge.** U6a–U6h run in parallel, one git worktree each (`git worktree add ../site-u6x -b u6x`). The attribute names in U6.1/U6.3 are the contract, so the markup and engine subtasks do not wait on each other. Merge order: U6b → U6a → U6c (engines and budget) → U6d, U6e, U6f, U6g, U6h (any order, no shared files) → U6i → U6j.
+
+**Budget.** U6 adds about 0.5 KB to cursor, 0.1 KB to the trail and 1.0 KB for hover-fx. Lazy total ≈ 14.1/15.36 KB, so it fits. budget.json changes: `cursor` 2560→3072, add `"hover-fx": 1280`.
+
+## U7 (outline). Scroll choreography at era level
+
+1. **Section hand-offs.** Use CSS scroll-driven animations (`animation-timeline: view()`). The hero media scales 1→1.15 and dims while About rises over it with a clip-path arch. The ink and creme chapters wipe in. Every image gets a ±8% parallax inside its clip. Composited properties only, inside `@supports` and `prefers-reduced-motion:no-preference`. To keep inline CSS flat, the rules ship in a new `scroll-fx.ts` that adopts a sheet `onIdle` (≈1.5 KB gz).
+2. **Header flips with the ground.** This mirrors era's `data-bg`. An IntersectionObserver at the header line sets `data-ground` on `.vn-navbar`: ≈ 150 B of first-load JS in nav.ts. Check the 8192 first-load headroom first.
+3. **Split heading reveals** (heading, paragraph, line, using the .4/.8/1.2 s ladder). Needs reveal.ts and motion.css, so it waits for the current fixes to land.
+4. **Rejected:** Lenis smooth scroll and section snapping. They cost about 4 KB, add INP and a11y risk, and fight native scrolling. The scroll-driven easing gives the same feel.
+
+**Cost.** U6 + U7 ≈ 15.6 KB lazy, which is over the 15360 B limit. Raise `lazyJsGzMaxBytes` to **17408** and add `"scroll-fx": 2048`. Everything is idle-loaded or pointer-loaded and transform-only, so the expected Lighthouse impact is 0 (TBT < 10 ms, CLS 0). U7 is gated on an LHCI run on both form factors.
