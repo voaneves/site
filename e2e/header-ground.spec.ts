@@ -119,3 +119,46 @@ test.describe('header ground · behaviours', () => {
     await ctx.close();
   });
 });
+
+// Pages whose sections carry no background of their own (404, privacy, case body) take the first painted ancestor.
+for (const theme of ['light', 'dark'] as Theme[]) {
+  for (const path of ['/definitely-missing-route/', '/privacidade/', '/en/privacy/', '/projetos/caato/']) {
+    test(`transparent-section pages keep an opaque ground ${path} (${theme})`, async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.addInitScript((t) => localStorage.setItem('vn-theme', t), theme);
+      await page.goto(path);
+      await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+      const read = () => page.evaluate(() => {
+        const nav = document.querySelector<HTMLElement>('.vn-navbar')!;
+        return { surface: nav.style.getPropertyValue('--vn-surface'), tc: document.querySelector('meta[name=theme-color]')?.getAttribute('content') ?? '' };
+      });
+      // Put the first section under the header line (short pages may not scroll: the default header is then the right outcome).
+      await page.waitForLoadState('load');
+      await page.evaluate(() => new Promise((r) => requestIdleCallback(() => r(null), { timeout: 2500 })));
+      await page.evaluate(() => {
+        const h = document.querySelector<HTMLElement>('.vn-navbar')!.offsetHeight;
+        const sec = document.querySelector('main > section, main > article > section')!;
+        scrollTo(0, Math.max(0, scrollY + sec.getBoundingClientRect().top - h / 2 + 6));
+      });
+      await page.waitForTimeout(500);
+      const { surface, tc } = await read();
+      if (surface) {
+        const parts = surface.match(/[\d.]+/g)!.map(Number);
+        expect(parts.length === 3 || parts[3] > 0.99, surface).toBe(true);
+      }
+      expect(tc).toMatch(/^#[0-9a-f]{6}$/i);
+      if (surface) {
+        // theme-color is the opaque ground itself (paper or ink), never the transparent-black fallback.
+        const hex = '#' + surface.match(/\d+/g)!.slice(0, 3).map((n) => (Number(n) + 256).toString(16).slice(1)).join('');
+        expect(tc.toLowerCase()).toBe(hex);
+        expect(tc.toLowerCase()).not.toBe('#000000');
+      } else {
+        const rgb = tc.match(/[0-9a-f]{2}/gi)!.map((h) => parseInt(h, 16));
+        const lum = (rgb[0] + rgb[1] + rgb[2]) / 765;
+        if (theme === 'light') expect(lum).toBeGreaterThan(0.5); else expect(lum).toBeLessThan(0.3);
+      }
+      const res = await new AxeBuilder({ page }).include('.vn-navbar').withTags(['wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
+      expect(res.violations.filter((v) => v.id === 'color-contrast').map((v) => v.nodes.map((n) => n.target.join()))).toEqual([]);
+    });
+  }
+}
