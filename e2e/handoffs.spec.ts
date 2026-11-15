@@ -167,6 +167,42 @@ test.describe('handoffs, timelines', () => {
     rest(f1);
   });
 
+  test('wedge ::before rests before its range and is eased (fill backwards)', async ({ page }) => {
+    await ready(page);
+    const r = await page.evaluate(() => {
+      const c = getComputedStyle(document.querySelector('#expertise')!, '::before');
+      return { fill: c.animationFillMode, ease: c.animationTimingFunction };
+    });
+    expect(r.fill).toBe('backwards');
+    expect(r.ease).toContain('cubic-bezier(0.25, 1, 0.5, 1)');
+    const w0 = await at(page, '#expertise', 'entry', 0, 'scale', '::before');
+    expect(num(w0, w0.split(' ').length - 1)).toBeLessThan(0.15);
+  });
+
+  test('focus inside a drifting container releases its translate and keeps it clear of the header', async ({ page }) => {
+    await ready(page);
+    for (const sel of ['#numeros > .vn-container', '#contato > .vn-container', '#jornada > .vn-container:first-of-type']) {
+      const before = await at(page, sel, 'exit', 0.5, 'translate');
+      expect(before, sel).not.toBe('none');
+      const res = await page.evaluate((s) => {
+        const el = document.querySelector(s) as HTMLElement;
+        const t = (el.querySelector('a[href],button,input,textarea') as HTMLElement) ?? el;
+        if (t === el) el.tabIndex = -1;
+        t.focus({ preventScroll: true });
+        return null;
+      }, sel);
+      void res;
+      await expect.poll(() => page.evaluate((s) => getComputedStyle(document.querySelector(s)!).translate, sel), sel).toBe('none');
+    }
+  });
+
+  test('hero scrim is released on focus', async ({ page }) => {
+    await ready(page);
+    await at(page, '.vn-hero', 'exit', 0.8, 'opacity', '::after');
+    await page.evaluate(() => (document.querySelector('.vn-hero a[href],.vn-hero button') as HTMLElement).focus({ preventScroll: true }));
+    await expect.poll(() => page.evaluate(() => getComputedStyle(document.querySelector('.vn-hero')!, '::after').opacity)).toBe('0');
+  });
+
   test('focus inside a clipped section releases the clip', async ({ page }) => {
     await ready(page);
     const before = await at(page, '#numeros', 'entry', 0.3, 'clipPath');
