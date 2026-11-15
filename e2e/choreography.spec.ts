@@ -148,7 +148,7 @@ test('split headlines take the same space with and without the motion layout', a
     await page.goto('/');
     await settle(page);
     await readDown(page);
-    const r = await page.locator('[data-enter=mask]').evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().height)));
+    const r = await page.locator('[data-enter=mask]').evaluateAll((els) => els.map((e) => (e as HTMLElement).offsetHeight));
     await ctx.close();
     return r;
   };
