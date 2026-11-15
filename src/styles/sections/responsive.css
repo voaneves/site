@@ -79,6 +79,25 @@
     }
   }
 
+  /* Brand + EN + theme + menu need ~378px at full size; below that the hamburger slid off-screen (clipped at 320). */
+  @media (max-width: 400px) {
+    .vn-navbar__brand svg {
+      block-size: 1.5rem;
+    }
+
+    .vn-navbar__inner {
+      gap: var(--vn-space-2);
+    }
+
+    .vn-navbar__actions {
+      gap: var(--vn-space-1);
+    }
+
+    .vn-navbar__actions > .vn-btn--sm {
+      padding-inline: var(--vn-space-3);
+    }
+  }
+
   @media (max-width: 480px) {
     .vn-btn--xl {
       width: 100%;
