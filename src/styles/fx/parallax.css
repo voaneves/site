@@ -1,0 +1,4 @@
+/* U7d: fx/parallax.css, adopted by src/scripts/scroll-fx.ts into @layer site (do not wrap it in @layer yourself).
+   Rules outside @supports are BASE (always adopted under reduced-motion: no-preference).
+   Scroll-timeline rules go in a top-level @supports (animation-timeline: view()) { ... } block (TL, dropped when unsupported)
+   and inside @media screen and (prefers-reduced-motion: no-preference). Identity at scrollY 0; composited properties only. */

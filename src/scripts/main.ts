@@ -50,6 +50,8 @@ afterLcp();
       void import('./count').then((m) => m.init(sec));
     }, { rootMargin: '100% 0px' }).observe(sec);
   });
+  // U7: scroll choreography (CSS scroll timelines + word split), on idle, all pointers, never under reduced motion.
+  onIdle(() => matchMedia('(prefers-reduced-motion: no-preference)').matches && void import('./scroll-fx').then((m) => m.init()));
   // W16: fluid cursor trail, only after the first real pointer move (Lighthouse never pays for it).
   onFirstPointer(() => motionOK() && import('./cursor-trail'));
   // W15: cursor dot + label pill, same trigger.
