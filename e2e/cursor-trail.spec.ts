@@ -131,7 +131,12 @@ test.describe('trail: runtime', () => {
     await ready(page, '/?vn-debug&vn-trail=2d');
     // move continuously for ~600ms so the fading circles accumulate
     for (let i = 0; i < 12; i++) await page.mouse.move(200 + i * 60, 300 + (i % 2) * 80, { steps: 4 });
-    expect(await page.evaluate(() => (window as unknown as { __vnTrailMode?: string }).__vnTrailMode)).toBe('2d');
+    // the lazy chunk can still be in flight on a loaded machine: poll the flag instead of reading it once
+    await expect
+      .poll(() => page.evaluate(() => (window as unknown as { __vnTrailMode?: string }).__vnTrailMode), { timeout: 10_000 })
+      .toBe('2d');
+    await page.mouse.move(260, 300, { steps: 4 });
+    for (let i = 0; i < 6; i++) await page.mouse.move(300 + i * 60, 300 + (i % 2) * 80, { steps: 4 });
     const painted = () =>
       trail(page).evaluate((c: HTMLCanvasElement) => {
         const d = c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data;
