@@ -24,10 +24,10 @@
 @font-face {
   font-family: "Fraunces Fallback";
   src: local("Georgia");
-  ascent-override: 98%;
-  descent-override: 25%;
+  ascent-override: 113%;
+  descent-override: 30%;
   line-gap-override: 0%;
-  size-adjust: 103%;
+  size-adjust: 87%;
 }
 
 @font-face {
@@ -69,4 +69,12 @@
   font-style: normal;
   font-weight: 400 700;
   font-display: swap;
+}
+
+/* Metric-adjusted fallbacks in the stacks, so the font swap does not shift layout (CLS). */
+@layer site {
+  :root {
+    --vn-font-display: Fraunces, "Fraunces Fallback", Georgia, serif;
+    --vn-font-text: "Schibsted Grotesk", "Schibsted Grotesk Fallback", Arial, sans-serif;
+  }
 }

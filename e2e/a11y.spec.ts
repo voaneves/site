@@ -11,9 +11,16 @@ const ROUTES = [
   '/404.html',
 ];
 
+const VIEWPORTS = [
+  { width: 390, height: 844 },
+  { width: 1366, height: 800 },
+];
+
 for (const route of ROUTES) {
   for (const theme of ['light', 'dark']) {
-    test(`axe WCAG 2.2 AA clean on ${route} (${theme})`, async ({ page }) => {
+   for (const vp of VIEWPORTS) {
+    test(`axe WCAG 2.2 AA clean on ${route} (${theme}, ${vp.width}px)`, async ({ page }) => {
+      await page.setViewportSize(vp);
       await page.goto(route);
       await page.evaluate((mode) => {
         document.documentElement.dataset.theme = mode;
@@ -23,5 +30,6 @@ for (const route of ROUTES) {
         .analyze();
       expect(results.violations).toEqual([]);
     });
+   }
   }
 }

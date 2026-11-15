@@ -19,4 +19,10 @@
     align-items: center;
     gap: var(--vn-space-5);
   }
+
+  .vn-site-footer a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 24px;
+  }
 }

@@ -1,2 +1,112 @@
-/* W3 motion tokens and reveal rules (placeholder) */
-@layer site {}
+/* W6 motion contract (shared by phase 2). Hidden states only under html.js + no-preference. */
+@layer site {
+  @keyframes vn-rise {
+    from { translate: 0 105%; }
+    to { translate: 0 0; }
+  }
+
+  @keyframes vn-sr {
+    from { opacity: .001; translate: 0 2rem; }
+    to { opacity: 1; translate: 0 0; }
+  }
+
+  @keyframes vn-unveil {
+    from { clip-path: inset(12% 8% round var(--vn-radius-2xl)); }
+    to { clip-path: inset(0 round var(--vn-radius-2xl)); }
+  }
+
+  @keyframes vn-unveil-img {
+    from { scale: 1.12; }
+    to { scale: 1; }
+  }
+
+  @keyframes vn-par {
+    from { translate: 0 -4%; }
+    to { translate: 0 4%; }
+  }
+
+  /* Eyebrow: mono bracket label. Brackets/number live in aria-hidden spans. */
+  .vn-eyebrow {
+    font-family: var(--vn-font-mono, ui-monospace, monospace);
+    font-size: .8125rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--vn-text-muted);
+    margin-block-end: var(--vn-space-3);
+  }
+
+  /* Chapters: alternating ink / creme grounds with a clip-path wedge divider. */
+  .vn-chapter--ink,
+  .vn-chapter--creme {
+    position: relative;
+  }
+
+  .vn-chapter--ink {
+    background: #000;
+    color: #e8dec5;
+    --vn-text-muted: #e8dec5;
+  }
+
+  .vn-chapter--creme {
+    background: #e8dec5;
+    color: #000;
+    --vn-text-muted: #3d3a33;
+  }
+
+  .vn-chapter--ink::before,
+  .vn-chapter--creme::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: -1px;
+    height: 3vw;
+    translate: 0 -100%;
+    background: inherit;
+    clip-path: polygon(0 100%, 100% 0, 100% 100%);
+    pointer-events: none;
+  }
+
+  .vn-unveil { overflow: clip; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html.js .vn-reveal .vn-line { overflow: clip; display: block; }
+    html.js .vn-reveal .vn-line > span { display: block; translate: 0 105%; }
+    html.js .vn-reveal.is-in .vn-line > span {
+      animation: vn-rise var(--vn-dur-line) var(--vn-ease-out) calc(var(--i, 0) * var(--vn-stagger-line, 80ms)) both;
+    }
+
+    html.js .vn-unveil:not(.is-in) { clip-path: inset(12% 8% round var(--vn-radius-2xl)); }
+    html.js .vn-unveil:not(.is-in) img { scale: 1.12; }
+    html.js .vn-unveil.is-in { clip-path: inset(0 round var(--vn-radius-2xl)); transition: clip-path 1200ms var(--vn-ease-in-out, ease-in-out); }
+    html.js .vn-unveil.is-in img { scale: 1; transition: scale 1200ms var(--vn-ease-in-out, ease-in-out); }
+
+    @supports (animation-timeline: view()) {
+      html.js .vn-sr {
+        animation: vn-sr linear both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 30%;
+      }
+
+      html.js .vn-unveil {
+        clip-path: none;
+        transition: none;
+        animation: vn-unveil linear both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 40%;
+      }
+
+      html.js .vn-unveil img {
+        transition: none;
+        animation: vn-unveil-img linear both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 40%;
+      }
+
+      html.js .vn-par {
+        animation: vn-par linear both;
+        animation-timeline: view();
+        animation-range: cover;
+      }
+    }
+  }
+}

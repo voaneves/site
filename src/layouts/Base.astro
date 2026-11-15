@@ -145,6 +145,7 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
   ))}
   <script is:inline>
     (() => {
+      document.documentElement.classList.add('js');
       try {
         const s = localStorage.getItem('vn-theme');
         const m = s === 'light' || s === 'dark' ? s : matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';

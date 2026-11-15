@@ -20,6 +20,9 @@
 
   .vn-navbar__link {
     position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 24px;
     padding-block: 4px;
     color: var(--vn-text-muted);
     transition: color var(--vn-dur-hover) var(--vn-ease-out);

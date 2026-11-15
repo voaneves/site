@@ -6,6 +6,12 @@
     color: var(--vn-cream);
   }
 
+  .vn-case-crumb a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 24px;
+  }
+
   .vn-case-crumb {
     display: flex;
     flex-wrap: wrap;
