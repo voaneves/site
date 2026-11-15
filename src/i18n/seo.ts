@@ -6,6 +6,8 @@ export interface SeoStrings {
   alumniOf: string;
   awards: string[];
   catalogName: string;
+  priceRange: string;
+  areaServedCountry: string;
 }
 
 export const SEO: Record<Locale, SeoStrings> = {
@@ -19,6 +21,8 @@ export const SEO: Record<Locale, SeoStrings> = {
       '1º Lugar · Bootcamp Nexa IA Generativa & Claude 3',
     ],
     catalogName: 'Serviços Digitais e de Gestão',
+    priceRange: 'R$ 90–R$ 1.500+',
+    areaServedCountry: 'Brasil',
   },
   en: {
     inLanguage: 'en',
@@ -30,5 +34,7 @@ export const SEO: Record<Locale, SeoStrings> = {
       '1st Place · Nexa Bootcamp Generative AI & Claude 3',
     ],
     catalogName: 'Digital & Management Services',
+    priceRange: 'BRL 90–1,500+',
+    areaServedCountry: 'Brazil',
   },
 };

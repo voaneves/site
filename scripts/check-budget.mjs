@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
-import { baseName, entryScripts, staticImports } from './lib/js-graph.mjs';
+import { entryScripts, resolveSpec, staticImports } from './lib/js-graph.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = path.join(ROOT, 'dist');
@@ -55,16 +55,20 @@ for (const file of htmlFiles) {
 }
 
 const astroDir = path.join(DIST, '_astro');
-const jsFiles = allFiles.filter((f) => path.dirname(f) === astroDir && f.endsWith('.js'));
-const jsInfo = new Map(); // basename -> { code, gz }
+const jsFiles = allFiles.filter((f) => f.startsWith(astroDir + path.sep) && /\.m?js$/.test(f));
+const jsInfo = new Map(); // posix path relative to dist/_astro -> { code, gz }
 for (const file of jsFiles) {
   const buf = await fs.readFile(file);
-  jsInfo.set(path.basename(file), { code: buf.toString('utf8'), gz: zlib.gzipSync(buf).length });
+  const key = path.relative(astroDir, file).split(path.sep).join('/');
+  jsInfo.set(key, { code: buf.toString('utf8'), gz: zlib.gzipSync(buf).length });
 }
 
-function resolveChunk(spec) {
-  const name = baseName(spec);
-  return jsInfo.has(name) ? name : null;
+function resolveChunk(spec, fromKey, origin) {
+  const key = resolveSpec(spec, fromKey, jsInfo);
+  if (!key) {
+    throw new Error(`Unresolved static import "${spec}" from ${origin}: no matching file in dist/_astro`);
+  }
+  return key;
 }
 
 let firstLoadMax = 0;
@@ -75,18 +79,19 @@ for (const file of htmlFiles) {
   const { srcs, inline } = entryScripts(await fs.readFile(file, 'utf8'));
   const seen = new Set();
   let bytes = 0;
-  const queue = [];
+  const queue = []; // { spec, from, origin }
   for (const code of inline) {
     bytes += zlib.gzipSync(Buffer.from(code, 'utf8')).length;
-    queue.push(...staticImports(code));
+    for (const spec of staticImports(code)) queue.push({ spec, from: '', origin: `inline script in ${rel}` });
   }
-  queue.push(...srcs);
+  for (const spec of srcs) queue.push({ spec, from: '', origin: rel });
   while (queue.length) {
-    const name = resolveChunk(queue.pop());
-    if (!name || seen.has(name)) continue;
+    const { spec, from, origin } = queue.pop();
+    const name = resolveChunk(spec, from, origin);
+    if (seen.has(name)) continue;
     seen.add(name);
     bytes += jsInfo.get(name).gz;
-    queue.push(...staticImports(jsInfo.get(name).code));
+    for (const s of staticImports(jsInfo.get(name).code)) queue.push({ spec: s, from: name, origin: `_astro/${name}` });
   }
   for (const n of seen) firstLoadUnion.add(n);
   if (bytes > firstLoadMax) {

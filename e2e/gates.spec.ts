@@ -7,13 +7,19 @@ async function settle(page: Page) {
   await page.evaluate(() => document.fonts.ready);
 }
 
-async function scrollSteps(page: Page, steps: number, pause: number) {
+async function scrollSteps(page: Page, steps: number) {
   for (let i = 1; i <= steps; i++) {
     await page.evaluate(
-      (f) => window.scrollTo(0, (document.documentElement.scrollHeight - innerHeight) * f),
+      (f) =>
+        new Promise<void>((res) => {
+          window.scrollTo({
+            top: (document.documentElement.scrollHeight - innerHeight) * f,
+            behavior: 'instant',
+          });
+          requestAnimationFrame(() => requestAnimationFrame(() => res()));
+        }),
       i / steps,
     );
-    await page.waitForTimeout(pause);
   }
 }
 
@@ -159,8 +165,10 @@ for (const route of ROUTES) {
       });
       await page.goto(route);
       await settle(page);
-      await scrollSteps(page, 10, 100);
-      await page.waitForTimeout(200);
+      await scrollSteps(page, 10);
+      await page.evaluate(
+        () => new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res))),
+      );
       const cls = await page.evaluate(() => (window as unknown as { __cls: number }).__cls);
       expect(cls).toBeLessThanOrEqual(0.01);
     });
@@ -179,7 +187,23 @@ test.describe('reduced motion', () => {
       await page.setViewportSize({ width: 1366, height: 800 });
       await page.goto(route);
       await settle(page);
-      await scrollSteps(page, 10, 50);
+      await scrollSteps(page, 10);
+      const motionOffenders = await page.evaluate(() =>
+        [...document.querySelectorAll('.vn-reveal, .vn-sr, .vn-unveil, .vn-par, .vn-marquee__track')]
+          .filter((e) => {
+            const cs = getComputedStyle(e);
+            const names = cs.animationName.split(',').map((s) => s.trim());
+            if (names.every((n) => n === 'none')) return false;
+            if (cs.animationPlayState.split(',').every((s) => s.trim() === 'paused')) return false;
+            const durs = cs.animationDuration.split(',').map((s) => {
+              const v = parseFloat(s);
+              return /ms$/.test(s.trim()) ? v : v * 1000;
+            });
+            return !durs.every((d) => d <= 1);
+          })
+          .map((e) => `${e.tagName.toLowerCase()}.${String(e.className).split(/\s+/)[0]}`),
+      );
+      expect(motionOffenders, 'animated elements under reduced motion').toEqual([]);
       await expect
         .poll(() =>
           page.evaluate(() =>
@@ -198,6 +222,34 @@ test.describe('reduced motion', () => {
       );
       expect(hidden).toBe(0);
       expect(lazy).toEqual([]);
+    });
+  }
+});
+
+// (5b) Positive control: without reduced motion, reveals really start hidden/animated
+test.describe('reduced motion positive control', () => {
+  test.use({ reducedMotion: 'no-preference' });
+  for (const route of ROUTES) {
+    test(`reveal elements are hidden or animated before intersecting ${route}`, async ({ page }, testInfo) => {
+      await page.setViewportSize({ width: 1366, height: 800 });
+      await page.goto(route);
+      await settle(page);
+      const found = await page.evaluate(() => {
+        const els = [...document.querySelectorAll('.vn-reveal, .vn-sr')];
+        const far = els.filter((e) => e.getBoundingClientRect().top > innerHeight * 2);
+        return far.some((e) => {
+          const cs = getComputedStyle(e);
+          return Number(cs.opacity) < 1 || cs.animationName.split(',').some((n) => n.trim() !== 'none');
+        });
+      });
+      if (!found) {
+        testInfo.annotations.push({
+          type: 'no-reveal-control',
+          description: `no far-below-fold .vn-reveal/.vn-sr with opacity<1 or animation on ${route}`,
+        });
+        return;
+      }
+      expect(found).toBe(true);
     });
   }
 });

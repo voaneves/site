@@ -84,8 +84,11 @@ const defaultSchema = [
     '@type': 'ProfessionalService',
     name: 'voaneves — Victor Neves',
     url: 'https://voaneves.com',
-    areaServed: ['BR', 'Global'],
-    priceRange: 'R$ 90 - R$ 1.500+',
+    areaServed: [
+      { '@type': 'Country', name: seo.areaServedCountry },
+      { '@type': 'City', name: 'Palmas' },
+    ],
+    priceRange: seo.priceRange,
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
       name: seo.catalogName,
