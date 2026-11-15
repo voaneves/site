@@ -53,6 +53,20 @@
 }
 
 @layer site {
+  html,
+  body {
+    overflow-x: clip;
+  }
+
+  .vn-hero__inner > *,
+  .vn-about-grid > *,
+  .vn-numbers-lower > *,
+  .vn-faq-layout > *,
+  .vn-case-grid > *,
+  .vn-bento-grid > * {
+    min-width: 0;
+  }
+
   .vn-site-anchor-target {
     scroll-margin-top: 84px;
   }
@@ -1299,6 +1313,23 @@
 
     .vn-case-pager__link--next {
       text-align: left;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .vn-btn--xl {
+      width: 100%;
+      padding-inline: var(--vn-space-4);
+      white-space: normal;
+      text-align: center;
+    }
+
+    .vn-contact-title {
+      font-size: clamp(2.5rem, 11vw, 4rem);
+    }
+
+    .vn-hero__title {
+      font-size: clamp(3rem, 14vw, 4.5rem);
     }
   }
 }

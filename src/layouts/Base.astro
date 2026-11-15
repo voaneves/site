@@ -110,6 +110,7 @@ const defaultSchema = [
 ];
 
 const graphs = schemaJson.length > 0 ? schemaJson : defaultSchema;
+const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
 ---
 <!doctype html>
 <html lang={htmlLang}>
@@ -138,11 +139,11 @@ const graphs = schemaJson.length > 0 ? schemaJson : defaultSchema;
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="preload" as="font" type="font/woff2" href="/fonts/fraunces-italic-display.woff2" crossorigin />
-  <link rel="preload" as="font" type="font/woff2" href="/fonts/schibsted-grotesk.woff2" crossorigin />
   {preloadHeroImage && (
     <link rel="preload" as="image" type="image/webp" href={preloadHeroImage} fetchpriority="high" />
   )}
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/fraunces-italic-display.woff2" crossorigin />
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/schibsted-grotesk.woff2" crossorigin />
   {graphs.map((entry) => (
     <script type="application/ld+json" set:html={JSON.stringify(entry)} />
   ))}
@@ -157,6 +158,9 @@ const graphs = schemaJson.length > 0 ? schemaJson : defaultSchema;
       }
     })();
   </script>
+  {cfBeaconToken && (
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: cfBeaconToken })} />
+  )}
 </head>
 <body>
   <a class="vn-skip-link" href="#main">{t.skipToContent}</a>
@@ -274,6 +278,7 @@ const graphs = schemaJson.length > 0 ? schemaJson : defaultSchema;
 
     const applyTheme = (next: string) => {
       document.documentElement.dataset.theme = next;
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'dark' ? '#0a0a0a' : '#f4ead4');
       try {
         localStorage.setItem('vn-theme', next);
       } catch {
@@ -418,11 +423,28 @@ const graphs = schemaJson.length > 0 ? schemaJson : defaultSchema;
             const d = Number(chip.dataset.depth || 12);
             chip.style.transform = `translate3d(${(nx * d).toFixed(1)}px, ${(ny * d).toFixed(1)}px, 0)`;
           }
+          if (portraitWrap) {
+            portraitWrap.style.transform = `perspective(900px) rotateX(${(-ny * 6).toFixed(2)}deg) rotateY(${(nx * 6).toFixed(2)}deg)`;
+          }
         }, { passive: true });
         stage.addEventListener('pointerleave', () => {
           for (const chip of chips) chip.style.transform = '';
+          if (portraitWrap) portraitWrap.style.transform = '';
         });
       }
+
+      document.querySelectorAll<HTMLElement>('.vn-magnetic').forEach((el) => {
+        if (el.hasAttribute('data-depth')) return;
+        el.addEventListener('pointermove', (e) => {
+          const r = el.getBoundingClientRect();
+          const dx = ((e.clientX - r.left) / r.width - 0.5) * 10;
+          const dy = ((e.clientY - r.top) / r.height - 0.5) * 8;
+          el.style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0)`;
+        }, { passive: true });
+        el.addEventListener('pointerleave', () => {
+          el.style.transform = '';
+        });
+      });
 
       if (portraitWrap && canvas && portraitImg) {
         addEventListener('load', () => {
