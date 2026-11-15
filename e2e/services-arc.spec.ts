@@ -9,7 +9,19 @@ test.describe('services arc CTA', () => {
     await page.goto('/');
     const cta = page.locator('.vn-service-card__cta').first();
     const ring = cta.locator('.vn-arc circle');
-    await cta.scrollIntoViewIfNeeded();
+    // html has scroll-behavior: smooth; scroll instantly so the CTA is not still moving under the pointer.
+    await cta.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    // The card slides in on entry (data-enter): hover only once it has stopped, or it carries the CTA off the pointer.
+    await expect
+      .poll(() =>
+        cta.evaluate((el) => {
+          const card = el.closest('.vn-service-card')!;
+          // Entrance transitions only: the card also has an always-running scroll-driven animation.
+          const moving = card.getAnimations({ subtree: true }).filter((x) => x instanceof CSSTransition && x.playState === 'running').length;
+          return moving + (card.classList.contains('is-in') ? 0 : 1);
+        }),
+      )
+      .toBe(0);
     const start = await dash(ring);
     expect(start).toBeLessThan(20);
     await cta.hover();
