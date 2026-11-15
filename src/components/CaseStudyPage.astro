@@ -2,6 +2,7 @@
 import Icon from './Icon.astro';
 import { UI, type Locale } from '../i18n/ui';
 import { PORTFOLIO, type ProjectCase } from '../data/portfolio';
+import Words from './Words.astro';
 
 export interface Props {
   locale: Locale;
@@ -61,8 +62,8 @@ const caseBase = locale === 'en' ? '/en/projects' : '/projetos';
   <section class="vn-section">
     <div class="vn-container">
       <div class="vn-case-grid">
-        <aside class="vn-case-aside">
-          <dl class="vn-spec-list">
+        <aside class="vn-case-aside" data-stagger>
+          <dl class="vn-spec-list" data-enter="left">
             <div class="vn-spec-list__row">
               <dt class="vn-type-label vn-muted">{c.caseUi.clientLabel}</dt>
               <dd class="vn-type-body-strong">{project.client}</dd>
@@ -77,7 +78,7 @@ const caseBase = locale === 'en' ? '/en/projects' : '/projetos';
             </div>
           </dl>
 
-          <div class="vn-case-block">
+          <div class="vn-case-block" data-enter="left">
             <h2 class="vn-type-label vn-sec-tag">{c.caseUi.deliverablesTitle}</h2>
             <ul class="vn-service-card__list">
               {project.deliverables.map((d) => (
@@ -86,7 +87,7 @@ const caseBase = locale === 'en' ? '/en/projects' : '/projetos';
             </ul>
           </div>
 
-          <ul class="vn-chip-list">
+          <ul class="vn-chip-list" data-enter="left">
             {project.tags.map((tag) => (
               <li class="vn-chip">{tag}</li>
             ))}
@@ -106,28 +107,28 @@ const caseBase = locale === 'en' ? '/en/projects' : '/projetos';
         </aside>
 
         <div class="vn-case-prose">
-          <section class="vn-case-chapter">
-            <h2 class="vn-type-h3">{c.caseUi.challengeTitle}</h2>
-            <p class="vn-type-lead vn-muted">{project.challenge}</p>
+          <section class="vn-case-chapter" data-stagger>
+            <h2 class="vn-type-h3" data-enter="mask"><Words text={c.caseUi.challengeTitle} /></h2>
+            <p class="vn-type-lead vn-muted" data-enter>{project.challenge}</p>
+          </section>
+
+          <section class="vn-case-chapter" data-stagger>
+            <h2 class="vn-type-h3" data-enter="mask"><Words text={c.caseUi.architectureTitle} /></h2>
+            <p class="vn-type-lead vn-muted" data-enter>{project.architecture}</p>
           </section>
 
           <section class="vn-case-chapter">
-            <h2 class="vn-type-h3">{c.caseUi.architectureTitle}</h2>
-            <p class="vn-type-lead vn-muted">{project.architecture}</p>
-          </section>
-
-          <section class="vn-case-chapter">
-            <h2 class="vn-type-h3">{c.caseUi.outcomesTitle}</h2>
-            <ul class="vn-case-outcomes">
+            <h2 class="vn-type-h3" data-enter="mask"><Words text={c.caseUi.outcomesTitle} /></h2>
+            <ul class="vn-case-outcomes" data-stagger>
               {project.outcomes.map((out) => (
-                <li class="vn-type-lead">{out}</li>
+                <li class="vn-type-lead" data-enter="right">{out}</li>
               ))}
             </ul>
           </section>
         </div>
       </div>
 
-      <nav class="vn-case-pager" aria-label={UI[locale].projectNavLabel}>
+      <nav class="vn-case-pager" aria-label={UI[locale].projectNavLabel} data-enter>
         <a class="vn-case-pager__link" href={`${caseBase}/${prevProject.slug}/`}>
           <span class="vn-type-micro vn-muted">← {c.caseUi.prevProject}</span>
           <strong class="vn-type-body-strong">{prevProject.title}</strong>
@@ -141,11 +142,11 @@ const caseBase = locale === 'en' ? '/en/projects' : '/projetos';
   </section>
 
   <section class="vn-section" data-surface="signal">
-    <div class="vn-container vn-case-cta">
-      <h2 class="vn-type-h2">{c.caseUi.ctaHeading}</h2>
-      <a class="vn-btn vn-btn--primary vn-btn--lg" href={`${homeHref}#contato`}>
+    <div class="vn-container vn-case-cta" data-stagger>
+      <h2 class="vn-type-h2" data-enter="mask"><Words text={c.caseUi.ctaHeading} /></h2>
+      <div data-enter><a class="vn-btn vn-btn--primary vn-btn--lg" href={`${homeHref}#contato`}>
         <span>{c.caseUi.ctaButton}</span>
-      </a>
+      </a></div>
     </div>
   </section>
 </article>

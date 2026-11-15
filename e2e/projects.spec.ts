@@ -24,7 +24,7 @@ for (const [route, label, caseBase] of [
       await expect(img).toHaveAttribute('height', /^\d+$/);
       await expect(img).toHaveAttribute('loading', 'lazy');
       await expect(img).toHaveAttribute('decoding', 'async');
-      await expect(row.locator('.vn-unveil [data-vt], .vn-unveil[data-vt]').first()).toHaveAttribute('data-vt', SLUGS[i]);
+      await expect(row.locator('[data-enter=clip][data-vt]').first()).toHaveAttribute('data-vt', SLUGS[i]);
       await expect(row).toHaveAttribute('data-cursor-label', label);
       await expect(row).toHaveAttribute('data-cursor-media', /\/assets\/img\/port\/.+\.webp$/);
       await expect(row).toHaveAttribute('href', `${caseBase}/${SLUGS[i]}/`);

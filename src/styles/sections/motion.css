@@ -1,23 +1,8 @@
 /* W6 motion contract (shared by phase 2). Hidden states only under html.js + no-preference. */
 @layer site {
-  @keyframes vn-rise {
-    from { translate: 0 105%; }
-    to { translate: 0 0; }
-  }
-
   @keyframes vn-sr {
     from { opacity: .001; translate: 0 2rem; }
     to { opacity: 1; translate: 0 0; }
-  }
-
-  @keyframes vn-unveil {
-    from { clip-path: inset(12% 8% round var(--vn-radius-2xl)); }
-    to { clip-path: inset(0 round var(--vn-radius-2xl)); }
-  }
-
-  @keyframes vn-unveil-img {
-    from { scale: 1.12; }
-    to { scale: 1; }
   }
 
   @keyframes vn-par {
@@ -66,40 +51,61 @@
     pointer-events: none;
   }
 
-  .vn-unveil { overflow: clip; }
-
+  /* U4 choreography. [data-enter=up|left|right|scale|mask|clip|wipe] enters once: reveal.ts adds .is-in to it, or
+     to its [data-stagger] parent, whose children then queue by --i. --h is the hidden flag (1 until in).
+     mask: the .vn-w words of a split headline rise line by line (--l, from reveal.ts) through a fixed window
+     (the clip bottom moves with the word). clip: media wipes up while its img settles from a slow zoom.
+     wipe: an inset rounded band opens to full bleed. Settled state: opacity 1, no offset, no scale.
+     [data-drift] is the one scroll-scrubbed effect: a horizontal drift by --dx while the element scrolls in. */
   @media (prefers-reduced-motion: no-preference) {
-    html.js .vn-reveal .vn-line { overflow: clip; display: block; }
-    html.js .vn-reveal .vn-line > span { display: block; translate: 0 105%; }
-    html.js .vn-reveal.is-in .vn-line > span {
-      animation: vn-rise var(--vn-dur-line) var(--vn-ease-out) calc(var(--i, 0) * var(--vn-stagger-line, 80ms)) both;
+    html.js [data-enter] {
+      --h: 0;
+      opacity: calc(1 - var(--h) * var(--o, 1));
+      translate: calc(var(--h) * var(--x, 0px)) calc(var(--h) * var(--y, 2.5rem));
+      scale: calc(1 - var(--h) * var(--s, 0));
     }
 
-    html.js .vn-unveil:not(.is-in) { clip-path: inset(12% 8% round var(--vn-radius-2xl)); }
-    html.js .vn-unveil:not(.is-in) img { scale: 1.12; }
-    html.js .vn-unveil.is-in { clip-path: inset(0 round var(--vn-radius-2xl)); transition: clip-path 1200ms var(--vn-ease-in-out, ease-in-out); }
-    html.js .vn-unveil.is-in img { scale: 1; transition: scale 1200ms var(--vn-ease-in-out, ease-in-out); }
+    html.js [data-enter]:not(.is-in, .is-in > *) { --h: 1; }
+    html.js [data-enter=left] { --x: -3.5rem; --y: 0px; }
+    html.js [data-enter=right] { --x: 3.5rem; --y: 0px; }
+    html.js [data-enter=scale] { --s: .06; --y: 1rem; }
+    html.js :is([data-enter=mask], [data-enter=clip], [data-enter=wipe]) { --o: 0; --y: 0px; }
+    html.js [data-enter=mask] .vn-w {
+      display: inline-block;
+      translate: 0 calc(var(--h) * 180%);
+      clip-path: inset(-40% -20% calc(var(--h) * 180% - 35%));
+    }
+    html.js [data-enter=clip] { clip-path: inset(calc(var(--h) * 100%) 0 0 round var(--r, 0px)); }
+    html.js [data-enter=clip] img { scale: calc(1 + var(--h) * .22); }
+    html.js [data-enter=wipe] { clip-path: inset(calc(var(--h) * 4rem) calc(var(--h) * 5vw) 0 round calc(var(--h) * 3rem)); }
+
+    html.js :is([data-enter], [data-enter=mask] .vn-w, [data-enter=clip] img) {
+      transition: opacity .9s, translate 1.3s, scale 1.8s, clip-path 1.3s;
+      transition-timing-function: cubic-bezier(.16, 1, .3, 1);
+      transition-delay: calc(var(--i, 0) * 110ms + var(--l, 0) * 120ms);
+    }
+
+    [data-stagger] > * { --i: 0; }
+    [data-stagger] > :nth-child(2) { --i: 1; }
+    [data-stagger] > :nth-child(3) { --i: 2; }
+    [data-stagger] > :nth-child(4) { --i: 3; }
+    [data-stagger] > :nth-child(5) { --i: 4; }
+    [data-stagger] > :nth-child(6) { --i: 5; }
+    [data-stagger] > :nth-child(n+7) { --i: 6; }
+
+    @keyframes vn-drift { from { translate: var(--dx, 8vw) 0; } }
 
     @supports (animation-timeline: view()) {
+      html.js [data-drift] {
+        animation: vn-drift cubic-bezier(.25, .6, .3, 1) both;
+        animation-timeline: view();
+        animation-range: cover 0% cover 70vh;
+      }
+
       html.js .vn-sr {
         animation: vn-sr linear both;
         animation-timeline: view();
         animation-range: entry 0% cover 30%;
-      }
-
-      html.js .vn-unveil {
-        clip-path: none;
-        transition: none;
-        animation: vn-unveil linear both;
-        animation-timeline: view();
-        animation-range: entry 0% cover 40%;
-      }
-
-      html.js .vn-unveil img {
-        transition: none;
-        animation: vn-unveil-img linear both;
-        animation-timeline: view();
-        animation-range: entry 0% cover 40%;
       }
 
       html.js .vn-par {

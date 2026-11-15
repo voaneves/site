@@ -251,8 +251,8 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
 
   <footer class="vn-site-footer">
     <div class="vn-container vn-site-footer__inner">
-      <Credit variant="inline" lang={locale === 'en' ? 'en' : 'pt-BR'} utmSource="voaneves-site" />
-      <div class="vn-site-footer__links">
+      <div data-enter="left"><Credit variant="inline" lang={locale === 'en' ? 'en' : 'pt-BR'} utmSource="voaneves-site" /></div>
+      <div class="vn-site-footer__links" data-enter="right">
         <a class="vn-type-micro" href={privacyHref}>{t.footerPrivacy}</a>
         <a class="vn-type-micro" href={c.contact.cvUrl} download>{locale === 'en' ? 'CV PDF (PT)' : 'CV PDF'}</a>
         <a class="vn-type-micro" href="https://github.com/voaneves" rel="noopener noreferrer" target="_blank">GitHub</a>
