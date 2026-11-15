@@ -504,14 +504,136 @@ That is about 38 new tests. None of the subtasks touch reveal.ts, count.ts, moti
 
 **Budget.** U6 adds about 0.5 KB to cursor, 0.1 KB to the trail and 1.0 KB for hover-fx. Lazy total ≈ 14.1/15.36 KB, so it fits. budget.json changes: `cursor` 2560→3072, add `"hover-fx": 1280`.
 
-## U7 (outline). Scroll choreography at era level
+## U7. Scroll choreography at era level
 
-1. **Section hand-offs.** Use CSS scroll-driven animations (`animation-timeline: view()`). The hero media scales 1→1.15 and dims while About rises over it with a clip-path arch. The ink and creme chapters wipe in. Every image gets a ±8% parallax inside its clip. Composited properties only, inside `@supports` and `prefers-reduced-motion:no-preference`. To keep inline CSS flat, the rules ship in a new `scroll-fx.ts` that adopts a sheet `onIdle` (≈1.5 KB gz).
-2. **Header flips with the ground.** This mirrors era's `data-bg`. An IntersectionObserver at the header line sets `data-ground` on `.vn-navbar`: ≈ 150 B of first-load JS in nav.ts. Check the 8192 first-load headroom first.
-3. **Split heading reveals** (heading, paragraph, line, using the .4/.8/1.2 s ladder). Needs reveal.ts and motion.css, so it waits for the current fixes to land.
-4. **Rejected:** Lenis smooth scroll and section snapping. They cost about 4 KB, add INP and a11y risk, and fight native scrolling. The scroll-driven easing gives the same feel.
+**Why.** The user puts era-residence.com "a whole other level", and that is the bar. Every section should feel like a spectacle in both themes. U6k gave each section its own ground. U7 makes the moves *between* grounds the show, using native scroll only: no Lenis, no snapping and no scroll-jacking.
 
-**Cost.** U6 + U7 ≈ 15.6 KB lazy, which is over the 15360 B limit. Raise `lazyJsGzMaxBytes` to **17408** and add `"scroll-fx": 2048`. Everything is idle-loaded or pointer-loaded and transform-only, so the expected Lighthouse impact is 0 (TBT < 10 ms, CLS 0). U7 is gated on an LHCI run on both form factors.
+**What era does on scroll** (from its markup and its bundled script, read on 2026-11-15, described in our own words): it uses a GSAP + ScrollTrigger + SplitText stack with Lenis on top.
+- *Grounds.* Each block declares `data-bg` = light (12), colour (7) or dark (2). As a block crosses the header, a trigger swaps a theme class on the header, both on the way down and on the way back up.
+- *Hand-off.* The hero image is pre-scaled. On leaving, it scales up to ×2 while fading out ("In" ease), and the next block slides over it.
+- *Parallax.* An image inside a clipped wrapper drifts −15% → +15% of its own height across the wrapper's whole pass (a lightly smoothed scrub). "In" and "out" variants run −20 → 0 on entry and 0 → 20% on exit. Containers counter-drift ±10%.
+- *Text and lines.* Headings split into characters that rise 50% with a slight quarter-turn. Paragraphs split into masked lines that rise from below. Containers rise about 3.3 rem while fading in. Rules draw in with a top-to-bottom clip.
+- *Timing.* Three durations, S .4 / M .8 / L 1.2 s, with a 0.1 s stagger. The "Out" ease is `cubic-bezier(.25,1,.5,1)` and the "In" ease is `cubic-bezier(.5,0,.75,0)`.
+- *Moments.* A horizontal section wipes its panels in with a clip-path. Map pins pulse.
+
+We copy no code or assets. We map each pattern onto CSS scroll-driven animations, which run on the compositor and cost no main-thread work while scrolling.
+
+### U7.1 Inventory (HEAD 4275ea5)
+
+| Asset | Today | U7 use |
+|---|---|---|
+| motion.css (inline) | U4 `[data-enter]` transitions (.9/1.3/1.8 s, ease (.16,1,.3,1)), mask headlines, `[data-drift]` on view(). `.vn-sr`/`.vn-par` rules and keyframes are **dead** (no markup uses them) | ladder retune. Delete the dead rules (about −110 B gz) |
+| reveal.ts (first load) | IO `.is-in`. `lines()` sets `--l` for `[data-enter=mask]`. `.vn-sr` branch is dead | `lines()` also handles `[data-enter=lines]`. Drop the `.vn-sr` branch |
+| services.css | sticky card stack plus a `vn-svc-under` scale on named view timelines (≥900 px) | stays Moment 0. Untouched |
+| themes.css / theme.ts | ground presets `--g-*` per section. **The trim task is editing them now** | read-only for U7 |
+| navbar (brand) | `background: color-mix(var(--vn-surface) 88%)`, blur, `--vn-line` border | ground flip writes these vars on the element (U7.3) |
+| render-cost.css | `content-visibility:auto` on the 8 sections below the hero | view timelines must still resolve. Tested in U7i |
+| hero-fx.ts | writes `transform` on the portrait wrap, chips and badge | U7 uses only the individual `translate`/`scale` properties on *other* nodes, so the two never fight |
+| Gauges | first-load 3402/8192, lazy total 14539/15360, inline CSS 13922/14336 (trim → about 13 000), home HTML 31873/32768 gz | see U7.7 |
+
+**Engine (decision).** New `src/scripts/scroll-fx.ts`, loaded `onIdle` on every page when `(prefers-reduced-motion: no-preference)`. It is *not* gated on `motionOK()`, because touch phones must get the show too. It adopts a constructable sheet built from `src/styles/fx/*.css?inline`, which Vite minifies (if `?inline` turns out not to minify in the Astro build, fall back to `?raw` plus a manual minify step in U7a). The sheet goes into `@layer site`, so it never outranks the unlayered brand rules by accident. Two strings:
+- `BASE` is always adopted: line-split styles and rules.
+- `TL` is adopted only if `CSS.supports('animation-timeline: view()')`, and it also sits inside `@supports`.
+
+Every timeline rule lives inside `@media screen and (prefers-reduced-motion: no-preference)`, animates only `translate`/`scale`/`opacity`/`clip-path`, and is **identity at `scrollY = 0`**. Pre-scroll effects use `scroll(root)` with `animation-range: 0 100svh`, so adopting the sheet at idle changes no pixel above the fold: no LCP risk and no CLS. Entry clips use `animation-fill-mode: backwards`, so no clip is left over after the range ends. Any section being clipped gets `:focus-within { animation: none }` (WCAG 2.4.11).
+
+### U7.2 Hand-offs (each pair has a named technique; e = view() entry, x = view() exit)
+
+| Pair | Name | Technique (U7c, `fx/handoff.css`) |
+|---|---|---|
+| Hero → About | **Sink & lift** | On `scroll(root)` 0→100svh, `.vn-hero__inner` translates 0→14vh and lags, clipped by the hero's `overflow:hidden`. A new `.vn-hero::after` scrim (`background: var(--g-bg, #0a0a0a)`, z above the inner) goes opacity 0→.55 over the 45–100% range. `#quem-sou::before` (the wedge) scales Y 0→1 from the bottom over e 0–60% |
+| About → Numbers | **Ink tide** | `#numeros` clip-path goes from `inset(5rem 4vw 0 round 3rem 3rem 0 0)` to `inset(-3vw 0 0 round 0)` over e 0–100% (the negative top keeps the wedge). `.vn-stats-hero-grid` rises 6rem→0 over e 20–100% |
+| Numbers → Expertise | **Counter-drift + wedge lift** | The `#numeros > .vn-container` translate goes 0→−8vh over x 0–100% (era's container counter-parallax). `#expertise::before` scales Y 0→1 over e 0–60% |
+| Expertise → Journey | **Side shutter** | `#jornada` clip-path goes from `inset(0 12vw round 2rem)` to `inset(0 round 0)` over e 0–100%. It foreshadows the horizontal track |
+| Journey → Projects | **Hand-under** | `#jornada > .vn-container:first-of-type` scales 1→.96 and translates 0→−4vh over x 0–100% (the same "card goes under" grammar as the Services stack) |
+| Projects → Services | **Horizon rise** | `#servicos` clip-path goes from `inset(4rem 0 0 round 50% 50% 0 0 / 4rem 4rem 0 0)` to `inset(0 round 0)` over e 0–80%. It echoes the "dawn" theme VT. A clip-path never breaks `position:sticky`, so the stack is unaffected |
+| Services → FAQ | **Wedge lift + drift** | `#perguntas::before` scales Y 0→1. The FAQ h2 gets `data-drift` (markup in U7f), which reuses the existing inline drift |
+| FAQ → Contact | **Lamp on** | The existing wipe becomes scrubbed: `#contato` clip-path goes from `inset(4rem 5vw 0 round 3rem)` to `inset(0 round 0)` over e 0–100%. The animation overrides the U4 transition only where timelines exist. Elsewhere the IO wipe stays |
+| Contact → footer | **Sinal set** | The `#contato > .vn-container` translate goes 0→−10vh over x 0–100%. `.vn-site-footer__inner` rises 4rem→0 over footer e 0–100% |
+
+Rule: **never fade text on exit**. Opacity is used only on the decorative scrim, so axe contrast holds at any scroll position.
+
+### U7.3 Header ground flip (U7b, `nav.ts`, first load ≤ 220 B gz, 0 CSS)
+
+An IntersectionObserver uses a 1 px line at the header's mid-height: `rootMargin: -(h/2)px 0px -(innerHeight − h/2 − 1)px`, with `h = navbar.offsetHeight`, rebuilt on `resize` and debounced. It observes `main > section, main > article > section, .vn-site-footer`. When the line enters a ground, it reads `getComputedStyle(sec)` and writes these onto `.vn-navbar`:
+- `--vn-surface` (the bg),
+- `--vn-line`,
+- `--vn-text` and `color`,
+- `colorScheme`: `light` when the text is dark (the sum of the RGB channels is below 382), otherwise `dark`. This keeps the CTA and icon buttons correct on Contact red in both themes,
+- `dataset.ground = sec.id || 'footer'`, as a test hook.
+
+The flip is instant at the edge, the same as era. `background-color` is not animated (motion rule).
+
+A `MutationObserver` on `<html data-theme>` re-applies the current ground after a toggle. It runs as a microtask, so the change lands before the view-transition snapshot.
+
+Resulting header colours:
+- Light: paper, creme, **tinta** (Numbers), paper, creme, paper, creme, paper, **signal** (ink text), creme.
+- Dark: tinta, night, graphite, tinta, night, graphite, night, tinta, signal, night.
+
+**theme-color follow (opt-in, on):** every `meta[name=theme-color]` gets the ground's bg. At the top of the page it equals the U6k values, so themes-rhythm test 11 still holds.
+
+Without JS, or before init, today's header stays.
+
+### U7.4 Split reveals and the ladder (U7e `fx/text.css`, U7f markup)
+
+- **Ladder:** S .4 s for eyebrows, rules and chips; M .8 s for paragraph lines and opacity; L 1.2 s for heading lines, translate, scale, clip-path and media. Ease is "Out" `(.25,1,.5,1)` everywhere. Delay is `--i·100ms + --l·100ms`. Paragraphs start +200 ms after the heading of their group.
+- motion.css transitions become `opacity .8s, translate 1.2s, scale 1.2s, clip-path 1.2s`. That is byte-neutral, and `is-done` at 3200 ms still covers it.
+- **Headings:** every h2 already masks, except the Journey h2. U7f moves it to `<Words>` + `data-enter="mask"` and converts Journey's `.vn-reveal` to `data-enter`.
+- **Never split:** the hero h1/sub, the case h1/summary, and the 404/privacy h1/intro (LCP rule).
+- **Paragraph lines:** `data-enter="lines"` goes on About p1 and the subtitles of Numbers, Journey, Projects, Services, FAQ and Contact, plus the case chapter leads. Before the element enters, scroll-fx.ts (U7a) wraps its words in `.vn-w` spans, keeping the text nodes and spaces so the accessible name is unchanged. The words only become inline-block once they are wrapped. Then reveal.ts `lines()` assigns `--l`.
+  - If scroll-fx has not run yet, the block falls back to the plain U4 fade-rise.
+  - `fx/text.css`: `[data-enter=lines]:has(.vn-w){--o:0;--y:0}` plus a word rule like the mask headlines, at M .8 s.
+- **Eyebrows:** clip wipe `inset(0 100% 0 0)` → `inset(0)` at S .4 s on `.is-in`.
+- **Rules** (era "line"): `.vn-spec-list__row`, `.vn-faq-item` and `.vn-work-row` get `border-color: transparent` plus an `::after` 1 px hairline (`background: var(--vn-line)`). Its scaleX goes 0→1 from the left over e 10–60%. This is TL only, so without timelines the real border stays.
+
+### U7.5 Parallax in clips (U7d `fx/parallax.css`) and moments (U7g `fx/moments.css`)
+
+- **Hero portrait** `.vn-hero-portrait__img`: on `scroll(root)` 0→100svh, scale goes 1→1.15 and translate goes 0→6% (era's hero zoom, toned down). Identity at the top, so the LCP image is never transformed at load and never at opacity 0. The wrap's `transform` from hero-fx still composes on top.
+- **Project thumbnails** `.vn-project-row__media img`: `scale: 1.18` plus translate −8%→+8% over view() cover. This replaces the U4 img zoom only where timelines exist. The container clip reveal stays.
+- **Case hero** `.vn-case-media img`: on `scroll(root)` 0→100svh, scale 1→1.1 and translate 0→5%. It is the case-page LCP, so it is identity at the top. Lives in `fx/case.css`.
+- **Moment 1, "Proof board"** (Numbers, ≥1100 px and min-height 760 px):
+  - `.vn-chart-panel { position: sticky; top: calc(var(--nav-h) + 2rem); align-self: start }`. This goes **inline** in numbers.css (about +60 B), so the layout is final at first paint (no CLS when the sheet is adopted).
+  - `.vn-chart-svg__fill` (`transform-box: fill-box; transform-origin: left`) scaleX goes 0→1 over the panel's view() e 50% → contain 30%, while count.ts ticks the stats.
+  - No added height, so the `--ci` seeds hold. The sr-only table is unchanged.
+- **Moment 2, "Track focus"** (Journey): each `.vn-journey-card` gets `animation-timeline: view(inline)` on the horizontal track. Scale goes .92→1→.92 and translate 3rem→0→0 across entry/exit. The progress bar and the "01 / NN" counter already exist (era's slider pattern).
+- **Moment 0:** the Services sticky stack, unchanged.
+- **Rejected:** a pinned horizontal Projects reveal. It needs about 3× viewport of runway (the `--ci` seeds and anchors break), Tab order would diverge from the visual x position, and it is scroll-jacking in effect. Revisit in U8.
+
+### U7.6 Case, 404, privacy (U7h)
+
+- **Case:** "Sink & lift" applied to `.vn-case-hero > .vn-container` (translate 0→10vh on `scroll(root)`), plus the case-media parallax, the chapter leads on `lines`, spec rows as rules, KPIs `data-stagger` rising over 1.2 s, and the header flip from the inverse hero to paper.
+- **404 / privacy:** pages are short and the LCP is text, so the only additions are the header flip and the footer "Sinal set". `vn-beat` is unchanged.
+
+### U7.7 Budget
+
+| Item | Now | U7 | Rule |
+|---|---|---|---|
+| Lazy chunk `scroll-fx` | — | about 1.9 KB gz (JS ≈ 350 B, CSS ≈ 1.55 KB) | `"scroll-fx": 2304` |
+| Lazy total | 14539 | ≈ 16450 | **raise `lazyJsGzMaxBytes` 15360 → 17408** |
+| First load (max) | 3402 | ≤ +150 net (nav +220, reveal −70) | ≤ 8192 |
+| Inline CSS | 13922 (trim → ~13 000) | ≤ 0 net (dead `.vn-sr`/`.vn-par` −110, sticky +60, ladder ±0) | U7 must not raise it |
+| HTML per page | home 31873 | ≤ +200 gz (`lines` attrs, Journey Words) | ≤ 32768 |
+
+**Why raise the lazy budget.** The chunk loads after `load` in idle time and runs once. While scrolling, the work happens on the compositor, so TBT, LCP and CLS do not move. It replaces what would otherwise be about 12 KB of GSAP + ScrollTrigger. The 17408 cap leaves about 560 B of headroom.
+
+### U7.8 Subtasks (executor unless noted; a worktree per parallel subtask; disjoint files)
+
+| Id | Owns | Acceptance | New e2e |
+|---|---|---|---|
+| U7a | `src/scripts/scroll-fx.ts` (new), `src/scripts/main.ts`, `budget.json`, `src/styles/fx/{handoff,parallax,text,moments,case}.css` (empty stubs with a header comment), `e2e/gates.spec.ts` (add `scroll-fx` to the reduced-motion lazy regex) | Loads on idle under no-preference on all 5 LHCI URLs. Not requested under reduce. BASE/TL split and the `CSS.supports` gate. Word split preserves `textContent` and the accessible name, and skips elements that are already `.is-in`. Chunk ≤ 2304 | `e2e/scroll-fx.spec.ts` (5): lazy load, reduce → no request, TL adopted only when supported, split keeps text and name, no split after `.is-in` |
+| U7b | `src/scripts/nav.ts`, `e2e/header-ground.spec.ts` | U7.3. Ground and colour equal the section's at 10 probe points in both themes. The toggle re-applies. theme-color follows. axe 0 on the header over every ground. First load +≤ 220 | (8) a sequence per theme (2), toggle mid-page (1), signal → ink text and light scheme (1), theme-color top and Numbers (2), resize keeps the line (1), no-JS default header (1) |
+| U7c | `src/styles/fx/handoff.css`, `e2e/handoffs.spec.ts` | 9 techniques per U7.2. Identity at scrollY 0. No opacity on text. `:focus-within` cancels the clip | (11) one per pair: the computed `translate`/`scale`/`clipPath` at progress 0, 0.5 and 1 (9), identity at the top (1), focus inside a clipped `#numeros` → `clip-path: none` (1) |
+| U7d | `src/styles/fx/parallax.css`, `e2e/parallax.spec.ts` | Hero ≤ 1.15/6%. Project thumbs ±8% with no clip edge showing (img rect ⊇ media rect at 0 and 1). LCP img `opacity: 1` and identity at load | (4) |
+| U7e | `src/styles/fx/text.css`, `e2e/split-reveal.spec.ts` | U7.4 line words get `--l` and rise per the ladder. Eyebrow wipe. Rules draw. Without timelines, borders are visible | (6) |
+| U7f | About, Numbers, Expertise, Journey, Projects, Services, Faq, Contact `.astro`; `src/scripts/reveal.ts`; `src/styles/sections/motion.css`; `src/styles/sections/numbers.css`. **Starts after the trim task merges** (motion.css is inline-budget critical) | `lines` attrs, Journey Words/data-enter, FAQ `data-drift`, the ladder, dead CSS and JS removed, Moment-1 sticky. Inline CSS net ≤ 0. HTML +≤ 200 gz. Existing choreography and sections specs green | updates `e2e/choreography.spec.ts` for the new durations (≤ 3 edits) |
+| U7g | `src/styles/fx/moments.css`, `e2e/moments.spec.ts` | Chart bars scaleX 0→1 tied to scroll. Panel sticky ≥1100 px. Journey cards scale by inline position. Keyboard arrows/Tab are unchanged | (5) |
+| U7h | `src/styles/fx/case.css`, `src/components/CaseStudyPage.astro`, `e2e/case-scroll.spec.ts` | U7.6. Case LCP identity at load | (4) |
+| U7i | `e2e/scroll-fx-gates.spec.ts` | Full-page scroll at 390 and 1440, both themes: CLS ≤ 0.01, no long task > 50 ms. Reduced-motion parity (no running animations, no `scroll-fx` request, all content visible). Fallback: `addInitScript` stubs `CSS.supports` to false for `animation-timeline`, so no TL sheet is adopted, every transform and clip is `none` at 5 scroll positions, and content is visible. axe at the mid-hand-off positions in both themes. View timelines resolve inside `content-visibility:auto` sections | (8) |
+| U7j | revisor (read-only) | Composited-only audit, focus clipping, contrast over scrim and grounds, LHCI 100 ×4 mobile + desktop on the 5 URLs (LCP ≤ 1200/800, CLS ≤ 0.01, TBT ≤ 50), budgets per U7.7 | findings by severity, no high open |
+
+**Test method.** Scroll so that the target's progress is p, wait two rAF, then read the computed `translate`/`scale`/`clip-path`. Assert that `document.getAnimations()` contains animations whose `timeline` is a `ViewTimeline`/`ScrollTimeline`. Tolerance ±2%. This adds about 51 tests.
+
+**Merge order:** trim task → **U7a** → U7b, U7c, U7d, U7g in parallel (no shared files) → **U7f** → U7e and U7h (they need U7f's markup) → U7i → U7j. Each subtask passes the standard gate. U7 ships only after U7j's LHCI is green on both form factors.
 
 ## U6k. Two themes, two spectacles: paper day and ink night, with a ground rhythm per section
 
