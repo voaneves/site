@@ -39,7 +39,9 @@ const state = (page: Page, sel: string) =>
   }, sel);
 
 const settled = async (page: Page, sel: string) => {
-  await expect.poll(async () => { const s = await state(page, sel); return s.surface === s.bg && s.color === s.fg && (s.line === s.gline || s.gline.startsWith('light-dark')) ? 'ok' : `${sel} ${JSON.stringify(s)}`; }).toBe('ok');
+  // Re-aim on every poll: deferred sections render at their real height after the first jump (slow on CI),
+  // which can leave the probe line back over the previous section.
+  await expect.poll(async () => { await probe(page, sel); const s = await state(page, sel); return s.surface === s.bg && s.color === s.fg && (s.line === s.gline || s.gline.startsWith('light-dark')) ? 'ok' : `${sel} ${JSON.stringify(s)}`; }, { timeout: 15000 }).toBe('ok');
 };
 
 for (const theme of ['light', 'dark'] as Theme[]) {

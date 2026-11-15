@@ -5,6 +5,8 @@ const PORT = process.env.PW_PORT ?? '8788';
 
 export default defineConfig({
   testDir: './e2e',
+  // Spread individual tests (not whole files) across workers and CI shards: the sweep specs are heavy.
+  fullyParallel: true,
   timeout: 30_000,
   retries: process.env.CI ? 1 : 0,
   use: {
