@@ -10,6 +10,9 @@ S.replaceSync(
   `[data-fx=spot]:hover::after{opacity:1}`
 );
 document.adoptedStyleSheets = [...document.adoptedStyleSheets, S];
+const ac = new AbortController();
+const opt = { passive: true, signal: ac.signal };
+let dead = false;
 
 document.querySelectorAll('[data-fx=tilt]').forEach((p) =>
   p.querySelectorAll<HTMLElement>('.vn-chip').forEach((c, i) => c.style.setProperty('--i', i + ''))
@@ -45,13 +48,13 @@ const frame = () => {
 addEventListener('pointermove', (e) => {
   ev = e;
   if (!raf) raf = requestAnimationFrame(frame);
-}, { passive: true });
+}, opt);
 
 // tilt must also reset when the pointer leaves the window or the element without another move landing on it
 document.addEventListener('pointerout', (e) => {
   const el = q(e.target, 'tilt');
   if (el && !el.contains(e.relatedTarget as Node | null)) clear(el);
-}, { passive: true });
+}, opt);
 
 // scramble: mono eyebrow decodes from noise, text restored exactly
 const G = '#%&*+=<>/\_0123456789';
@@ -71,7 +74,7 @@ document.addEventListener('pointerover', (e) => {
   const t0 = performance.now();
   const D = 800;
   const tick = (now: number) => {
-    const p = Math.min(1, (now - t0) / D);
+    const p = dead ? 1 : Math.min(1, (now - t0) / D);
     nodes.forEach((n, i) => {
       const s = orig[i];
       const k = Math.floor(p * s.length);
@@ -85,4 +88,15 @@ document.addEventListener('pointerover', (e) => {
     busy.delete(el);
   };
   requestAnimationFrame(tick);
-}, { passive: true });
+}, opt);
+
+// Runtime reduced-motion / coarse pointer: leave nothing behind (sheet, listeners, tilt vars; a running scramble restores on its next frame).
+const mq = matchMedia('(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference)');
+mq.addEventListener('change', () => {
+  if (mq.matches) return;
+  dead = true;
+  ac.abort();
+  cancelAnimationFrame(raf);
+  if (cur) clear(cur);
+  document.adoptedStyleSheets = document.adoptedStyleSheets.filter((x) => x !== S);
+}, { signal: ac.signal });
