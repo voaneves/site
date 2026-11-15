@@ -3,7 +3,7 @@ import { test, expect, type Page } from '@playwright/test';
 import { NOT_FOUND } from './lib/site';
 
 const KEY_PAGES = ['/', '/en/', '/privacidade/', '/projetos/mte/', NOT_FOUND];
-const META: Record<string, string> = { dark: '#0a0a0a', light: '#f4ead4' };
+const META: Record<string, string> = { dark: '#0a0a0a', light: '#fdfbf6' };
 const OTHER: Record<string, string> = { dark: 'light', light: 'dark' };
 
 const luminance = (page: Page) =>
