@@ -157,12 +157,17 @@ jobs:
           cache: npm
 
       - run: npm ci --ignore-scripts
+      - name: Cache do LHCI (npx)
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.npm/_npx
+          key: npx-lhci-${{ runner.os }}-0.16.1
       - name: LHCI em produção
         id: lh
         continue-on-error: true
         env:
           SITE_URL: ${{ vars.PROD_CHECK_URL || format('https://{0}.pages.dev', vars.CF_PAGES_PROJECT || 'voaneves') }}
-        run: npx --yes @lhci/cli autorun --config=lighthouserc.prod.cjs
+        run: npx --yes @lhci/cli@0.16.1 autorun --config=lighthouserc.prod.cjs
 
       - name: Abrir issue se Lighthouse < 100
         if: steps.lh.outcome == 'failure'

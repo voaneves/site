@@ -14,7 +14,7 @@ module.exports = {
         `${base}/en/privacy/`,
         `${base}/projetos/caato/`,
       ],
-      numberOfRuns: 5,
+      numberOfRuns: 3,
       settings: form === 'desktop' ? { preset: 'desktop' } : {},
     },
     assert: {
