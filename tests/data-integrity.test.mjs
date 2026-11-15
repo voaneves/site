@@ -39,9 +39,6 @@ test('PORTFOLIO pt-br and en have exactly the same keys and value types at every
 
 test(
   'PORTFOLIO pt-br and en arrays have identical lengths (no section loses an item in translation)',
-  {
-    todo: 'real content gap: en projects "dashboards" and "caato" list 2 outcomes where pt-br lists 3. portfolio.ts is frozen in this wave; restore the third English outcome.',
-  },
   () => {
     const lens = (v, p = '') =>
       Array.isArray(v)

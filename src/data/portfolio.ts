@@ -1063,6 +1063,7 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
           outcomes: [
             'Single source of truth across commercial pipelines, plant downtime KPIs, and strategic OKRs.',
             'Direct enablement workshops empowering executives and frontline staff alike.',
+            'Sharply shorter lag between an operational event and the decision it calls for.',
           ],
           deliverables: ['Data modeling & ETL', 'Analytical UI design system', 'Power BI / Qlik Sense suite', 'Team enablement'],
         },
@@ -1089,6 +1090,7 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
           outcomes: [
             '+49 Lighthouse performance points without disrupting editorial publishing workflows.',
             'Cleaner mobile reading experience and stronger search crawl efficiency.',
+            'Less operational noise in the team’s email inboxes.',
           ],
           deliverables: ['Core Web Vitals audit', 'Security & plugin hardening', '301 redirect architecture', 'Maintenance runbook'],
         },
