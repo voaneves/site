@@ -130,6 +130,7 @@ export function fine(
   const setup = (H: DOMRect) => {
     paint = painter(canvas, img);
     sheen = document.createElement('div');
+    const g = 'color-mix(in srgb,currentColor 20%,#0000) 1px,#0000 1px';
     sheenIn = document.createElement('div');
     sheen.setAttribute('aria-hidden', 'true');
     Object.assign(sheen.style, {
@@ -151,7 +152,7 @@ export function fine(
       left: '0',
       top: '0',
       backgroundImage:
-        'linear-gradient(to right,rgba(244,234,212,.2) 1px,transparent 1px),linear-gradient(to bottom,rgba(244,234,212,.2) 1px,transparent 1px)',
+        `linear-gradient(to right,${g}),linear-gradient(to bottom,${g})`,
       backgroundSize: '64px 64px',
     });
     sheen.append(sheenIn);

@@ -1,8 +1,0 @@
-/* W13 theme circular reveal */
-@layer site {
-  @media (prefers-reduced-motion: no-preference) {
-    ::view-transition-old(root){animation:none;mix-blend-mode:normal}
-    ::view-transition-new(root){animation:vn-reveal .6s cubic-bezier(.2,.7,.2,1);mix-blend-mode:normal}
-    @keyframes vn-reveal{from{clip-path:circle(0 at var(--vt-x,50%) var(--vt-y,50%))}to{clip-path:circle(150% at var(--vt-x,50%) var(--vt-y,50%))}}
-  }
-}
