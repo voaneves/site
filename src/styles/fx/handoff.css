@@ -26,6 +26,7 @@
     .vn-hero__inner { animation-name: u-sink; }
     .vn-hero::after { content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none; background: var(--g-bg, #0a0a0a); opacity: 0; animation-name: u-scrim; }
     .vn-hero:focus-within::after { animation: none; opacity: 0; }
+    .vn-hero__inner:focus-within, .vn-site-footer__inner:focus-within { animation: none; }
     /* Counter-drift, Hand-under, Sinal set: containers drift against the scroll as they leave. */
     :is(#numeros, #contato) > .vn-container, #jornada > .vn-container:first-of-type { animation-name: u-drift; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: view(); animation-range: exit 0% exit 100%; }
     #numeros > .vn-container { --u: -8vh; }

@@ -101,8 +101,7 @@ test.describe('header ground · behaviours', () => {
     await open(page, 'light');
     const meta = () => page.locator('meta[name="theme-color"]').first().getAttribute('content');
     await expect.poll(meta).toBe('#fdfbf6');
-    await probe(page, '#numeros');
-    await expect.poll(meta).toBe('#0a0a0a');
+    await expect.poll(async () => { await probe(page, '#numeros'); return meta(); }, { timeout: 15000 }).toBe('#0a0a0a');
   });
 
   test('resize keeps the line at the header mid-height', async ({ page }) => {

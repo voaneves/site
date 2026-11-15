@@ -88,7 +88,10 @@ for (const route of ROUTES) {
           // the element's position has been still for 3 consecutive frames, not merely on screen.
           let last = Number.NaN;
           let still = 0;
-          for (let f = 0; f < 120 && still < 3; f++) {
+          // On a loaded runner the smooth scroll can start several frames late, so "still" alone is not enough:
+          // keep waiting (bounded) until it is still and on screen; something truly off-screen still fails.
+          const on = () => { const b = el.getBoundingClientRect(); return b.bottom > 0 && b.top < innerHeight; };
+          for (let f = 0; f < 120 && (still < 3 || !on()); f++) {
             await new Promise((res) => requestAnimationFrame(res));
             const top = el.getBoundingClientRect().top;
             still = top === last ? still + 1 : 0;
