@@ -18,11 +18,6 @@
     animation: vn-mq 34s linear infinite;
   }
 
-  .vn-marquee--rev .vn-marquee__track {
-    animation-direction: reverse;
-    animation-duration: 42s;
-  }
-
   .vn-marquee-stack:hover .vn-marquee__track,
   .vn-marquee-stack.is-paused .vn-marquee__track {
     animation-play-state: paused;
