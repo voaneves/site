@@ -7,3 +7,6 @@ playwright-report/
 test-results/
 .env*
 *.log
+
+# local git worktrees for parallel work
+.claude/worktrees/
