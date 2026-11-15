@@ -68,6 +68,30 @@
     transform: scaleX(1);
   }
 
+  /* Era letter roll: label rolls out, a text-shadow copy rolls in from below; underline wipes alongside. */
+  @media (prefers-reduced-motion: no-preference) {
+    [data-fx="roll"] > span {
+      display: block;
+      overflow: clip;
+      line-height: 1.5;
+    }
+
+    [data-fx="roll"] > span > span {
+      display: block;
+      text-shadow: 0 1.5em currentColor;
+      transition: transform var(--vn-dur-hover) var(--vn-ease-out);
+    }
+
+    [data-fx="roll"]:hover > span > span,
+    [data-fx="roll"]:focus-visible > span > span {
+      transform: translateY(-100%);
+    }
+  }
+
+  .vn-navbar__link:focus-visible::after {
+    transform: scaleX(1);
+  }
+
   .vn-navbar__menu-btn {
     display: none;
   }

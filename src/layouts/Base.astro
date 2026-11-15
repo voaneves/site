@@ -175,8 +175,8 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
 
       <nav class="vn-navbar__nav" aria-label={t.navLabel}>
         {navLinks.map((item) => (
-          <a class="vn-type-label vn-navbar__link" href={navTarget(item.hash)} data-nav-hash={item.hash}>
-            {item.label}
+          <a class="vn-type-label vn-navbar__link" href={navTarget(item.hash)} data-nav-hash={item.hash} data-fx="roll">
+            <span><span>{item.label}</span></span>
           </a>
         ))}
       </nav>
@@ -193,7 +193,7 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
         >
           <Icon name="adjust" size={18} />
         </button>
-        <a class="vn-btn vn-btn--primary vn-btn--sm vn-navbar__cta" href={navTarget('contato')}>
+        <a class="vn-btn vn-btn--primary vn-btn--sm vn-navbar__cta" href={navTarget('contato')} data-magnetic data-cursor-label={locale === 'en' ? 'TALK' : 'CONVERSAR'}>
           <span class="vn-btn__dot" aria-hidden="true"></span>
           <span>{t.bookCall}</span>
         </a>
@@ -251,15 +251,15 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
     <slot />
   </main>
 
-  <footer class="vn-site-footer">
+  <footer class="vn-site-footer" data-cursor-zone="read">
     <div class="vn-container vn-site-footer__inner">
       <div data-enter="left"><Credit variant="inline" lang={locale === 'en' ? 'en' : 'pt-BR'} utmSource="voaneves-site" /></div>
       <div class="vn-site-footer__links" data-enter="right">
-        <a class="vn-type-micro" href={privacyHref}>{t.footerPrivacy}</a>
-        <a class="vn-type-micro" href={c.contact.cvUrl} download>{locale === 'en' ? 'CV PDF (PT)' : 'CV PDF'}</a>
-        <a class="vn-type-micro" href="https://github.com/voaneves" rel="noopener noreferrer" target="_blank">GitHub</a>
-        <a class="vn-type-micro" href="https://www.linkedin.com/in/voaneves/" rel="noopener noreferrer" target="_blank">LinkedIn</a>
-        <a class="vn-type-micro" href="https://www.youtube.com/@voaneves" rel="noopener noreferrer" target="_blank">YouTube</a>
+        <a class="vn-type-micro" href={privacyHref} data-fx="roll"><span><span>{t.footerPrivacy}</span></span></a>
+        <a class="vn-type-micro" href={c.contact.cvUrl} download data-fx="roll"><span><span>{locale === 'en' ? 'CV PDF (PT)' : 'CV PDF'}</span></span></a>
+        <a class="vn-type-micro" href="https://github.com/voaneves" rel="noopener noreferrer" target="_blank" data-fx="roll"><span><span>GitHub</span></span></a>
+        <a class="vn-type-micro" href="https://www.linkedin.com/in/voaneves/" rel="noopener noreferrer" target="_blank" data-fx="roll"><span><span>LinkedIn</span></span></a>
+        <a class="vn-type-micro" href="https://www.youtube.com/@voaneves" rel="noopener noreferrer" target="_blank" data-fx="roll"><span><span>YouTube</span></span></a>
       </div>
     </div>
   </footer>
