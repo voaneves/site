@@ -63,6 +63,7 @@
 
   .vn-faq-layout .vn-split-title {
     margin-block-end: var(--vn-space-3);
+    --dx: -4vw; /* drifts in from the left: the column sits 20px from the edge at 320, so 4vw never leaves the viewport */
   }
 
   .vn-split-title em {
