@@ -4,9 +4,21 @@
     position: relative;
     overflow: hidden;
     padding-block: clamp(1.5rem, 3.5vw, 3rem) clamp(var(--vn-space-8), 7vw, var(--vn-space-11));
-    background-color: var(--vn-ref-ink-950);
-    color: var(--vn-cream);
-    border-bottom: 1px solid var(--vn-line-on-dark);
+    --hero-fg: var(--vn-cream);
+    --hero-sub: var(--vn-ref-cream-300);
+    --hero-muted: var(--vn-ref-sand-500);
+    --hero-line: var(--vn-line-on-dark);
+    --hero-edge: rgba(244, 234, 212, 0.22);
+    --hero-grid: rgba(244, 234, 212, 0.04);
+    --hero-pill: var(--vn-ref-ink-900);
+    --hero-panel: rgba(20, 20, 20, 0.92);
+    --hero-accent: var(--vn-ref-red-400);
+    --hero-btn-fg: var(--vn-cream);
+    --hero-mat: var(--vn-ref-ink-900);
+    --hero-frame-shadow: 0 32px 72px rgba(0, 0, 0, 0.65);
+    --hero-img-filter: var(--hero-img-filter);
+    color: var(--hero-fg);
+    border-bottom: 1px solid var(--hero-line);
   }
 
   /* The grid layer clips its own overscan (and the JS sheen), so parallax never grows the hero's overflow. */
@@ -22,8 +34,8 @@
     position: absolute;
     inset: -24px;
     background-image:
-      linear-gradient(to right, rgba(244, 234, 212, 0.04) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(244, 234, 212, 0.04) 1px, transparent 1px);
+      linear-gradient(to right, var(--hero-grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--hero-grid) 1px, transparent 1px);
     background-size: 64px 64px;
     translate: var(--vn-gx, 0) var(--vn-gy, 0);
   }
@@ -47,13 +59,13 @@
   }
 
   .vn-hero-pill {
-    background-color: var(--vn-ref-ink-900);
-    border-color: rgba(244, 234, 212, 0.24);
-    color: var(--vn-cream);
+    background-color: var(--hero-pill);
+    border-color: var(--hero-edge);
+    color: var(--hero-fg);
   }
 
   .vn-hero__kicker {
-    color: var(--vn-ref-sand-500);
+    color: var(--hero-muted);
   }
 
   /* Editorial name: "Victor" roman / "Neves" italic WONK, forced break, static Sinal dot.
@@ -65,7 +77,7 @@
     font-size: clamp(4.5rem, 17vw, 15rem);
     line-height: 0.82;
     letter-spacing: -0.045em;
-    color: var(--vn-cream);
+    color: var(--hero-fg);
     white-space: nowrap;
     margin-block: var(--vn-space-3) var(--vn-space-5);
   }
@@ -102,9 +114,9 @@
     letter-spacing: 0.2em;
     text-transform: uppercase;
     text-align: end;
-    color: var(--vn-ref-red-400);
+    color: var(--hero-accent);
     padding-block-start: var(--vn-space-3);
-    border-block-start: 1px solid var(--vn-line-on-dark);
+    border-block-start: 1px solid var(--hero-line);
     margin-block-end: var(--vn-space-5);
   }
 
@@ -116,7 +128,7 @@
     justify-content: space-between;
     gap: var(--vn-space-3) var(--vn-space-6);
     padding-block-end: var(--vn-space-4);
-    border-block-end: 1px solid var(--vn-line-on-dark);
+    border-block-end: 1px solid var(--hero-line);
   }
 
   .vn-hero__strip .vn-hero__meta {
@@ -128,7 +140,7 @@
     font-family: var(--vn-font-mono);
     font-size: 0.75rem;
     letter-spacing: 0.12em;
-    color: var(--vn-ref-sand-500);
+    color: var(--hero-muted);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
@@ -148,7 +160,7 @@
   }
 
   .vn-hero__sub {
-    color: var(--vn-ref-cream-300);
+    color: var(--hero-sub);
     max-width: 35.46em; /* = 58ch of Schibsted Grotesk, independent of the fallback */
   }
 
@@ -161,25 +173,25 @@
   }
 
   .vn-hero-btn-ghost {
-    border-color: rgba(244, 234, 212, 0.6);
-    color: var(--vn-cream);
+    border-color: color-mix(in srgb, var(--hero-btn-fg) 60%, transparent);
+    color: var(--hero-btn-fg);
   }
 
   .vn-hero-btn-ghost:hover:not(:disabled) {
-    background-color: var(--vn-cream);
-    border-color: var(--vn-cream);
-    color: var(--vn-ref-ink-950);
+    background-color: var(--hero-btn-fg);
+    border-color: var(--hero-btn-fg);
+    color: var(--g-bg);
   }
 
   .vn-hero-btn-cv {
-    color: var(--vn-cream);
+    color: var(--hero-btn-fg);
     opacity: 1;
-    border: 1px solid rgba(244, 234, 212, 0.22);
+    border: 1px solid var(--hero-edge);
   }
 
   .vn-hero-btn-cv:hover:not(:disabled) {
-    background-color: rgba(244, 234, 212, 0.12);
-    color: var(--vn-cream);
+    background-color: color-mix(in srgb, var(--hero-btn-fg) 12%, transparent);
+    color: var(--hero-btn-fg);
   }
 
   .vn-hero__stage {
@@ -195,8 +207,8 @@
     aspect-ratio: 333 / 500;
     border-radius: var(--vn-radius-2xl);
     overflow: hidden;
-    background: var(--vn-ref-ink-900);
-    box-shadow: 0 32px 72px rgba(0, 0, 0, 0.65);
+    background: var(--hero-mat);
+    box-shadow: var(--hero-frame-shadow);
   }
 
   .vn-hero-portrait__img {
@@ -217,7 +229,7 @@
   .vn-hero-portrait__frame {
     position: absolute;
     inset: 10px;
-    border: 1px solid rgba(244, 234, 212, 0.22);
+    border: 1px solid var(--hero-edge);
     border-radius: calc(var(--vn-radius-2xl) - 8px);
     pointer-events: none;
   }
@@ -265,9 +277,9 @@
     gap: 8px;
     padding: 7px 12px;
     border-radius: var(--vn-radius-pill);
-    background: rgba(20, 20, 20, 0.92);
-    border: 1px solid rgba(244, 234, 212, 0.28);
-    color: var(--vn-cream);
+    background: var(--hero-panel);
+    border: 1px solid var(--hero-edge);
+    color: var(--hero-fg);
     font-family: var(--vn-font-mono);
     font-size: 11px;
     font-weight: 600;

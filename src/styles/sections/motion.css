@@ -26,18 +26,6 @@
     position: relative;
   }
 
-  .vn-chapter--ink {
-    background: #000;
-    color: #e8dec5;
-    --vn-text-muted: #e8dec5;
-  }
-
-  .vn-chapter--creme {
-    background: #e8dec5;
-    color: #000;
-    --vn-text-muted: #3d3a33;
-  }
-
   .vn-chapter--ink::before,
   .vn-chapter--creme::before {
     content: "";

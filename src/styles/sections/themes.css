@@ -1,0 +1,92 @@
+@layer site {
+  :root { --vn-ref-paper: #fdfbf6; }
+  :root[data-theme="light"] {
+    --vn-surface: var(--vn-ref-paper);
+    --vn-surface-soft: var(--vn-ref-cream-300);
+    --vn-surface-raised: #fff;
+  }
+
+  /* Ground presets: private --g-* vars plus color-scheme, so brand light-dark() tokens resolve per ground. */
+  :root[data-theme="light"] :is(#inicio, #expertise, #projetos, #perguntas) {
+    --g-bg: var(--vn-ref-paper); --g-fg: var(--vn-ref-ink-950); --g-muted: var(--vn-ref-sand-800);
+    --g-line: rgba(10, 10, 10, 0.12); --g-red: var(--vn-ref-red-800); color-scheme: light;
+  }
+  :root[data-theme="light"] :is(#quem-sou, #jornada, #servicos, .vn-site-footer) {
+    --g-bg: var(--vn-ref-cream-300); --g-fg: var(--vn-ref-ink-950); --g-muted: var(--vn-ref-sand-800);
+    --g-line: rgba(10, 10, 10, 0.12); --g-red: var(--vn-ref-red-800); color-scheme: light;
+  }
+  :root[data-theme="dark"] :is(#inicio, #expertise, #perguntas),
+  :root[data-theme="light"] #numeros {
+    --g-bg: var(--vn-ref-ink-950); --g-fg: var(--vn-ref-cream-300); --g-muted: var(--vn-ref-sand-500);
+    --g-line: rgba(232, 222, 197, 0.14); --g-red: var(--vn-ref-red-450); color-scheme: dark;
+  }
+  :root[data-theme="dark"] :is(#quem-sou, #jornada, #servicos, .vn-site-footer) {
+    --g-bg: var(--vn-ref-ink-1000); --g-fg: var(--vn-ref-cream-300); --g-muted: var(--vn-ref-sand-500);
+    --g-line: rgba(232, 222, 197, 0.14); --g-red: var(--vn-ref-red-450); color-scheme: dark;
+  }
+  :root[data-theme="dark"] :is(#numeros, #projetos) {
+    --g-bg: var(--vn-ref-ink-900); --g-fg: var(--vn-ref-cream-300); --g-muted: var(--vn-ref-sand-500);
+    --g-line: rgba(232, 222, 197, 0.14); --g-red: var(--vn-ref-red-450); color-scheme: dark;
+  }
+
+  :is(#inicio, #quem-sou, #numeros, #expertise, #jornada, #projetos, #servicos, #perguntas, .vn-site-footer) {
+    background-color: var(--g-bg);
+    color: var(--g-fg);
+    --vn-text: var(--g-fg);
+    --vn-text-muted: var(--g-muted);
+    --vn-text-on-inverse: var(--g-fg);
+    --vn-text-muted-on-inverse: var(--g-muted);
+    --vn-line: var(--g-line);
+    --vn-signal-ink: var(--g-red);
+  }
+
+  /* Dark Numbers: graphite with a static ember glow. */
+  :root[data-theme="dark"] #numeros {
+    background-image: radial-gradient(60% 80% at 50% 0%, rgb(255 56 56 / 0.16), transparent 70%);
+  }
+  :root[data-theme="dark"] #numeros::before { background: var(--vn-ref-ink-1000); }
+
+  /* Hero keeps today's cream-on-ink values as var defaults (hero.css). */
+  #inicio {
+    color: var(--hero-fg);
+    --vn-signal-ink: var(--hero-accent);
+  }
+  :root[data-theme="light"] #inicio {
+    --hero-fg: var(--vn-ref-ink-950);
+    --hero-sub: var(--vn-ref-sand-800);
+    --hero-muted: var(--vn-ref-sand-800);
+    --hero-line: rgba(10, 10, 10, 0.14);
+    --hero-edge: rgba(10, 10, 10, 0.14);
+    --hero-grid: rgba(10, 10, 10, 0.05);
+    --hero-pill: rgba(253, 251, 246, 0.92);
+    --hero-panel: rgba(253, 251, 246, 0.92);
+    --hero-accent: var(--vn-ref-red-800);
+    --hero-btn-fg: var(--vn-ref-ink-950);
+    --hero-mat: #fff;
+    --hero-frame-shadow: 0 30px 60px -20px rgba(10, 10, 10, 0.28);
+    --hero-img-filter: grayscale(1) sepia(0.12) contrast(1.02);
+  }
+
+  /* Theme toggle transition: ink spill to dark, dawn arch to light, toggle spins (vn-spin lives in responsive.css). */
+  @media (prefers-reduced-motion: no-preference) {
+    #vn-theme-toggle { view-transition-name: vn-toggle; }
+    ::view-transition-old(root) { animation: none; mix-blend-mode: normal; }
+    ::view-transition-new(root) { mix-blend-mode: normal; }
+    :root[data-theme="dark"]::view-transition-new(root) {
+      animation: vn-dusk 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    :root[data-theme="light"]::view-transition-new(root) {
+      animation: vn-dawn 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    ::view-transition-old(vn-toggle) { animation: none; opacity: 0; }
+    ::view-transition-new(vn-toggle) { animation: vn-spin 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
+    @keyframes vn-dusk {
+      from { clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 50%)); scale: 1.04; }
+      to { clip-path: circle(var(--vt-r, 150vmax) at var(--vt-x, 50%) var(--vt-y, 50%)); scale: 1; }
+    }
+    @keyframes vn-dawn {
+      from { clip-path: inset(100% 0 0 0 round 50% 50% 0 0); }
+      to { clip-path: inset(0 round 0); }
+    }
+  }
+}
