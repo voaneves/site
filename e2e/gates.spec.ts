@@ -107,9 +107,18 @@ for (const route of ROUTES) {
             return n.getBoundingClientRect();
           };
           const nav = document.querySelector('.vn-navbar');
+          // Overlap only counts when the nav is actually painted above the element: a fixed element
+          // stacked over the nav (e.g. the skip link, z 9999) overlaps it geometrically but is not obscured.
+          const hit = (x: number, y: number) => {
+            const top = document.elementFromPoint(x, y);
+            return !!top && (el === top || el.contains(top));
+          };
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          const onTop = hit(cx, cy) || hit(rect.left + 2, rect.top + 2) || hit(rect.right - 2, rect.bottom - 2);
           return {
             id: `${el.tagName.toLowerCase()}.${String(el.className).split(/\s+/)[0]} "${(el.textContent || '').trim().slice(0, 24)}"`,
-            nav: nav && nav.contains(el) ? 0 : cover(rect, visibleRect('.vn-navbar')),
+            nav: (nav && nav.contains(el)) || onTop ? 0 : cover(rect, visibleRect('.vn-navbar')),
             cursor: cover(rect, visibleRect('.vn-cursor')),
             offscreen: rect.bottom <= 0 || rect.top >= innerHeight,
           };
