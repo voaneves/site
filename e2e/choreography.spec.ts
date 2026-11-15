@@ -176,6 +176,15 @@ test('CLS <= 0.01 while reading down the page with the entrances', async ({ page
   });
   await page.goto('/');
   await settle(page);
+  // This test owns the entrance choreography's CLS. Load-time CLS (including the post-LCP swap of the
+  // below-the-fold fonts, after-lcp.ts → html.vn-fonts) is owned by gates.spec.ts and Lighthouse, so start
+  // counting once those late fonts have landed: a reader cannot be 3,500px down within the first 600 ms.
+  await page.waitForFunction(() => document.documentElement.classList.contains('vn-fonts'));
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    (window as unknown as { __cls: number }).__cls = 0;
+  });
   await readDown(page);
   expect(await page.evaluate(() => (window as unknown as { __cls: number }).__cls)).toBeLessThanOrEqual(0.01);
 });
