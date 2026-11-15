@@ -83,15 +83,32 @@ test.describe('trail: touch', () => {
 
 test.describe('trail: runtime', () => {
   test('settles: __vnTrailRunning is true while moving and false 2 s after the last move', async ({ page }) => {
-    await ready(page, '/?vn-debug');
-    await wiggle(page);
-    await page.waitForFunction(() => (window as unknown as { __vnTrailRunning?: boolean }).__vnTrailRunning === true);
-    const t0 = Date.now();
-    await page.waitForFunction(() => (window as unknown as { __vnTrailRunning?: boolean }).__vnTrailRunning === false, undefined, {
-      timeout: 5000,
+    // Record every write to the debug flag with a timestamp, so a loaded machine can't make the test miss
+    // the short true→false window between polls.
+    await page.addInitScript(() => {
+      const w = window as unknown as { __vnTrailLog: [boolean, number][] };
+      w.__vnTrailLog = [];
+      let v: boolean | undefined;
+      Object.defineProperty(window, '__vnTrailRunning', {
+        configurable: true,
+        get: () => v,
+        set: (x: boolean) => { v = x; w.__vnTrailLog.push([x, performance.now()]); },
+      });
     });
+    await ready(page, '/?vn-debug');
+    // First move only triggers the lazy import; wait for the chunk to attach before the measured wiggle.
+    await page.mouse.move(200, 200);
+    await expect(trail(page)).toHaveCount(1);
+    await wiggle(page);
+    const lastMove = await page.evaluate(() => performance.now());
+    await page.waitForFunction(() => {
+      const log = (window as unknown as { __vnTrailLog: [boolean, number][] }).__vnTrailLog;
+      return log.some(([x]) => x) && log[log.length - 1][0] === false;
+    }, undefined, { timeout: 8000 });
+    const log = await page.evaluate(() => (window as unknown as { __vnTrailLog: [boolean, number][] }).__vnTrailLog);
+    const stopAt = log[log.length - 1][1];
     // the loop must not stop early: it keeps running TRAIL_STOP_MS (1500) past the last move
-    expect(Date.now() - t0).toBeGreaterThan(900);
+    expect(stopAt - lastMove).toBeGreaterThan(900);
     const mode = await page.evaluate(() => (window as unknown as { __vnTrailMode?: string }).__vnTrailMode);
     expect(['webgl', '2d']).toContain(mode);
   });
