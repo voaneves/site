@@ -74,6 +74,7 @@ function groundFlip(): void {
     secs.forEach((e) => io.observe(e));
   };
   build();
+  nav.dataset.flip = ''; // ready: tests wait on this instead of guessing when load + idle has passed
   let lastH = innerHeight, lastN = nav.offsetHeight, raf = 0;
   addEventListener('resize', () => {
     if (raf) return;

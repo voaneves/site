@@ -14,6 +14,8 @@ async function open(page: Page, theme: Theme) {
   await page.goto('/');
   await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
   await page.evaluate(() => document.documentElement.classList.add('vn-cv-off'));
+  // groundFlip starts on load + idle (kept off the LCP path), which is slow on CI runners: wait for it.
+  await expect(page.locator('.vn-navbar')).toHaveAttribute('data-flip', '', { timeout: 15000 });
 }
 
 // Scroll so the probe line (header mid-height) sits `off` px inside the section.
