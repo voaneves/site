@@ -6,7 +6,8 @@ export function init(root: Element): void {
       if (!isIntersecting) continue;
       io.unobserve(target);
       const txt = target.textContent ?? '';
-      const m = /\d+/.exec(txt);
+      // Only a single plain integer ("8+", "40+", "11"); skip "3,5x", "1.500" or ranges rather than mangle them.
+      const m = /^\D*(\d+)\D*$/.exec(txt.trim()) && /\d+/.exec(txt);
       if (!m) continue;
       const ghost = document.createElement('span');
       ghost.className = 'vn-count';

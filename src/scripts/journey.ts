@@ -102,4 +102,5 @@ export function init(): void {
   };
   addEventListener('pointerup', end);
   addEventListener('pointercancel', end);
+  track.dataset.ready = '';
 }

@@ -1,6 +1,6 @@
 ---
 // Splits text into .vn-w word spans for the [data-enter=mask] line reveal (motion.css). Real spaces stay
-// between the spans, so the heading's text and accessible name are unchanged. `em` wraps each word in <em>;
+// between the spans, so the heading's text and accessible name are unchanged. `em` wraps the whole group in one <em>;
 // `tail` (trailing punctuation such as ".") joins the last word's span, so no space is read before it.
 export interface Props {
   text: string;
@@ -13,6 +13,9 @@ const parts = text.split(/(\s+)/);
 const last = parts.findLastIndex((p) => p && !/^\s+$/.test(p));
 ---
 
-{parts.map((p, i) =>
-  /^\s+$/.test(p) ? ' ' : p && <span class="vn-w">{em ? <em>{p}</em> : p}{i === last && tail}</span>,
-)}
+{(() => {
+  const words = parts.map((p, i) =>
+    /^\s+$/.test(p) ? ' ' : p && <span class="vn-w">{p}{i === last && tail}</span>,
+  );
+  return em ? <em>{words}</em> : words;
+})()}

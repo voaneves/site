@@ -33,6 +33,8 @@ export function init(): void {
     if (el.classList.contains('is-in')) return;
     for (const m of [el, ...el.children]) if (m.matches('[data-enter=mask]')) lines(m);
     el.classList.add('is-in');
+    // Longest transition (1.8s) + stagger/line delays; then motion.css stops owning the element's transition.
+    setTimeout(() => el.classList.add('is-done'), 3200);
   };
   if ('IntersectionObserver' in window) {
     const enterObs = new IntersectionObserver((entries, obs) => {
@@ -44,13 +46,15 @@ export function init(): void {
       }
     }, { rootMargin: '0px 0px -10% 0px' });
     enterEls.forEach((el) => enterObs.observe(el));
-    // Page end: the last rows never reach the 90% line, so once the footer is fully in view, enter what is on screen.
-    const foot = document.querySelector('footer');
-    if (foot) {
-      new IntersectionObserver((es) => {
-        if (es[0].isIntersecting) enterEls.forEach((el) => el.getBoundingClientRect().top < innerHeight && enter(el));
-      }, { threshold: 0.9 }).observe(foot);
-    }
+    // Page end: the last rows never reach the 90% line, so at the bottom of the page enter whatever is on screen.
+    // A scroll-end check (not a footer ratio) also holds when the footer is taller than the viewport.
+    const atEnd = () => {
+      if (scrollY + innerHeight >= document.documentElement.scrollHeight - 2) {
+        enterEls.forEach((el) => el.getBoundingClientRect().top < innerHeight && enter(el));
+      }
+    };
+    addEventListener('scroll', atEnd, { passive: true });
+    atEnd();
   } else {
     enterEls.forEach(enter);
   }

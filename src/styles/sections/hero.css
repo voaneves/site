@@ -252,6 +252,10 @@
     .vn-hero-portrait__hint {
       display: none;
     }
+    /* The brand pill's pulse has no reduced-motion opt-out of its own. */
+    .vn-status-pill__dot {
+      animation: none;
+    }
   }
 
   .vn-hero-chip {

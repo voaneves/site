@@ -41,6 +41,8 @@ test.describe('journey gallery', () => {
     await expect(count).not.toHaveAttribute('aria-live', /.+/);
     await expect(count).toHaveText(/^01 \/ \d\d$/);
     await page.locator('[data-vn-journey]').focus();
+    // journey.ts is lazy (loads once #jornada nears the viewport): wait for its handlers before pressing.
+    await expect(page.locator('[data-vn-journey]')).toHaveAttribute('data-ready', '');
     await page.keyboard.press('ArrowRight');
     await expect(count).toHaveText(/^02 \//, { timeout: 1500 });
     const track = page.locator('[data-vn-journey]');

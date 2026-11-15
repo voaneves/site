@@ -1,6 +1,7 @@
 @layer site {
   /* Footer */
   .vn-site-footer {
+    overflow-x: clip;
     border-top: 1px solid var(--vn-line);
     padding-block: var(--vn-space-8);
   }
