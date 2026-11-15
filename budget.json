@@ -3,14 +3,15 @@
   "inlineCssGzMaxBytes": 14336,
   "inlineCssGzWarnBytes": 13312,
   "firstLoadJsGzMaxBytes": 8192,
-  "lazyJsGzMaxBytes": 15360,
+  "lazyJsGzMaxBytes": 17408,
   "lazyChunks": {
     "cursor": 3072,
     "cursor-trail": 9216,
     "magnetic": 614,
     "hover-fx": 1408,
     "signal-field": 2560,
-    "hero-fx": 3584
+    "hero-fx": 3584,
+    "scroll-fx": 2304
   },
   "strictLazyChunks": false,
   "preloadFontsMaxBytes": 61440
