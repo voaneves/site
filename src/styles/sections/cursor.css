@@ -1,20 +1,58 @@
 @layer site {
-  /* Custom Cursor */
+  /* Static layout of the cursor DOM that src/scripts/cursor.ts creates on first pointer movement.
+     Only the state rules (show/hide, link, label, media, theme) are adopted by that lazy chunk, so Lighthouse (no pointer) never pays for them. */
   .vn-cursor {
+    --b: #0a0a0a;
+    --t: #f4ead4;
+    --e: var(--vn-ease-out);
     opacity: 0;
-    transition: opacity 200ms var(--vn-ease-out);
+    transition: opacity 0.25s 0.35s;
   }
 
-  .vn-cursor.is-ready {
-    opacity: 1;
+  .vn-cursor__dot {
+    top: -4px;
+    left: -4px;
+    transform: none;
+    scale: calc(var(--k, 1) * var(--p, 1));
+    transition: scale 0.2s var(--e), background-color 0.2s;
   }
 
-  .vn-cursor__label.is-visible,
-  .vn-cursor__media.is-visible {
-    opacity: 1;
+  .vn-cursor__pill,
+  .vn-cursor__media {
+    position: fixed;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    scale: 0.6;
+    transform-origin: 50% 100%;
+    transition: opacity 0.15s, scale 0.3s var(--e);
+  }
+
+  .vn-cursor__pill {
+    padding: 6px 12px;
+    border-radius: 99px;
+    background: var(--b);
+    color: var(--t);
+    font: 600 11px/16px var(--vn-font-mono);
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    overflow: hidden;
+    transform: translate(-50%, calc(-100% - 12px));
+  }
+
+  .vn-cursor__pill span {
+    display: block;
+    translate: 0 120%;
+    transition: translate 0.35s 0.06s var(--e);
+  }
+
+  .vn-cursor__media {
+    background: #141414;
+    transform: translate(-50%, calc(-100% - 46px));
   }
 
   .vn-cursor__media img {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
