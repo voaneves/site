@@ -1,4 +1,9 @@
 @layer site {
+  /* The brand maps [data-theme] to color-scheme in vn.tokens, but vn.base (a later layer) resets :root to
+     `light dark`, so light-dark() tokens followed the OS and ignored the toggle. Re-assert it last. */
+  :root[data-theme="light"] { color-scheme: light; }
+  :root[data-theme="dark"] { color-scheme: dark; }
+
   html,
   body {
     overflow-x: clip;
@@ -31,6 +36,10 @@
     display: inline-block;
     color: var(--vn-ref-red-400);
     margin-block-end: var(--vn-space-3);
+  }
+
+  .vn-sec-sub {
+    margin-block-start: var(--vn-space-2);
   }
 
   .vn-sec-head {

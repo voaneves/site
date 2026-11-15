@@ -10,6 +10,22 @@ const stub = () => {
   }) as unknown as typeof document.startViewTransition;
 };
 
+test.describe('theme colours actually follow the toggle', () => {
+  for (const scheme of ['light', 'dark'] as const) {
+    test(`body background flips when the OS prefers ${scheme}`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: scheme });
+      await page.goto('/privacidade/');
+      const bg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+      const before = await bg();
+      await page.locator('#vn-theme-toggle').click();
+      await expect.poll(bg).not.toBe(before);
+      expect(await page.evaluate(() => getComputedStyle(document.documentElement).colorScheme)).toBe(
+        scheme === 'dark' ? 'light' : 'dark',
+      );
+    });
+  }
+});
+
 test.describe('theme reveal', () => {
   test('uses a view transition, sets origin, persists, updates meta', async ({ page }) => {
     await page.addInitScript(stub);
