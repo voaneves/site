@@ -81,3 +81,48 @@ test('built inline scroll-driven animations keep a name and a scroll/view timeli
     expect(r.tl, s).toBe(true);
   }
 });
+
+// A clip-path on an inline box that wraps paints only its first fragment, so every piece of a word that can end a
+// line (after a hyphen, slash or dash) must be its own .vn-w: one box each, text untouched, nothing left clipped.
+for (const width of [320, 390, 1440]) {
+  for (const path of ['/', '/en/', '/projetos/caato/']) {
+    test(`lines words never fragment across lines and keep the server text ${path} @${width}`, async ({ page, browser }) => {
+      const plain = await browser.newContext({ javaScriptEnabled: false, baseURL: test.info().project.use.baseURL });
+      const src = await plain.newPage();
+      await src.goto(path);
+      const server = await src.locator('[data-enter=lines]').evaluateAll((els) => els.map((e) => e.textContent));
+      await plain.close();
+      expect(server.length).toBeGreaterThan(0);
+
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(path);
+      await page.waitForFunction(() => document.documentElement.dataset.scrollFx !== undefined);
+      const blocks = page.locator('[data-enter=lines]');
+      await expect(blocks).toHaveCount(server.length);
+      for (let i = 0; i < server.length; i++) {
+        await expect(blocks.nth(i).locator('.vn-w').first()).toBeAttached();
+        await blocks.nth(i).scrollIntoViewIfNeeded();
+        await expect(blocks.nth(i).locator('xpath=ancestor-or-self::*[contains(concat(" ", @class, " "), " is-in ")]').first()).toBeAttached();
+      }
+      await page.waitForFunction(() => [...document.querySelectorAll('[data-enter=lines]')].every((e) => e.closest('.is-done')), null, { timeout: 15_000 });
+
+      expect(await blocks.evaluateAll((els) => els.map((e) => e.textContent))).toEqual(server);
+      const split = await page.locator('[data-enter=lines] .vn-w').evaluateAll((ws) => ws.filter((w) => w.getClientRects().length !== 1).map((w) => w.textContent));
+      expect(split).toEqual([]);
+
+      if (path !== '/') return;
+      const piece = await page.locator('#quem-sou p[data-enter=lines]').evaluate((p) => {
+        const w = [...p.querySelectorAll('.vn-w')].find((e) => e.textContent?.startsWith('gradua'));
+        if (!w) return null;
+        const r = w.getBoundingClientRect();
+        const b = p.getBoundingClientRect();
+        return {
+          size: r.width > 0 && r.height > 0,
+          inside: r.left >= b.left - 1 && r.right <= b.right + 1 && r.top >= b.top - 1 && r.bottom <= b.bottom + 1,
+          clip: getComputedStyle(w).clipPath,
+        };
+      });
+      expect(piece).toEqual({ size: true, inside: true, clip: 'none' });
+    });
+  }
+}

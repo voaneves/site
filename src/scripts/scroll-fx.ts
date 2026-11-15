@@ -40,10 +40,14 @@ export function init(): void {
         if (!p) continue;
         if (/^\s+$/.test(p)) f.append(p);
         else {
-          const w = document.createElement('span');
-          w.className = 'vn-w';
-          w.textContent = p;
-          f.append(w);
+          // One span per piece that can end a line (after - / hyphen, en and em dash; before an em dash):
+          // a clip-path on an inline box split across two lines paints only the first fragment.
+          for (const q of p.split(/(?<=[-/‐–—])|(?=—)/)) {
+            const w = document.createElement('span');
+            w.className = 'vn-w';
+            w.textContent = q;
+            f.append(w);
+          }
         }
       }
       n.replaceWith(f);

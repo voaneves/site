@@ -16,6 +16,7 @@
     transition-timing-function: cubic-bezier(.25, 1, .5, 1);
     transition-delay: calc(var(--l, 0) * 100ms);
   }
+  html.js .is-done .vn-w { clip-path: none; }
   /* Eyebrow: clip wipe, S .4 s. */
   html.js .vn-eyebrow[data-enter] { clip-path: inset(0 calc(var(--h) * 100%) 0 0); }
   html.js .vn-eyebrow[data-enter]:not(.is-done) { transition-duration: .8s, 1.2s, 1.2s, .4s; }
