@@ -42,4 +42,6 @@ afterLcp();
   });
   // W16: fluid cursor trail, only after the first real pointer move (Lighthouse never pays for it).
   onFirstPointer(() => motionOK() && import('./cursor-trail'));
+  // W15: cursor dot + label pill, same trigger.
+  onFirstPointer(() => motionOK() && import('./cursor'));
 }
