@@ -3,7 +3,7 @@
   .vn-hero {
     position: relative;
     overflow: hidden;
-    padding-block: clamp(var(--vn-space-8), 7vw, var(--vn-space-11));
+    padding-block: clamp(1.5rem, 3.5vw, 3rem) clamp(var(--vn-space-8), 7vw, var(--vn-space-11));
     background-color: var(--vn-ref-ink-950);
     color: var(--vn-cream);
     border-bottom: 1px solid var(--vn-line-on-dark);
@@ -13,44 +13,10 @@
     position: absolute;
     inset: 0;
     background-image:
-      linear-gradient(to right, rgba(244, 234, 212, 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(244, 234, 212, 0.05) 1px, transparent 1px);
+      linear-gradient(to right, rgba(244, 234, 212, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(244, 234, 212, 0.04) 1px, transparent 1px);
     background-size: 64px 64px;
     pointer-events: none;
-  }
-
-  .vn-hero__glow {
-    position: absolute;
-    top: -120px;
-    right: -120px;
-    width: 620px;
-    height: 620px;
-    border-radius: var(--vn-radius-round);
-    background: radial-gradient(circle, rgba(245, 0, 0, 0.24) 0%, rgba(245, 0, 0, 0) 68%);
-    pointer-events: none;
-  }
-
-  .vn-hero__bg-marquee {
-    position: absolute;
-    top: 22px;
-    left: 0;
-    right: 0;
-    overflow: hidden;
-    opacity: 0.06;
-    pointer-events: none;
-    user-select: none;
-  }
-
-  .vn-hero__bg-track {
-    display: flex;
-    gap: var(--vn-space-8);
-    width: max-content;
-    font-family: var(--vn-font-display);
-    font-style: italic;
-    font-weight: 900;
-    font-size: clamp(3rem, 7vw, 6rem);
-    white-space: nowrap;
-    animation: vn-mq 38s linear infinite;
   }
 
   .vn-hero__inner {
@@ -60,6 +26,7 @@
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.85fr);
     align-items: center;
     gap: clamp(var(--vn-space-6), 5vw, var(--vn-space-10));
+    row-gap: clamp(var(--vn-space-4), 2.5vw, var(--vn-space-7));
   }
 
   .vn-hero__meta {
@@ -80,32 +47,95 @@
     color: var(--vn-ref-sand-500);
   }
 
-  .vn-hero__title {
+  /* Editorial name: "Victor" roman / "Neves" italic WONK, forced break, static Sinal dot.
+     .vn-hero prefix outranks the 480px rule in responsive.css. */
+  .vn-hero .vn-hero__title {
     font-family: var(--vn-font-display);
-    font-style: italic;
-    font-weight: 900;
+    font-weight: 400;
     font-variation-settings: "opsz" 144;
-    font-size: clamp(3.5rem, 8.8vw, 7.75rem);
-    line-height: 0.86;
-    letter-spacing: -0.035em;
+    font-size: clamp(4.5rem, 17vw, 15rem);
+    line-height: 0.82;
+    letter-spacing: -0.045em;
     color: var(--vn-cream);
-    margin-block-end: var(--vn-space-4);
+    white-space: nowrap;
+    margin-block: var(--vn-space-3) var(--vn-space-5);
+  }
+
+  @media (max-width: 1080px) {
+    .vn-hero .vn-hero__title {
+      font-size: clamp(4.5rem, 30vw, 13rem);
+    }
   }
 
   .vn-hero__line {
     display: block;
   }
 
-  .vn-hero__dot {
-    color: var(--vn-ref-red-450);
+  .vn-hero__line--accent {
+    font-style: italic;
+    font-weight: 900;
+    font-variation-settings: "opsz" 144, "WONK" 1;
   }
 
-  .vn-hero__essence {
-    font-family: var(--vn-font-display);
-    font-style: italic;
-    font-size: clamp(1.35rem, 2.2vw, 1.85rem);
+  .vn-hero__dot {
+    display: inline-block;
+    width: 0.13em;
+    height: 0.13em;
+    margin-inline-start: 0.05em;
+    border-radius: var(--vn-radius-round);
+    background: var(--vn-ref-red-450);
+  }
+
+  .vn-hero__strap {
+    font-family: var(--vn-font-mono);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-align: end;
     color: var(--vn-ref-red-400);
-    margin-block-end: var(--vn-space-3);
+    padding-block-start: var(--vn-space-3);
+    border-block-start: 1px solid var(--vn-line-on-dark);
+    margin-block-end: var(--vn-space-5);
+  }
+
+  .vn-hero__strip {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--vn-space-3) var(--vn-space-6);
+    padding-block-end: var(--vn-space-4);
+    border-block-end: 1px solid var(--vn-line-on-dark);
+  }
+
+  .vn-hero__strip .vn-hero__meta {
+    margin-block-end: 0;
+  }
+
+  /* zrk-style readout: live X/Y only where a fine pointer and motion are available (and JS runs). */
+  .vn-hero__hud {
+    font-family: var(--vn-font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    color: var(--vn-ref-sand-500);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .vn-hero__hud-live {
+    display: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    html.js .vn-hero__hud-live {
+      display: inline;
+    }
+
+    html.js .vn-hero__hud-static {
+      display: none;
+    }
   }
 
   .vn-hero__sub {
@@ -224,7 +254,7 @@
   .vn-hero-chip--tl { top: 8%; left: -10px; }
   .vn-hero-chip--tr { top: 20%; right: -10px; }
   .vn-hero-chip--bl { bottom: 22%; left: -14px; }
-  .vn-hero-chip--br { bottom: 8%; right: -6px; }
+  .vn-hero-chip--br { bottom: -2%; right: -6px; }
 
   .vn-hero-badge {
     position: absolute;

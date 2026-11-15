@@ -12,23 +12,16 @@ const t = UI[locale];
 const c = PORTFOLIO[locale];
 const projectBase = locale === 'en' ? '/en/projects' : '/projetos';
 const badgeLoop = `${c.hero.badgeText}${c.hero.badgeText}`;
+// Display name: "Victor / Neves" (the data keeps the caps used elsewhere).
+const nameCase = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
 ---
 
 <section id="inicio" class="vn-hero vn-site-anchor-target" data-surface="inverse">
   <span id="home" class="vn-sr-only"></span>
   <div class="vn-hero__grid" aria-hidden="true"></div>
-  <div class="vn-hero__glow" aria-hidden="true"></div>
-
-  <div class="vn-hero__bg-marquee" aria-hidden="true">
-    <div class="vn-hero__bg-track">
-      {[...c.hero.bgMarquee, ...c.hero.bgMarquee].map((word) => (
-        <span>{word} ·</span>
-      ))}
-    </div>
-  </div>
 
   <div class="vn-container vn-hero__inner">
-    <div class="vn-hero__copy">
+    <div class="vn-hero__strip">
       <div class="vn-hero__meta">
         <span class="vn-status-pill vn-hero-pill">
           <span class="vn-status-pill__dot" aria-hidden="true"></span>
@@ -36,13 +29,20 @@ const badgeLoop = `${c.hero.badgeText}${c.hero.badgeText}`;
         </span>
         <span class="vn-type-tag vn-hero__kicker">{c.hero.kicker}</span>
       </div>
+      <p class="vn-hero__hud" aria-hidden="true" data-vn-hud>
+        <span class="vn-hero__hud-live" data-vn-hud-live>X 0000 · Y 0000 · 2026</span>
+        {/* Palmas, TO: shown instead of the live readout on touch, reduced motion and no JS. */}
+        <span class="vn-hero__hud-static">-10.2° · -48.3° · 2026</span>
+      </p>
+    </div>
 
+    <div class="vn-hero__copy">
       <h1 class="vn-hero__title">
-        <span class="vn-hero__line">{c.hero.firstName}</span>
-        <span class="vn-hero__line vn-hero__line--accent">{c.hero.lastName}<span class="vn-hero__dot" aria-hidden="true">.</span></span>
+        <span class="vn-hero__line">{nameCase(c.hero.firstName)}</span>
+        <span class="vn-hero__line vn-hero__line--accent">{nameCase(c.hero.lastName)}<span class="vn-hero__dot" aria-hidden="true"></span></span>
       </h1>
 
-      <p class="vn-hero__essence">{c.hero.essence}</p>
+      <p class="vn-hero__strap">{c.hero.essence}</p>
       <p class="vn-type-lead vn-hero__sub">{c.hero.sub}</p>
 
       <div class="vn-hero__actions">
@@ -91,7 +91,7 @@ const badgeLoop = `${c.hero.badgeText}${c.hero.badgeText}`;
 
       {c.hero.chips.map((chip) => (
         <div
-          class={`vn-hero-chip vn-hero-chip--${chip.pos} vn-magnetic`}
+          class={`vn-hero-chip vn-hero-chip--${chip.pos}`}
           data-depth={chip.depth}
         >
           <span class="vn-hero-chip__dot" aria-hidden="true"></span>

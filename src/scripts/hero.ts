@@ -9,6 +9,27 @@ export function init(): void {
   const canvas = portraitWrap?.querySelector<HTMLCanvasElement>('.vn-hero-portrait__canvas');
   const portraitImg = portraitWrap?.querySelector<HTMLImageElement>('.vn-hero-portrait__img');
 
+  // zrk-style HUD: live pointer X/Y over the hero, written with textContent in rAF.
+  const hud = document.querySelector<HTMLElement>('[data-vn-hud-live]');
+  const hero = hud?.closest<HTMLElement>('.vn-hero');
+  if (hud && hero) {
+    const tail = hud.textContent?.slice(-4) ?? '';
+    const pad = (n: number) => String(Math.max(0, Math.min(9999, Math.round(n)))).padStart(4, '0');
+    let x = 0;
+    let y = 0;
+    let raf = 0;
+    hero.addEventListener('pointermove', (e) => {
+      const r = hero.getBoundingClientRect();
+      x = e.clientX - r.left;
+      y = e.clientY - r.top;
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        hud.textContent = `X ${pad(x)} · Y ${pad(y)} · ${tail}`;
+      });
+    }, { passive: true });
+  }
+
   if (stage && chips.length > 0) {
     stage.addEventListener('pointermove', (e) => {
       const r = stage.getBoundingClientRect();
