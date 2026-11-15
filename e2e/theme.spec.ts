@@ -36,8 +36,9 @@ test.describe('theme reveal', () => {
     await expect(page.locator('html')).toHaveAttribute('data-theme', next);
     expect(await page.evaluate(() => (window as unknown as { __vt: number }).__vt)).toBe(1);
     expect(await page.evaluate(() => document.documentElement.style.getPropertyValue('--vt-x'))).toMatch(/px$/);
+    expect(await page.evaluate(() => document.documentElement.style.getPropertyValue('--vt-r'))).toMatch(/^[\d.]+px$/);
     expect(await page.evaluate(() => localStorage.getItem('vn-theme'))).toBe(next);
-    await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', next === 'dark' ? '#0a0a0a' : '#f4ead4');
+    await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', next === 'dark' ? '#0a0a0a' : '#fdfbf6');
   });
 
   test.describe('reduced motion', () => {
