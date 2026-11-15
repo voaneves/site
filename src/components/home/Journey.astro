@@ -8,6 +8,12 @@ export interface Props {
 
 const { locale } = Astro.props;
 const c = PORTFOLIO[locale];
+const L = {
+  'pt-br': { region: 'Trajetória profissional, galeria rolável horizontalmente' },
+  en: { region: 'Career timeline, horizontally scrollable gallery' },
+};
+const total = c.journey.items.length;
+const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
 <section data-section="04" id="jornada" class="vn-section vn-site-anchor-target" data-surface="soft">
@@ -21,6 +27,7 @@ const c = PORTFOLIO[locale];
       </div>
       <div class="vn-journey-controls">
         <span class="vn-type-micro vn-muted vn-journey-hint">{c.journey.dragHint}</span>
+        <span class="vn-journey-count vn-type-micro" data-journey-count aria-live="polite" aria-atomic="true">01 / {pad(total)}</span>
         <button
           type="button"
           class="vn-icon-btn"
@@ -45,10 +52,10 @@ const c = PORTFOLIO[locale];
       data-vn-journey
       tabindex="0"
       role="region"
-      aria-label={c.journey.title}
+      aria-label={L[locale].region}
     >
       {c.journey.items.map((item, idx) => (
-        <article class={`vn-journey-card ${item.current ? 'vn-journey-card--current' : ''}`}>
+        <article class={`vn-journey-card vn-sr ${item.current ? 'vn-journey-card--current' : ''}`}>
           <div class="vn-journey-card__top">
             <img
               src={item.logo}
@@ -59,7 +66,7 @@ const c = PORTFOLIO[locale];
               decoding="async"
               class="vn-journey-card__logo"
             />
-            <span class="vn-type-micro vn-journey-card__idx">0{idx + 1}</span>
+            <span class="vn-type-micro vn-journey-card__idx">{pad(idx + 1)}</span>
           </div>
           <p class="vn-type-label vn-journey-card__period">{item.period} · {item.location}</p>
           <h3 class="vn-type-h4">{item.role}</h3>

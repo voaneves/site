@@ -12,12 +12,28 @@
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     padding-block: var(--vn-space-2) var(--vn-space-5);
+    scroll-padding-inline: 0;
+    overscroll-behavior-x: contain;
     cursor: grab;
     scrollbar-width: thin;
   }
 
+  .vn-journey-track:focus-visible {
+    outline: 2px solid var(--vn-signal-ink);
+    outline-offset: 4px;
+  }
+
+  .vn-journey-count {
+    font-family: var(--vn-font-mono, ui-monospace, monospace);
+    font-variant-numeric: tabular-nums;
+    min-inline-size: 5.5em;
+    text-align: end;
+  }
+
   .vn-journey-track.is-dragging {
     cursor: grabbing;
+    scroll-snap-type: none;
+    user-select: none;
   }
 
   .vn-journey-card {
@@ -30,6 +46,15 @@
     border-radius: var(--vn-radius-lg);
     border: 1px solid var(--vn-line);
     background: var(--vn-surface-raised);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      html.js .vn-journey-card.vn-sr {
+        animation-timeline: view(inline);
+        animation-range: entry 0% entry 80%;
+      }
+    }
   }
 
   .vn-journey-card--current {
