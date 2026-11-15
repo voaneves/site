@@ -24,6 +24,7 @@ Cron -> Uptime a cada 4h (uptime.yml) + Auditoria semanal (auditoria.yml)
 | Monitoramento (uptime) | `.github/workflows/uptime.yml` | `0 */4 * * *` (a cada 4h UTC) e `workflow_dispatch` | Verifica HTTP 200 em `/` e `/en/`, validade TLS (`>= 14d`) e gerencia issue `🚨 Fora do ar`. |
 | Auditoria semanal | `.github/workflows/auditoria.yml` | `0 9 * * 1` (segunda 06:00 America/Araguaina) e `workflow_dispatch` | Verifica deriva de configurações Cloudflare vs `ops/cloudflare-expected.json` e LHCI em produção. |
 | Título do PR | `.github/workflows/pr-title.yml` | `pull_request_target` | Valida título em formato Conventional Commits sem executar código do PR. |
+| CodeQL Advanced | `.github/workflows/codeql.yml` | `push: [main]`, `pull_request: [main]`, `36 3 * * 0` (domingo 03:36 UTC) | Análise estática de segurança (CodeQL) para `javascript-typescript` e `actions`. |
 
 ## 3. Ambientes e Segredos **[MANUAL]**
 
