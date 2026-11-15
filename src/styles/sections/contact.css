@@ -1,7 +1,14 @@
 @layer site {
   /* 08 Contact Signal Band */
   .vn-contact-band {
+    position: relative;
+    background-color: var(--vn-ref-red-600); /* #f50000 in both themes (B9.3) */
     color: var(--vn-ink);
+  }
+
+  .vn-contact-band > .vn-container {
+    position: relative;
+    z-index: 1;
   }
 
   .vn-contact-top {
@@ -25,9 +32,16 @@
     text-transform: uppercase;
   }
 
-  .vn-contact-title {
-    max-width: 9.34em; /* = 14ch of the web font (see .vn-case-hero__title) */
-    margin-block-end: var(--vn-space-4);
+  .vn-contact-band .vn-contact-title {
+    font-size: clamp(3.25rem, 13vw, 11rem);
+    line-height: 0.92;
+    margin-block-end: var(--vn-space-5);
+  }
+
+  .vn-contact-title em {
+    display: block;
+    padding-inline-start: 0.35em;
+    font-style: italic;
   }
 
   .vn-contact-sub {

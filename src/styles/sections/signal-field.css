@@ -1,2 +1,10 @@
-/* W6 signal field (placeholder) */
-@layer site {}
+/* W12 signal field: canvas injected by signal-field.ts, out of flow so it never shifts layout */
+@layer site {
+  .vn-sf {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+}

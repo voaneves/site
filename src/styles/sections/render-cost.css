@@ -24,7 +24,7 @@
   #projetos { contain-intrinsic-block-size: auto 1500px; }
   #servicos { contain-intrinsic-block-size: auto 1760px; }
   #perguntas { contain-intrinsic-block-size: auto 600px; }
-  #contato { contain-intrinsic-block-size: auto 880px; }
+  #contato { contain-intrinsic-block-size: auto 920px; }
 
   @media (max-width: 1200px) {
     #quem-sou { contain-intrinsic-block-size: auto 1550px; }
@@ -33,7 +33,7 @@
     #jornada { contain-intrinsic-block-size: auto 1090px; }
     #servicos { contain-intrinsic-block-size: auto 1810px; }
     #perguntas { contain-intrinsic-block-size: auto 545px; }
-    #contato { contain-intrinsic-block-size: auto 800px; }
+    #contato { contain-intrinsic-block-size: auto 840px; }
   }
 
   @media (max-width: 1000px) {
@@ -43,7 +43,7 @@
     #projetos { contain-intrinsic-block-size: auto 2000px; }
     #servicos { contain-intrinsic-block-size: auto 2100px; }
     #perguntas { contain-intrinsic-block-size: auto 630px; }
-    #contato { contain-intrinsic-block-size: auto 700px; }
+    #contato { contain-intrinsic-block-size: auto 725px; }
   }
 
   @media (max-width: 600px) {
@@ -54,6 +54,6 @@
     #projetos { contain-intrinsic-block-size: auto 2350px; }
     #servicos { contain-intrinsic-block-size: auto 3850px; }
     #perguntas { contain-intrinsic-block-size: auto 730px; }
-    #contato { contain-intrinsic-block-size: auto 800px; }
+    #contato { contain-intrinsic-block-size: auto 770px; }
   }
 }
