@@ -3,7 +3,7 @@
 Status: ready to run, one subtask at a time per executor. Date: 2026-11-14.
 Repo: `D:\GitHub\site` (Astro 7 static, `@voaneves/brand` 1.0.0). Brand spec: `D:\GitHub\brand\PLAN.md` B7-B10, D5.
 Rule for every executor: **do not touch git** (no add, commit, branch or push). Do not edit files owned by another subtask
-that is still open. Never write Claude/AI in any file.
+that is still open. Never add AI-tool attribution to any file.
 
 **Standard gate** (every subtask must pass it before it is reported done):
 
@@ -403,7 +403,7 @@ Blockers must be fixed by the owning subtask.
 
 - **R1 (foundation):** the budget graph logic, move-only diffs, CSP hash validity, the i18n fixes and test flakiness.
 - **R2 (motion + cursor):** §1 motion rules, reduced-motion parity, WebGL/Canvas cleanup and loop stopping, the B8 transitions, 2.4.11, lazy-only loading, CSP.
-- **R3 (final):** LHCI evidence on both forms, budgets, axe in both themes, no git changes and no AI mentions (`grep -rniE "claude|anthropic|\bAI\b|gpt" src docs scripts e2e tests`).
+- **R3 (final):** LHCI evidence on both forms, budgets, axe in both themes, no git changes and no AI-tool attribution in commits or files (grep for assistant and vendor names across src, docs, scripts, e2e and tests).
 
 ## 4. Final verification checklist
 
