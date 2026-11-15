@@ -17,7 +17,9 @@ const PULL_MAX = 36; // ... capped in px, so wide buttons pull gently and small 
 
 const SPRING = 'cubic-bezier(.3,1.55,.5,1)';
 const OUT = 'cubic-bezier(.2,.8,.2,1)';
-const CSS = `.vn-cursor{--b:#0a0a0a;--t:#f4ead4;--d:var(--vn-signal);opacity:0;transition:opacity .25s .35s;&:not([data-state=hidden]){opacity:1}&:not([data-state=hidden]),&[data-f]{transition:opacity .05s}:root[data-theme=dark] &,&[data-ground=ink]{--b:#f4ead4;--t:#0a0a0a}&[data-ground=signal]{--b:#0a0a0a;--t:#f4ead4;--d:#0a0a0a}&[data-state=link]{--k:3;&:not([data-ground=signal]){mix-blend-mode:difference;--d:#fff}}&:is([data-state=label],[data-state=media]){--k:0}&[data-l]:is([data-state=label],[data-state=media]){.vn-cursor__pill{opacity:1;scale:1}span{translate:0}}&[data-state=media] .vn-cursor__media{opacity:1;scale:1;clip-path:inset(0);img{scale:1}}&[data-pressed]{--p:.6;.vn-cursor__pill{scale:.9}}}.vn-cursor__dot{top:-4px;left:-4px;transform:none;scale:calc(var(--k,1)*var(--p,1));background:var(--d);transition:scale .4s ${SPRING}}.vn-cursor__pill,.vn-cursor__media{opacity:0;scale:0;transform-origin:0 0;transition:opacity .2s,scale .5s ${SPRING}}.vn-cursor__pill{position:fixed;top:0;left:0;z-index:var(--vn-cursor-z-label);transform:translate(-50%,calc(-100% - 18px));padding:7px 14px;color:var(--t);font:600 11px/16px var(--vn-font-mono);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;b{position:absolute;inset:0;z-index:-1;border-radius:99px;background:var(--b)}div{overflow:hidden}span{display:block;translate:0 110%;transition:translate .45s .04s ${SPRING}}}.vn-cursor__media{transform:translate(-50%,calc(-100% - 33px));background:#141414;scale:.85;clip-path:inset(100% 0 0);transition:opacity .2s,scale .6s ${SPRING},clip-path .55s ${OUT};img{display:block;width:100%;height:100%;object-fit:cover;scale:1.3;transition:scale .9s ${OUT}}}`;
+const E = 'cubic-bezier(.25,1,.5,1)'; // era's "Out"
+const IDLE_MS = 1400; // how long a rotating idle label stays up
+const CSS = `.vn-cursor{--b:#0a0a0a;--t:#f4ead4;--d:var(--vn-signal);opacity:0;transition:opacity .25s .35s;&:not([data-state=hidden]){opacity:1}&:not([data-state=hidden]),&[data-f]{transition:opacity .05s}:root[data-theme=dark] &,&[data-ground=ink]{--b:#f4ead4;--t:#0a0a0a}&[data-ground=signal]{--b:#0a0a0a;--t:#f4ead4;--d:#0a0a0a}&[data-state=link]{--k:3;&:not([data-ground=signal]){mix-blend-mode:difference;--d:#fff}}&:is([data-state=label],[data-state=media]){--k:0}&[data-l]:is([data-state=label],[data-state=media]){.vn-cursor__pill{opacity:1;scale:1}span{translate:0}}&[data-state=media] .vn-cursor__media{opacity:1;scale:1;clip-path:inset(0);img{scale:1}}&[data-idle][data-l]{.vn-cursor__pill{opacity:1;scale:1}span{translate:0}}&[data-state=idle]{&[data-zone=ring]{--k:.5;.vn-cursor__dot::before{inset:-36px;border:2px solid var(--b);border-radius:50%;opacity:1;scale:1}}&[data-zone=read]{--k:.75;--d:#fff;mix-blend-mode:difference}&[data-zone=plus] .vn-cursor__dot{background:transparent;&::before,&::after{left:-7px;top:3px;width:22px;height:2px;background:var(--d);opacity:1;scale:1}&::after{rotate:90deg}}&[data-zone=drag] .vn-cursor__dot{&::before,&::after{font:600 16px/8px var(--vn-font-mono);color:var(--d);opacity:1;scale:1}&::before{content:'‹';right:14px}&::after{content:'›';left:14px}}&[data-zone=signal]{--k:1.75;.vn-cursor__dot{background:transparent;box-shadow:inset 0 0 0 .7px var(--b)}}&[data-zone=drag][data-pressed] .vn-cursor__dot{&::before{translate:-10px}&::after{translate:10px}}}&[data-zone=plus][data-state=link] .vn-cursor__dot{rotate:90deg;&::before,&::after{left:-7px;top:3px;width:22px;height:2px;background:#000;opacity:1;scale:.25 .4}}&[data-pressed]{--p:.6;.vn-cursor__pill{scale:.9}}}.vn-cursor__dot{top:-4px;left:-4px;transform:none;scale:calc(var(--k,1)*var(--p,1));background:var(--d);transition:scale .4s ${SPRING},rotate .4s ${E},background .4s ${E},box-shadow .4s ${E};&::before,&::after{content:'';position:absolute;opacity:0;scale:.3;transition:opacity .4s ${E},scale .8s ${E},translate .4s ${E}}}.vn-cursor__pill,.vn-cursor__media{opacity:0;scale:0;transform-origin:0 0;transition:opacity .2s,scale .5s ${SPRING}}.vn-cursor__pill{position:fixed;top:0;left:0;z-index:var(--vn-cursor-z-label);transform:translate(-50%,calc(-100% - 18px));padding:7px 14px;color:var(--t);font:600 11px/16px var(--vn-font-mono);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;b{position:absolute;inset:0;z-index:-1;border-radius:99px;background:var(--b)}div{overflow:hidden}span{display:block;translate:0 110%;transition:translate .45s .04s ${SPRING}}}.vn-cursor__media{transform:translate(-50%,calc(-100% - 33px));background:#141414;scale:.85;clip-path:inset(100% 0 0);transition:opacity .2s,scale .6s ${SPRING},clip-path .55s ${OUT};img{display:block;width:100%;height:100%;object-fit:cover;scale:1.3;transition:scale .9s ${OUT}}}`;
 
 const OK = '(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference)';
 const TXT = 'input,textarea,select,[contenteditable]';
@@ -54,6 +56,8 @@ function init(): void {
   let lx = -1, ly = -1, tx = 0, ty = 0, dx = 0, dy = 0, px = 0, py = 0, vx = 0, vy = 0, sx = 0;
   let raf = 0, last = 0;
   let txt = '', t0 = 0;
+  let zone: Element | null = null, it = 0;
+  const rot = new Map<Element, number>();
 
   const put = () => {
     dot.style.translate = `${dx}px ${dy}px`;
@@ -119,6 +123,9 @@ function init(): void {
     ty = ly + oy * k;
   };
   const hide = (fast = false) => {
+    zone = null;
+    clearTimeout(it);
+    root.removeAttribute('data-idle');
     root.dataset.state = st = 'hidden';
     root.toggleAttribute('data-f', fast);
   };
@@ -154,6 +161,23 @@ function init(): void {
     root.dataset.ground = !g ? '' : g.matches(SIGNAL) ? 'signal' : 'ink';
     root.dataset.state = st = s;
     root.removeAttribute('data-f');
+    // zones: one closest(), written for the CSS; entering a new zone on an idle pointer rotates its idle label in
+    const z = el.closest<HTMLElement>('[data-cursor-zone]');
+    root.dataset.zone = z?.dataset.cursorZone ?? '';
+    const L = z?.dataset.cursorIdle?.split('|');
+    if (s !== 'idle') {
+      clearTimeout(it);
+      root.removeAttribute('data-idle');
+    } else if (z !== zone && L) {
+      const n = rot.get(z!) ?? 0;
+      rot.set(z!, n + 1);
+      say(L[n % L.length]);
+      root.toggleAttribute('data-l', true);
+      root.toggleAttribute('data-idle', true);
+      clearTimeout(it);
+      it = window.setTimeout(() => root.removeAttribute('data-idle'), IDLE_MS);
+    }
+    zone = z;
   };
   const settleAt = () => {
     aim();
@@ -163,6 +187,7 @@ function init(): void {
   const off = () => {
     ac.abort();
     cancelAnimationFrame(raf);
+    clearTimeout(it);
     root.remove();
     document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== sheet);
   };
