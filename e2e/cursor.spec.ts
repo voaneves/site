@@ -131,6 +131,54 @@ test.describe('cursor: state machine', () => {
     await expect(cursor(page)).toHaveAttribute('data-state', /^(label|media)$/);
     await expect(page.locator('.vn-cursor__pill span')).toHaveText(expected);
     await expect(page.locator('.vn-cursor__pill')).toHaveCSS('opacity', '1');
+    // the pill grows out of the dot: its pivot is the pointer and the dot shrinks into it
+    await expect(page.locator('.vn-cursor__pill')).toHaveCSS('scale', '1');
+    await expect(page.locator('.vn-cursor__pill')).toHaveCSS('transform-origin', '0px 0px');
+    await expect(page.locator('.vn-cursor i')).toHaveCSS('scale', '0');
+  });
+
+  test('the label decodes from noise into its text', async ({ page }) => {
+    await page.goto('/');
+    await wake(page);
+    const el = await ensureTarget(page, 'data-cursor-label', 'BORA?');
+    const expected = (await el.getAttribute('data-cursor-label'))!;
+    const seen: string[] = [];
+    await page.exposeFunction('__seen', (t: string) => seen.push(t));
+    await page.evaluate(() => {
+      const s = document.querySelector('.vn-cursor__pill span')!;
+      new MutationObserver(() => (window as unknown as { __seen: (t: string) => void }).__seen(s.textContent ?? '')).observe(s, {
+        childList: true,
+        characterData: true,
+        subtree: true,
+      });
+    });
+    await hoverCentre(page, el);
+    await expect(page.locator('.vn-cursor__pill span')).toHaveText(expected);
+    // intermediate frames had the label's length but other glyphs
+    expect(seen.some((t) => t.length === expected.length && t !== expected)).toBe(true);
+  });
+
+  test('a [data-magnetic] target pulls the dot towards its centre', async ({ page }) => {
+    await page.goto('/');
+    await wake(page);
+    await page.evaluate(() => {
+      const a = document.createElement('a');
+      a.href = '#x';
+      a.id = 'vn-mag';
+      a.dataset.magnetic = '';
+      a.textContent = 'magnet';
+      a.style.cssText = 'position:fixed;left:200px;top:400px;width:200px;height:60px;z-index:9000;background:#ccc';
+      document.body.append(a);
+    });
+    // pointer 60px right of and 20px below the centre (300, 430)
+    await page.mouse.move(340, 440, { steps: 3 });
+    await page.mouse.move(360, 450, { steps: 2 });
+    await expect(cursor(page)).toHaveAttribute('data-state', 'link');
+    await page.waitForTimeout(1200);
+    const [x, y] = await page.locator('.vn-cursor i').evaluate((e) => (e as HTMLElement).style.translate.split(' ').map(parseFloat));
+    // the dot sits much closer to the magnet centre than the pointer does, but still follows the pointer a little
+    expect(Math.hypot(x - 300, y - 430)).toBeLessThan(Math.hypot(360 - 300, 450 - 430) * 0.5);
+    expect(Math.hypot(x - 360, y - 450)).toBeGreaterThan(20);
   });
 
   test('a plain link scales the dot (state link), leaving it returns to idle', async ({ page }) => {
@@ -209,7 +257,7 @@ test.describe('cursor: state machine', () => {
     await wake(page, 300, 300);
     await page.mouse.move(320, 320, { steps: 3 });
     await expect(cursor(page)).toHaveAttribute('data-ground', 'ink');
-    await expect(page.locator('.vn-cursor__pill')).toHaveCSS('background-color', 'rgb(244, 234, 212)');
+    await expect(page.locator('.vn-cursor__pill b')).toHaveCSS('background-color', 'rgb(244, 234, 212)');
   });
 
   test('the rAF loop settles: the dot stops moving after the pointer stops', async ({ page }) => {
@@ -222,6 +270,9 @@ test.describe('cursor: state machine', () => {
     await page.waitForTimeout(200);
     expect(await read()).toBe(a);
     expect(a).toBe('800px 500px');
+    // the spring tilt and the dot stretch are fully released at rest
+    expect(await page.evaluate(() => (document.querySelector('.vn-cursor__pill') as HTMLElement).style.rotate)).toBe('0deg');
+    expect(await page.evaluate(() => (document.querySelector('.vn-cursor i') as HTMLElement).style.transform)).toBe('');
   });
 });
 
