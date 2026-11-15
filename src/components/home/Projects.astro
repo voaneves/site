@@ -1,0 +1,57 @@
+---
+import type { Locale } from '../../i18n/ui';
+import { PORTFOLIO } from '../../data/portfolio';
+
+export interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const c = PORTFOLIO[locale];
+const projectBase = locale === 'en' ? '/en/projects' : '/projetos';
+---
+
+<section data-section="05" id="projetos" class="vn-section vn-site-anchor-target">
+  <span id="portfolio" class="vn-sr-only"></span>
+  <div class="vn-container">
+    <div class="vn-sec-head vn-reveal">
+      <span class="vn-type-tag vn-sec-tag">{c.projects.tag}</span>
+      <h2 class="vn-type-h2">{c.projects.title}</h2>
+      <p class="vn-type-body vn-muted vn-measure">{c.projects.subtitle}</p>
+    </div>
+
+    <div class="vn-projects-list">
+      {c.projects.items.map((proj) => (
+        <a
+          class="vn-work-row vn-project-row"
+          href={`${projectBase}/${proj.slug}/`}
+          data-cursor-media={proj.image}
+          data-cursor-label={c.projects.cursorPreviewPrefix}
+        >
+          <div class="vn-project-row__left">
+            <span class="vn-type-price vn-project-row__idx">{proj.index}</span>
+            <img
+              src={proj.image}
+              alt={proj.imageAlt}
+              width="1600"
+              height="800"
+              loading="lazy"
+              decoding="async"
+              class="vn-project-row__thumb"
+            />
+            <div class="vn-project-row__text">
+              <span class="vn-type-micro vn-muted">{proj.category} · {proj.year}</span>
+              <h3 class="vn-type-h3">{proj.title}</h3>
+              <p class="vn-type-body-sm vn-muted">{proj.summary}</p>
+            </div>
+          </div>
+
+          <div class="vn-project-row__right">
+            <span class="vn-chip vn-project-row__metric">{proj.metricBadge}</span>
+            <span class="vn-type-label vn-project-row__cta">{c.projects.viewCaseLabel} →</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>

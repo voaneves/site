@@ -1,0 +1,55 @@
+---
+import type { Locale } from '../../i18n/ui';
+import { PORTFOLIO } from '../../data/portfolio';
+
+export interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const c = PORTFOLIO[locale];
+---
+
+<section data-section="01" id="quem-sou" class="vn-section vn-site-anchor-target">
+  <span id="who" class="vn-sr-only"></span>
+  <div class="vn-container">
+    <div class="vn-sec-head vn-reveal">
+      <span class="vn-type-tag vn-sec-tag">{c.about.tag}</span>
+    </div>
+
+    <div class="vn-about-grid vn-reveal">
+      <div>
+        <h2 class="vn-type-h1 vn-about-statement">
+          {c.about.statementPre}<em>{c.about.statementEm1}</em>{c.about.statementMid}<em>{c.about.statementEm2}</em>{c.about.statementPost}
+        </h2>
+        <div class="vn-about-prose">
+          <p class="vn-type-lead">{c.about.p1}</p>
+          <p class="vn-type-body vn-muted">{c.about.p2}</p>
+        </div>
+      </div>
+
+      <dl class="vn-spec-list">
+        {c.about.specs.map((spec) => (
+          <div class="vn-spec-list__row">
+            <dt class="vn-type-label vn-muted">{spec.k}</dt>
+            <dd class="vn-type-body-strong">{spec.v}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+
+    <div class="vn-awards-wrap vn-reveal">
+      <h3 class="vn-type-label vn-awards-title">{c.about.awardsTitle}</h3>
+      <div class="vn-awards-grid">
+        {c.about.awards.map((award) => (
+          <article class="vn-award-card">
+            <span class="vn-award-card__place">{award.place}</span>
+            <h4 class="vn-type-body-strong vn-award-card__title">{award.title}</h4>
+            <p class="vn-type-body-sm vn-award-card__detail">{award.detail}</p>
+            <p class="vn-type-micro vn-muted">{award.meta}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

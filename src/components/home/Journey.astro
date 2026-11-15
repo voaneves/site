@@ -1,0 +1,119 @@
+---
+import type { Locale } from '../../i18n/ui';
+import { PORTFOLIO } from '../../data/portfolio';
+
+export interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const c = PORTFOLIO[locale];
+---
+
+<section data-section="04" id="jornada" class="vn-section vn-site-anchor-target" data-surface="soft">
+  <span id="timeline" class="vn-sr-only"></span>
+  <div class="vn-container">
+    <div class="vn-sec-split vn-reveal">
+      <div>
+        <span class="vn-type-tag vn-sec-tag">{c.journey.tag}</span>
+        <h2 class="vn-type-h2">{c.journey.title}</h2>
+        <p class="vn-type-body vn-muted">{c.journey.subtitle}</p>
+      </div>
+      <div class="vn-journey-controls">
+        <span class="vn-type-micro vn-muted vn-journey-hint">{c.journey.dragHint}</span>
+        <button
+          type="button"
+          class="vn-icon-btn"
+          data-journey-prev
+          aria-label={c.journey.prevLabel}
+        >
+          ←
+        </button>
+        <button
+          type="button"
+          class="vn-icon-btn"
+          data-journey-next
+          aria-label={c.journey.nextLabel}
+        >
+          →
+        </button>
+      </div>
+    </div>
+
+    <div
+      class="vn-journey-track"
+      data-vn-journey
+      tabindex="0"
+      role="region"
+      aria-label={c.journey.title}
+    >
+      {c.journey.items.map((item, idx) => (
+        <article class={`vn-journey-card ${item.current ? 'vn-journey-card--current' : ''}`}>
+          <div class="vn-journey-card__top">
+            <img
+              src={item.logo}
+              alt={item.logoAlt}
+              width="330"
+              height="180"
+              loading="lazy"
+              decoding="async"
+              class="vn-journey-card__logo"
+            />
+            <span class="vn-type-micro vn-journey-card__idx">0{idx + 1}</span>
+          </div>
+          <p class="vn-type-label vn-journey-card__period">{item.period} · {item.location}</p>
+          <h3 class="vn-type-h4">{item.role}</h3>
+          <p class="vn-type-body-strong vn-journey-card__company">{item.company}</p>
+          <p class="vn-type-body-sm vn-muted">{item.summary}</p>
+          <ul class="vn-journey-card__bullets">
+            {item.highlights.map((h) => (
+              <li class="vn-type-caption">{h}</li>
+            ))}
+          </ul>
+        </article>
+      ))}
+    </div>
+
+    <details class="vn-archive-details vn-reveal">
+      <summary class="vn-archive-summary">
+        <span class="vn-type-body-strong">{c.journey.archiveSummary}</span>
+        <span class="vn-archive-icon" aria-hidden="true">+</span>
+      </summary>
+      <div class="vn-archive-body">
+        <div>
+          <h3 class="vn-type-label vn-sec-tag">{c.journey.educationTitle}</h3>
+          <ul class="vn-archive-list">
+            {c.journey.education.map((ed) => (
+              <li>
+                <strong>{ed.title}</strong>
+                <span>{ed.org} · {ed.period}{ed.detail ? ` (${ed.detail})` : ''}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h3 class="vn-type-label vn-sec-tag">{c.journey.certsTitle}</h3>
+          <ul class="vn-archive-list">
+            {c.journey.certifications.map((cert) => (
+              <li>
+                <strong>{cert.title}</strong>
+                <span>{cert.org} · {cert.period}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h3 class="vn-type-label vn-sec-tag">{c.journey.languagesTitle}</h3>
+          <ul class="vn-archive-list">
+            {c.journey.languages.map((lang) => (
+              <li>
+                <strong>{lang.title}</strong>
+                <span>{lang.org} · {lang.period}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </details>
+  </div>
+</section>

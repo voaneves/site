@@ -1,0 +1,115 @@
+---
+import Icon from '@voaneves/brand/astro/Icon.astro';
+import { UI, type Locale } from '../../i18n/ui';
+import { PORTFOLIO } from '../../data/portfolio';
+
+export interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = UI[locale];
+const c = PORTFOLIO[locale];
+const projectBase = locale === 'en' ? '/en/projects' : '/projetos';
+const badgeLoop = `${c.hero.badgeText}${c.hero.badgeText}`;
+---
+
+<section id="inicio" class="vn-hero vn-site-anchor-target" data-surface="inverse">
+  <span id="home" class="vn-sr-only"></span>
+  <div class="vn-hero__grid" aria-hidden="true"></div>
+  <div class="vn-hero__glow" aria-hidden="true"></div>
+
+  <div class="vn-hero__bg-marquee" aria-hidden="true">
+    <div class="vn-hero__bg-track">
+      {[...c.hero.bgMarquee, ...c.hero.bgMarquee].map((word) => (
+        <span>{word} ·</span>
+      ))}
+    </div>
+  </div>
+
+  <div class="vn-container vn-hero__inner">
+    <div class="vn-hero__copy">
+      <div class="vn-hero__meta">
+        <span class="vn-status-pill vn-hero-pill">
+          <span class="vn-status-pill__dot" aria-hidden="true"></span>
+          <span>{t.statusAvailable}</span>
+        </span>
+        <span class="vn-type-tag vn-hero__kicker">{c.hero.kicker}</span>
+      </div>
+
+      <h1 class="vn-hero__title">
+        <span class="vn-hero__line">{c.hero.firstName}</span>
+        <span class="vn-hero__line vn-hero__line--accent">{c.hero.lastName}<span class="vn-hero__dot" aria-hidden="true">.</span></span>
+      </h1>
+
+      <p class="vn-hero__essence">{c.hero.essence}</p>
+      <p class="vn-type-lead vn-hero__sub">{c.hero.sub}</p>
+
+      <div class="vn-hero__actions">
+        <a
+          class="vn-btn vn-btn--signal vn-btn--lg vn-magnetic"
+          href="#contato"
+          data-cursor-label={locale === 'en' ? 'START' : 'INICIAR'}
+        >
+          <span class="vn-btn__dot" aria-hidden="true"></span>
+          <span>{c.hero.ctaPrimary}</span>
+        </a>
+        <a
+          class="vn-btn vn-btn--secondary vn-btn--lg vn-hero-btn-ghost vn-magnetic"
+          href="#projetos"
+          data-cursor-label={locale === 'en' ? 'WORK' : 'PROJETOS'}
+        >
+          <span>{c.hero.ctaSecondary}</span>
+        </a>
+        <a
+          class="vn-btn vn-btn--ghost vn-btn--lg vn-hero-btn-cv"
+          href={c.contact.cvUrl}
+          download
+        >
+          <Icon name="cloud-download" size={18} />
+          <span>{c.hero.ctaCv}</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="vn-hero__stage" data-vn-hero-stage>
+      <div class="vn-hero-portrait" data-vn-portrait-wrap>
+        <img
+          src="/assets/img/main_1.webp"
+          alt={c.hero.portraitAlt}
+          width="333"
+          height="500"
+          loading="eager"
+          decoding="sync"
+          fetchpriority="high"
+          class="vn-hero-portrait__img"
+        />
+        <canvas class="vn-hero-portrait__canvas" width="333" height="500" aria-hidden="true"></canvas>
+        <div class="vn-hero-portrait__frame" aria-hidden="true"></div>
+        <span class="vn-hero-portrait__hint vn-type-micro">{c.hero.portraitCaption}</span>
+      </div>
+
+      {c.hero.chips.map((chip) => (
+        <div
+          class={`vn-hero-chip vn-hero-chip--${chip.pos} vn-magnetic`}
+          data-depth={chip.depth}
+        >
+          <span class="vn-hero-chip__dot" aria-hidden="true"></span>
+          <span>{chip.label}</span>
+        </div>
+      ))}
+
+      <div class="vn-hero-badge" aria-hidden="true">
+        <svg viewBox="0 0 120 120" width="112" height="112" class="vn-hero-badge__svg">
+          <defs>
+            <path id={`badge-circle-${locale}`} d="M 60, 60 m -44, 0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0" />
+          </defs>
+          <text font-size="8.2" font-weight="700" letter-spacing="2.2">
+            <textPath href={`#badge-circle-${locale}`}>{badgeLoop}</textPath>
+          </text>
+        </svg>
+        <span class="vn-hero-badge__center">VN</span>
+      </div>
+    </div>
+  </div>
+</section>

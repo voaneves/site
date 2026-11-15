@@ -1,0 +1,34 @@
+---
+import type { Locale } from '../../i18n/ui';
+import { PORTFOLIO } from '../../data/portfolio';
+
+export interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const c = PORTFOLIO[locale];
+---
+
+<section data-section="07" id="perguntas" class="vn-section vn-site-anchor-target">
+  <span id="faq" class="vn-sr-only"></span>
+  <div class="vn-container vn-faq-layout">
+    <div class="vn-reveal">
+      <span class="vn-type-tag vn-sec-tag">{c.faq.tag}</span>
+      <h2 class="vn-type-h2">{c.faq.title}</h2>
+      <p class="vn-type-body vn-muted">{c.faq.subtitle}</p>
+    </div>
+
+    <div class="vn-faq-list vn-reveal">
+      {c.faq.items.map((item) => (
+        <details name={`faq-${locale}`} class="vn-faq-item">
+          <summary class="vn-faq-item__q">
+            <span class="vn-type-body-strong">{item.q}</span>
+            <span class="vn-faq-item__icon" aria-hidden="true">+</span>
+          </summary>
+          <p class="vn-type-body-sm vn-muted vn-faq-item__a">{item.a}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>

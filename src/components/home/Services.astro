@@ -1,0 +1,58 @@
+---
+import Icon from '@voaneves/brand/astro/Icon.astro';
+import type { Locale } from '../../i18n/ui';
+import { PORTFOLIO } from '../../data/portfolio';
+import { waLink } from '../../data/contact';
+
+export interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const c = PORTFOLIO[locale];
+---
+
+<section data-section="06" id="servicos" class="vn-section vn-site-anchor-target" data-surface="soft">
+  <span id="services" class="vn-sr-only"></span>
+  <div class="vn-container">
+    <div class="vn-sec-head vn-reveal">
+      <span class="vn-type-tag vn-sec-tag">{c.services.tag}</span>
+      <h2 class="vn-type-h2 vn-measure">{c.services.title}</h2>
+      <p class="vn-type-body vn-muted vn-measure">{c.services.subtitle}</p>
+    </div>
+
+    <div class="vn-bento-grid">
+      {c.services.items.map((srv) => {
+        const waHref = waLink(srv.waMessage);
+        return (
+          <article class={`vn-service-card ${srv.featured ? 'vn-service-card--featured' : ''}`}>
+            <div class="vn-service-card__head">
+              <span class="vn-type-tag vn-muted">{srv.n} · {srv.tag}</span>
+              <span class="vn-service-card__price">
+                <small>{srv.unit}</small>
+                <strong>{srv.price}</strong>
+              </span>
+            </div>
+            <h3 class="vn-type-h3">{srv.title}</h3>
+            <p class="vn-type-body-sm vn-muted">{srv.description}</p>
+            <ul class="vn-service-card__list">
+              {srv.deliverables.map((deliv) => (
+                <li class="vn-type-caption">{deliv}</li>
+              ))}
+            </ul>
+            <a
+              class="vn-btn vn-btn--secondary vn-btn--sm vn-service-card__cta"
+              href={waHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${c.services.ctaLabel}: ${srv.title}`}
+            >
+              <Icon name="whatsapp" size={16} />
+              <span>{c.services.ctaLabel}</span>
+            </a>
+          </article>
+        );
+      })}
+    </div>
+  </div>
+</section>

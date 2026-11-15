@@ -1,0 +1,90 @@
+---
+import type { Locale } from '../../i18n/ui';
+import { PORTFOLIO } from '../../data/portfolio';
+
+export interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const c = PORTFOLIO[locale];
+---
+
+<section data-section="02" id="numeros" class="vn-section vn-numbers-band vn-site-anchor-target" data-surface="inverse">
+  <span id="work" class="vn-sr-only"></span>
+  <div class="vn-container">
+    <div class="vn-sec-head vn-reveal">
+      <span class="vn-type-tag vn-sec-tag-dark">{c.numbers.tag}</span>
+      <h2 class="vn-type-h2 vn-measure">{c.numbers.title}</h2>
+      <p class="vn-type-body vn-numbers-sub vn-measure">{c.numbers.subtitle}</p>
+    </div>
+
+    <div class="vn-stats-hero-grid vn-reveal">
+      {c.numbers.stats.map((s) => (
+        <div class="vn-stat-hero">
+          <span class="vn-type-numeral vn-stat-hero__val">{s.value}</span>
+          <span class="vn-type-body-sm vn-stat-hero__lbl">{s.label}</span>
+        </div>
+      ))}
+    </div>
+
+    <div class="vn-numbers-lower vn-reveal">
+      <div class="vn-impact-grid">
+        {c.numbers.impacts.map((imp) => (
+          <article class="vn-impact-card">
+            <span class="vn-impact-card__metric">{imp.metric}</span>
+            <h3 class="vn-type-body-strong vn-impact-card__label">{imp.label}</h3>
+            <p class="vn-type-micro vn-impact-card__src">{imp.source}</p>
+          </article>
+        ))}
+      </div>
+
+      <aside class="vn-chart-panel" aria-labelledby={`chart-title-${locale}`}>
+        <div class="vn-chart-panel__head">
+          <h3 id={`chart-title-${locale}`} class="vn-type-h4">{c.numbers.chartTitle}</h3>
+          <p class="vn-type-caption vn-chart-panel__cap">{c.numbers.chartCaption}</p>
+        </div>
+
+        <svg
+          class="vn-chart-svg"
+          viewBox="0 0 360 156"
+          role="img"
+          aria-labelledby={`chart-title-${locale}`}
+        >
+          {c.numbers.chartBars.map((bar, idx) => {
+            const y = 14 + idx * 48;
+            const barWidth = Math.round((bar.value / 100) * 210);
+            return (
+              <g>
+                <text x="0" y={y + 13} class="vn-chart-svg__label">{bar.label}</text>
+                <rect x="0" y={y + 20} width="210" height="12" rx="6" class="vn-chart-svg__track" />
+                <rect x="0" y={y + 20} width={barWidth} height="12" rx="6" class="vn-chart-svg__fill" />
+                <text x="224" y={y + 29} class="vn-chart-svg__val">{bar.unit}</text>
+              </g>
+            );
+          })}
+        </svg>
+
+        <table class="vn-sr-only">
+          <caption>{c.numbers.chartTitle}</caption>
+          <thead>
+            <tr>
+              <th>{locale === 'en' ? 'Project' : 'Projeto'}</th>
+              <th>{locale === 'en' ? 'Score' : 'Pontuação'}</th>
+              <th>{locale === 'en' ? 'Metric' : 'Métrica'}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {c.numbers.chartBars.map((bar) => (
+              <tr>
+                <td>{bar.label}</td>
+                <td>{bar.unit}</td>
+                <td>{bar.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </aside>
+    </div>
+  </div>
+</section>
