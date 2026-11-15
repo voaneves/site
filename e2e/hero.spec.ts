@@ -207,6 +207,9 @@ test.describe('hero pointer effects (fine pointer)', () => {
   test('the rAF loop runs while moving and stops when the pointer is idle', async ({ page }) => {
     await page.mouse.move(500, 300, { steps: 3 });
     await page.mouse.move(700, 420, { steps: 8 });
+    // The first move fetches the lazy hero-fx chunk; it starts the loop with the replayed position.
+    await page.waitForFunction(() => (window as unknown as W).__vnHeroRunning !== undefined);
+    await page.mouse.move(760, 460, { steps: 8 });
     expect(await running(page)).toBe(true);
     await settled(page);
     // Leaving eases the layers home, then stops as well.
@@ -215,6 +218,21 @@ test.describe('hero pointer effects (fine pointer)', () => {
     await settled(page);
     expect(await running(page)).toBe(false);
   });
+});
+
+test('the hero-fx chunk is not requested on load, only after the first pointer move', async ({ page }) => {
+  const fx: string[] = [];
+  page.on('request', (rq) => {
+    if (/\/_astro\/hero-fx\./.test(rq.url())) fx.push(rq.url());
+  });
+  await page.goto('/');
+  await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(500);
+  expect(fx).toEqual([]);
+  await page.mouse.move(500, 320, { steps: 4 });
+  await expect.poll(() => fx.length).toBe(1);
+  // The triggering position is replayed: the HUD shows it without a second move.
+  await expect(page.locator('[data-vn-hud-live]')).toHaveText(/^X 0500 · Y 0\d{3} · 2026$/);
 });
 
 test('reduced motion: the hero is static (no brush, no parallax, no loop)', async ({ browser }) => {
