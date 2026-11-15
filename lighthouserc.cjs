@@ -1,15 +1,18 @@
 const form = process.env.LHCI_FORM ?? 'mobile';
+const port = process.env.PW_PORT ?? '8788';
+const base = `http://localhost:${port}`;
 
 module.exports = {
   ci: {
     collect: {
-      startServerCommand: 'npx wrangler pages dev dist --port 8788',
+      startServerCommand: `npx wrangler pages dev dist --port ${port}`,
       startServerReadyPattern: 'Ready on',
       url: [
-        'http://localhost:8788/',
-        'http://localhost:8788/en/',
-        'http://localhost:8788/privacidade/',
-        'http://localhost:8788/en/privacy/',
+        `${base}/`,
+        `${base}/en/`,
+        `${base}/privacidade/`,
+        `${base}/en/privacy/`,
+        `${base}/projetos/caato/`,
       ],
       numberOfRuns: 5,
       settings: form === 'desktop' ? { preset: 'desktop' } : {},
