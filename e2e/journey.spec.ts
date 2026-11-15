@@ -88,6 +88,8 @@ test.describe('journey gallery', () => {
     await page.goto('/');
     const track = page.locator('[data-vn-journey]');
     await settle(page, track);
+    // the drag handler is attached by the lazy journey chunk; a pointerdown before it is ready is ignored
+    await expect(track).toHaveAttribute('data-ready', '');
     const box = (await track.boundingBox())!;
     const y = box.y + 80;
     await page.mouse.move(box.x + 900, y);
