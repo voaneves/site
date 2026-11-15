@@ -36,7 +36,7 @@ test('theme toggle switches theme, updates theme-color, and persists across relo
   await expect(page.locator('html')).toHaveAttribute('data-theme', expectedNext);
 
   const metaColor = await page.locator('meta[name="theme-color"]').getAttribute('content');
-  expect(metaColor).toBe(expectedNext === 'dark' ? '#0a0a0a' : '#f4ead4');
+  expect(metaColor).toBe(expectedNext === 'dark' ? '#0a0a0a' : '#fdfbf6');
 
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', expectedNext);
