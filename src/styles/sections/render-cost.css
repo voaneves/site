@@ -22,7 +22,7 @@
   #expertise { contain-intrinsic-block-size: auto 1125px; }
   #jornada { contain-intrinsic-block-size: auto 1110px; }
   #projetos { contain-intrinsic-block-size: auto 1500px; }
-  #servicos { contain-intrinsic-block-size: auto 1760px; }
+  #servicos { contain-intrinsic-block-size: auto 3030px; }
   #perguntas { contain-intrinsic-block-size: auto 600px; }
   #contato { contain-intrinsic-block-size: auto 880px; }
 
@@ -31,7 +31,7 @@
     #numeros { contain-intrinsic-block-size: auto 1465px; }
     #expertise { contain-intrinsic-block-size: auto 1400px; }
     #jornada { contain-intrinsic-block-size: auto 1090px; }
-    #servicos { contain-intrinsic-block-size: auto 1810px; }
+    #servicos { contain-intrinsic-block-size: auto 2960px; }
     #perguntas { contain-intrinsic-block-size: auto 545px; }
     #contato { contain-intrinsic-block-size: auto 800px; }
   }
@@ -41,9 +41,13 @@
     #numeros { contain-intrinsic-block-size: auto 1750px; }
     #jornada { contain-intrinsic-block-size: auto 1050px; }
     #projetos { contain-intrinsic-block-size: auto 2000px; }
-    #servicos { contain-intrinsic-block-size: auto 2100px; }
     #perguntas { contain-intrinsic-block-size: auto 630px; }
     #contato { contain-intrinsic-block-size: auto 700px; }
+  }
+
+  /* Services stack as sticky cards from 900px; below it is the plain grid. */
+  @media (max-width: 899px) {
+    #servicos { contain-intrinsic-block-size: auto 2190px; }
   }
 
   @media (max-width: 600px) {

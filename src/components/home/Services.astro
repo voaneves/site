@@ -22,10 +22,10 @@ const c = PORTFOLIO[locale];
     </div>
 
     <div class="vn-bento-grid">
-      {c.services.items.map((srv) => {
+      {c.services.items.map((srv, idx) => {
         const waHref = waLink(srv.waMessage);
         return (
-          <article class={`vn-service-card ${srv.featured ? 'vn-service-card--featured' : ''}`}>
+          <article class={`vn-service-card vn-svc-${idx + 1} ${srv.featured ? 'vn-service-card--featured' : ''}`}>
             <div class="vn-service-card__head">
               <span class="vn-type-tag vn-muted">{srv.n} · {srv.tag}</span>
               <span class="vn-service-card__price">

@@ -29,6 +29,7 @@
   .vn-service-card__price {
     text-align: right;
     display: grid;
+    white-space: nowrap;
   }
 
   .vn-service-card__price small {
@@ -38,8 +39,9 @@
   }
 
   .vn-service-card__price strong {
-    font-family: var(--vn-font-mono);
-    font-size: 18px;
+    font-family: var(--vn-font-display);
+    font-style: italic;
+    font-size: 1.5rem;
     color: var(--vn-signal-ink);
   }
 
@@ -52,5 +54,64 @@
 
   .vn-service-card__cta {
     align-self: flex-start;
+    justify-self: start;
+  }
+
+  /* Sticky stack: from 900px, plain motion-OK only. */
+  @media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+    .vn-bento-grid {
+      display: flex;
+      flex-direction: column;
+      gap: var(--vn-space-6);
+      timeline-scope: --s1, --s2, --s3, --s4, --s5, --s6, --s7, --s8;
+    }
+
+    .vn-bento-grid .vn-service-card {
+      position: sticky;
+      top: calc(var(--nav-h, 73px) + 1rem + var(--i) * 0.75rem);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .vn-service-card > * {
+      grid-column: 1;
+    }
+
+    .vn-service-card > .vn-service-card__head {
+      grid-column: 1 / -1;
+    }
+
+    .vn-service-card > .vn-service-card__list {
+      grid-column: 2;
+      grid-row: 2 / 5;
+      align-self: start;
+    }
+
+    .vn-service-card:focus-within {
+      z-index: 10;
+    }
+
+    .vn-svc-1 { --i: 1; view-timeline: --s1; --nx: --s2; }
+    .vn-svc-2 { --i: 2; view-timeline: --s2; --nx: --s3; }
+    .vn-svc-3 { --i: 3; view-timeline: --s3; --nx: --s4; }
+    .vn-svc-4 { --i: 4; view-timeline: --s4; --nx: --s5; }
+    .vn-svc-5 { --i: 5; view-timeline: --s5; --nx: --s6; }
+    .vn-svc-6 { --i: 6; view-timeline: --s6; --nx: --s7; }
+    .vn-svc-7 { --i: 7; view-timeline: --s7; --nx: --s8; }
+    .vn-svc-8 { --i: 8; view-timeline: --s8; }
+
+    @supports (animation-timeline: view()) {
+      .vn-service-card {
+        animation: vn-svc-under linear both;
+        animation-timeline: var(--nx, none);
+        animation-range: entry 60% contain 70%;
+      }
+    }
+  }
+
+  @keyframes vn-svc-under {
+    to {
+      scale: 0.96;
+    }
   }
 }
