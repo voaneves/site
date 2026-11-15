@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
+import { baseName, entryScripts, staticImports } from './lib/js-graph.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = path.join(ROOT, 'dist');
@@ -47,19 +48,82 @@ for (const file of htmlFiles) {
   if (cssGzBytes > budget.inlineCssGzMaxBytes) {
     throw new Error(`${rel} inline CSS gzip ${cssGzBytes} B exceeds budget ${budget.inlineCssGzMaxBytes} B`);
   }
+  if (budget.inlineCssGzWarnBytes && cssGzBytes > budget.inlineCssGzWarnBytes) {
+    console.warn(`WARN: ${rel} inline CSS gzip ${cssGzBytes} B above warn threshold ${budget.inlineCssGzWarnBytes} B`);
+  }
   console.log(`Budget OK [${rel}]: html=${gzBytes} B gz, inlineCss=${cssGzBytes} B gz`);
 }
 
-const jsFiles = allFiles.filter((f) => f.includes(`${path.sep}_astro${path.sep}`) && f.endsWith('.js'));
-let totalJsGz = 0;
+const astroDir = path.join(DIST, '_astro');
+const jsFiles = allFiles.filter((f) => path.dirname(f) === astroDir && f.endsWith('.js'));
+const jsInfo = new Map(); // basename -> { code, gz }
 for (const file of jsFiles) {
   const buf = await fs.readFile(file);
-  totalJsGz += zlib.gzipSync(buf).length;
+  jsInfo.set(path.basename(file), { code: buf.toString('utf8'), gz: zlib.gzipSync(buf).length });
 }
-if (totalJsGz > budget.firstLoadJsGzMaxBytes) {
-  throw new Error(`Bundled JS gzip ${totalJsGz} B exceeds budget ${budget.firstLoadJsGzMaxBytes} B`);
+
+function resolveChunk(spec) {
+  const name = baseName(spec);
+  return jsInfo.has(name) ? name : null;
 }
-console.log(`Bundled JS total: ${totalJsGz} B gz (<= ${budget.firstLoadJsGzMaxBytes} B)`);
+
+let firstLoadMax = 0;
+let firstLoadMaxPage = '';
+const firstLoadUnion = new Set();
+for (const file of htmlFiles) {
+  const rel = path.relative(DIST, file);
+  const { srcs, inline } = entryScripts(await fs.readFile(file, 'utf8'));
+  const seen = new Set();
+  let bytes = 0;
+  const queue = [];
+  for (const code of inline) {
+    bytes += zlib.gzipSync(Buffer.from(code, 'utf8')).length;
+    queue.push(...staticImports(code));
+  }
+  queue.push(...srcs);
+  while (queue.length) {
+    const name = resolveChunk(queue.pop());
+    if (!name || seen.has(name)) continue;
+    seen.add(name);
+    bytes += jsInfo.get(name).gz;
+    queue.push(...staticImports(jsInfo.get(name).code));
+  }
+  for (const n of seen) firstLoadUnion.add(n);
+  if (bytes > firstLoadMax) {
+    firstLoadMax = bytes;
+    firstLoadMaxPage = rel;
+  }
+}
+if (firstLoadMax > budget.firstLoadJsGzMaxBytes) {
+  throw new Error(`First-load JS ${firstLoadMax} B gz (${firstLoadMaxPage}) exceeds budget ${budget.firstLoadJsGzMaxBytes} B`);
+}
+
+let lazyTotal = 0;
+for (const [name, info] of jsInfo) {
+  if (!firstLoadUnion.has(name)) lazyTotal += info.gz;
+}
+if (lazyTotal > budget.lazyJsGzMaxBytes) {
+  throw new Error(`Lazy JS ${lazyTotal} B gz exceeds budget ${budget.lazyJsGzMaxBytes} B`);
+}
+
+for (const [chunk, max] of Object.entries(budget.lazyChunks ?? {})) {
+  const prefix = `${chunk}.`;
+  const matches = [...jsInfo.keys()].filter((n) => n.startsWith(prefix));
+  if (matches.length === 0) {
+    const msg = `lazy chunk "${chunk}" not found in dist/_astro`;
+    if (budget.strictLazyChunks) throw new Error(msg);
+    console.warn(`WARN: ${msg}`);
+    continue;
+  }
+  for (const name of matches) {
+    if (firstLoadUnion.has(name)) {
+      throw new Error(`lazy chunk ${name} is part of a first-load set; it must stay lazy`);
+    }
+    const gz = jsInfo.get(name).gz;
+    if (gz > max) throw new Error(`lazy chunk ${name} ${gz} B gz exceeds budget ${max} B`);
+  }
+}
+console.log(`first-load max=${firstLoadMax} B gz (${firstLoadMaxPage}) lazy total=${lazyTotal} B gz`);
 
 const preload1 = await fs.stat(path.join(DIST, 'fonts', 'fraunces-italic-display.woff2'));
 const preload2 = await fs.stat(path.join(DIST, 'fonts', 'schibsted-grotesk.woff2'));
