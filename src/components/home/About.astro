@@ -13,11 +13,11 @@ const [eyebrowNum, ...eyebrowRest] = (c.about.tag).split(' · ');
 const eyebrowTag = eyebrowRest.join(' · ');
 ---
 
-<section data-section="01" id="quem-sou" class="vn-section vn-chapter--creme vn-site-anchor-target">
+<section data-section="01" id="quem-sou" class="vn-section vn-chapter--creme vn-site-anchor-target" data-cursor-zone="read">
   <span id="who" class="vn-sr-only"></span>
   <div class="vn-container">
     <div class="vn-sec-head">
-      <p class="vn-eyebrow" data-enter="right"><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
+      <p class="vn-eyebrow" data-enter="right" data-fx="scramble"><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>
     </div>
 
     <div class="vn-about-grid">
@@ -45,7 +45,7 @@ const eyebrowTag = eyebrowRest.join(' · ');
       <h3 class="vn-type-label vn-awards-title" data-enter>{c.about.awardsTitle}</h3>
       <div class="vn-awards-grid" data-stagger>
         {c.about.awards.map((award) => (
-          <article class="vn-award-card" data-enter="scale">
+          <article class="vn-award-card" data-enter="scale" data-fx="tilt">
             <span class="vn-award-card__place">{award.place}</span>
             <h4 class="vn-type-body-strong vn-award-card__title">{award.title}</h4>
             <p class="vn-type-body-sm vn-award-card__detail">{award.detail}</p>
