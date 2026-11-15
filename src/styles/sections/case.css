@@ -1,0 +1,121 @@
+@layer site {
+  /* Case Study Pages */
+  .vn-case-hero {
+    padding-block: clamp(var(--vn-space-8), 8vw, var(--vn-space-12));
+    background: var(--vn-ref-ink-950);
+    color: var(--vn-cream);
+  }
+
+  .vn-case-crumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-family: var(--vn-font-mono);
+    font-size: 12px;
+    color: var(--vn-ref-sand-500);
+    margin-block-end: var(--vn-space-5);
+  }
+
+  .vn-case-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--vn-space-3);
+    margin-block-end: var(--vn-space-3);
+  }
+
+  .vn-case-badge {
+    padding: 4px 12px;
+    border-radius: var(--vn-radius-pill);
+    border: 1px solid rgba(255, 90, 90, 0.5);
+    color: var(--vn-ref-red-400);
+    font-family: var(--vn-font-mono);
+    font-size: 12px;
+  }
+
+  .vn-case-hero__title {
+    margin-block-end: var(--vn-space-4);
+    max-width: 18ch;
+  }
+
+  .vn-case-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: var(--vn-space-4);
+    margin-block-start: var(--vn-space-7);
+    padding-block-start: var(--vn-space-6);
+    border-top: 1px solid var(--vn-line-on-dark);
+  }
+
+  .vn-case-kpi__val {
+    color: var(--vn-ref-red-400);
+    display: block;
+  }
+
+  .vn-case-media__img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--vn-radius-xl);
+    border: 1px solid var(--vn-line);
+    margin-block-end: var(--vn-space-8);
+  }
+
+  .vn-case-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+    gap: clamp(var(--vn-space-6), 5vw, var(--vn-space-10));
+    align-items: start;
+  }
+
+  .vn-case-aside {
+    display: grid;
+    gap: var(--vn-space-6);
+  }
+
+  .vn-case-prose {
+    display: grid;
+    gap: var(--vn-space-7);
+  }
+
+  .vn-case-chapter {
+    display: grid;
+    gap: var(--vn-space-3);
+  }
+
+  .vn-case-outcomes {
+    display: grid;
+    gap: var(--vn-space-3);
+    padding-left: var(--vn-space-5);
+    list-style: disc;
+  }
+
+  .vn-case-pager {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--vn-space-4);
+    margin-block-start: var(--vn-space-10);
+    padding-block-start: var(--vn-space-6);
+    border-top: 1px solid var(--vn-line);
+  }
+
+  .vn-case-pager__link {
+    display: grid;
+    gap: 4px;
+    padding: var(--vn-space-5);
+    border: 1px solid var(--vn-line);
+    border-radius: var(--vn-radius-md);
+  }
+
+  .vn-case-pager__link--next {
+    text-align: right;
+  }
+
+  .vn-case-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--vn-space-4);
+    color: var(--vn-ink);
+  }
+}

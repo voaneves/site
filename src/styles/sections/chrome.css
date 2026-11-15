@@ -1,0 +1,118 @@
+@layer site {
+  /* Scroll progress bar */
+  .vn-scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    z-index: calc(var(--vn-z-nav) + 10);
+    background: var(--vn-signal);
+    transform-origin: left center;
+    transform: scaleX(0);
+    pointer-events: none;
+  }
+
+  /* Navbar */
+  .vn-navbar__nav {
+    gap: var(--vn-space-5);
+  }
+
+  .vn-navbar__link {
+    position: relative;
+    padding-block: 4px;
+    color: var(--vn-text-muted);
+    transition: color var(--vn-dur-hover) var(--vn-ease-out);
+  }
+
+  .vn-navbar__link:hover,
+  .vn-navbar__link.is-active {
+    color: var(--vn-text);
+  }
+
+  .vn-navbar__link.is-active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 2px;
+    background: var(--vn-signal);
+  }
+
+  .vn-navbar__menu-btn {
+    display: none;
+  }
+
+  .vn-menu-bars {
+    position: relative;
+    width: 18px;
+    height: 10px;
+    border-top: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+  }
+
+  /* Mobile Dialog Drawer */
+  .vn-mobile-drawer[open] {
+    position: fixed;
+    inset: 0 0 0 auto;
+    margin: 0 0 0 auto;
+    z-index: var(--vn-z-drawer);
+    width: min(100vw, 420px);
+    height: 100dvh;
+    max-height: 100dvh;
+    border: 0;
+    padding: var(--vn-space-6);
+    background: var(--vn-ref-ink-950);
+    color: var(--vn-cream);
+    box-shadow: var(--vn-shadow-drawer);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--vn-space-6);
+  }
+
+  .vn-mobile-drawer::backdrop {
+    background: rgba(10, 10, 10, 0.72);
+    backdrop-filter: blur(4px);
+  }
+
+  .vn-mobile-drawer__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .vn-drawer-close {
+    color: var(--vn-cream);
+    border-color: rgba(244, 234, 212, 0.3);
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  .vn-mobile-drawer__nav {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .vn-drawer__link {
+    color: var(--vn-cream);
+    border-color: rgba(244, 234, 212, 0.14);
+  }
+
+  .vn-drawer-num {
+    color: var(--vn-ref-red-400);
+  }
+
+  .vn-mobile-drawer__foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--vn-space-3);
+  }
+
+  .vn-drawer-btn-light {
+    color: var(--vn-cream);
+    border-color: rgba(244, 234, 212, 0.45);
+    opacity: 1;
+  }
+}

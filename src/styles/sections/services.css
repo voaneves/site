@@ -1,0 +1,56 @@
+@layer site {
+  /* 06 Services Bento */
+  .vn-bento-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--vn-space-4);
+  }
+
+  .vn-bento-grid .vn-service-card {
+    grid-column: span 2;
+    justify-content: space-between;
+  }
+
+  .vn-service-card--featured {
+    border-color: var(--vn-line-strong);
+  }
+
+  .vn-bento-grid .vn-service-card:nth-child(n + 7) {
+    grid-column: span 3;
+  }
+
+  .vn-service-card__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--vn-space-2);
+  }
+
+  .vn-service-card__price {
+    text-align: right;
+    display: grid;
+  }
+
+  .vn-service-card__price small {
+    font-family: var(--vn-font-mono);
+    font-size: 11px;
+    color: var(--vn-text-muted);
+  }
+
+  .vn-service-card__price strong {
+    font-family: var(--vn-font-mono);
+    font-size: 18px;
+    color: var(--vn-signal-ink);
+  }
+
+  .vn-service-card__list {
+    display: grid;
+    gap: 4px;
+    padding-left: var(--vn-space-4);
+    list-style: disc;
+  }
+
+  .vn-service-card__cta {
+    align-self: flex-start;
+  }
+}

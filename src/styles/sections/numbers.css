@@ -1,0 +1,115 @@
+@layer site {
+  /* 02 Numbers & Impact */
+  .vn-numbers-band {
+    background-color: var(--vn-ref-ink-950);
+    color: var(--vn-cream);
+  }
+
+  .vn-numbers-sub {
+    color: var(--vn-ref-cream-300);
+    margin-block-start: var(--vn-space-2);
+  }
+
+  .vn-stats-hero-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--vn-space-4);
+    padding-block: var(--vn-space-7);
+    border-block: 1px solid var(--vn-line-on-dark);
+  }
+
+  .vn-stat-hero {
+    display: grid;
+    gap: var(--vn-space-1);
+  }
+
+  .vn-stat-hero__val {
+    color: var(--vn-cream);
+  }
+
+  .vn-stat-hero__lbl {
+    color: var(--vn-ref-sand-500);
+  }
+
+  .vn-numbers-lower {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    gap: var(--vn-space-6);
+    margin-block-start: var(--vn-space-7);
+    align-items: start;
+  }
+
+  .vn-impact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--vn-space-3);
+  }
+
+  .vn-impact-card {
+    display: grid;
+    gap: 6px;
+    padding: var(--vn-space-5);
+    border-radius: var(--vn-radius-md);
+    background: var(--vn-ref-ink-925);
+    border: 1px solid var(--vn-line-on-dark);
+  }
+
+  .vn-impact-card__metric {
+    font-family: var(--vn-font-display);
+    font-style: italic;
+    font-weight: 900;
+    font-size: clamp(2rem, 3vw, 2.75rem);
+    line-height: 1;
+    color: var(--vn-ref-red-400);
+  }
+
+  .vn-impact-card__label {
+    color: var(--vn-cream);
+  }
+
+  .vn-impact-card__src {
+    color: var(--vn-ref-sand-500);
+  }
+
+  .vn-chart-panel {
+    padding: var(--vn-space-6);
+    border-radius: var(--vn-radius-lg);
+    background: var(--vn-ref-ink-925);
+    border: 1px solid var(--vn-line-on-dark);
+    display: grid;
+    gap: var(--vn-space-4);
+  }
+
+  .vn-chart-panel__cap {
+    color: var(--vn-ref-sand-500);
+    margin-block-start: 4px;
+  }
+
+  .vn-chart-svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .vn-chart-svg__label {
+    fill: var(--vn-cream);
+    font-family: var(--vn-font-text);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .vn-chart-svg__track {
+    fill: rgba(244, 234, 212, 0.14);
+  }
+
+  .vn-chart-svg__fill {
+    fill: var(--vn-ref-red-450);
+  }
+
+  .vn-chart-svg__val {
+    fill: var(--vn-ref-red-400);
+    font-family: var(--vn-font-mono);
+    font-size: 12px;
+    font-weight: 700;
+  }
+}

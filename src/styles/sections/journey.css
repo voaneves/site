@@ -1,0 +1,130 @@
+@layer site {
+  /* 04 Journey */
+  .vn-journey-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--vn-space-2);
+  }
+
+  .vn-journey-track {
+    display: flex;
+    gap: var(--vn-space-4);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-block: var(--vn-space-2) var(--vn-space-5);
+    cursor: grab;
+    scrollbar-width: thin;
+  }
+
+  .vn-journey-track.is-dragging {
+    cursor: grabbing;
+  }
+
+  .vn-journey-card {
+    flex: 0 0 min(360px, 84vw);
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    gap: var(--vn-space-3);
+    padding: var(--vn-space-6);
+    border-radius: var(--vn-radius-lg);
+    border: 1px solid var(--vn-line);
+    background: var(--vn-surface-raised);
+  }
+
+  .vn-journey-card--current {
+    border-color: var(--vn-signal-ink);
+  }
+
+  .vn-journey-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--vn-space-3);
+  }
+
+  .vn-journey-card__logo {
+    width: auto;
+    height: 34px;
+    object-fit: contain;
+    background: var(--vn-ref-white);
+    padding: 4px 8px;
+    border-radius: var(--vn-radius-xs);
+  }
+
+  .vn-journey-card__idx {
+    color: var(--vn-signal-ink);
+  }
+
+  .vn-journey-card__period {
+    color: var(--vn-text-muted);
+  }
+
+  .vn-journey-card__company {
+    color: var(--vn-signal-ink);
+  }
+
+  .vn-journey-card__bullets {
+    display: grid;
+    gap: 6px;
+    padding-left: var(--vn-space-4);
+    list-style: disc;
+  }
+
+  .vn-archive-details {
+    margin-block-start: var(--vn-space-6);
+    border: 1px solid var(--vn-line);
+    border-radius: var(--vn-radius-lg);
+    background: var(--vn-surface-raised);
+    overflow: hidden;
+  }
+
+  .vn-archive-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--vn-space-4);
+    padding: var(--vn-space-5) var(--vn-space-6);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .vn-archive-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .vn-archive-icon {
+    font-family: var(--vn-font-mono);
+    font-size: 20px;
+    color: var(--vn-signal-ink);
+    transition: transform var(--vn-dur-hover) var(--vn-ease-out);
+  }
+
+  .vn-archive-details[open] .vn-archive-icon {
+    transform: rotate(45deg);
+  }
+
+  .vn-archive-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--vn-space-6);
+    padding: 0 var(--vn-space-6) var(--vn-space-6);
+    border-top: 1px solid var(--vn-line);
+    padding-block-start: var(--vn-space-5);
+  }
+
+  .vn-archive-list {
+    display: grid;
+    gap: var(--vn-space-3);
+  }
+
+  .vn-archive-list li {
+    display: grid;
+    gap: 2px;
+    font-size: var(--vn-type-caption-size);
+  }
+
+  .vn-archive-list span {
+    color: var(--vn-text-muted);
+  }
+}

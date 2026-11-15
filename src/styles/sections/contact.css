@@ -1,0 +1,64 @@
+@layer site {
+  /* 08 Contact Signal Band */
+  .vn-contact-band {
+    color: var(--vn-ink);
+  }
+
+  .vn-contact-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--vn-space-3);
+    margin-block-end: var(--vn-space-5);
+  }
+
+  .vn-contact-sla {
+    padding: 5px 12px;
+    border-radius: var(--vn-radius-pill);
+    background: var(--vn-ink);
+    color: var(--vn-cream);
+    font-family: var(--vn-font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .vn-contact-title {
+    max-width: 14ch;
+    margin-block-end: var(--vn-space-4);
+  }
+
+  .vn-contact-sub {
+    color: var(--vn-ink);
+  }
+
+  .vn-contact-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--vn-space-3);
+    margin-block: var(--vn-space-7) var(--vn-space-5);
+  }
+
+  [data-surface="signal"] .vn-btn--primary:hover:not(:disabled) {
+    background-color: var(--vn-cream);
+    color: var(--vn-ink);
+    box-shadow: var(--vn-shadow-lift);
+  }
+
+  .vn-contact-secondary {
+    border-color: var(--vn-ink);
+    color: var(--vn-ink);
+  }
+
+  .vn-contact-secondary:hover:not(:disabled) {
+    background-color: var(--vn-ink);
+    border-color: var(--vn-ink);
+    color: var(--vn-cream);
+  }
+
+  .vn-contact-note {
+    color: var(--vn-ink);
+  }
+}

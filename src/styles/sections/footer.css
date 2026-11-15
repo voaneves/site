@@ -1,0 +1,22 @@
+@layer site {
+  /* Footer */
+  .vn-site-footer {
+    border-top: 1px solid var(--vn-line);
+    padding-block: var(--vn-space-8);
+  }
+
+  .vn-site-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--vn-space-4);
+  }
+
+  .vn-site-footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--vn-space-5);
+  }
+}

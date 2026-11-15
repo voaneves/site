@@ -1,0 +1,47 @@
+@layer site {
+  /* 07 FAQ */
+  .vn-faq-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.35fr);
+    gap: clamp(var(--vn-space-6), 5vw, var(--vn-space-10));
+    align-items: start;
+  }
+
+  .vn-faq-list {
+    border-top: 1px solid var(--vn-line);
+  }
+
+  .vn-faq-item {
+    border-bottom: 1px solid var(--vn-line);
+  }
+
+  .vn-faq-item__q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--vn-space-4);
+    padding-block: var(--vn-space-5);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .vn-faq-item__q::-webkit-details-marker {
+    display: none;
+  }
+
+  .vn-faq-item__icon {
+    font-family: var(--vn-font-mono);
+    font-size: 20px;
+    color: var(--vn-signal-ink);
+    transition: transform var(--vn-dur-hover) var(--vn-ease-out);
+  }
+
+  .vn-faq-item[open] .vn-faq-item__icon {
+    transform: rotate(45deg);
+  }
+
+  .vn-faq-item__a {
+    padding-bottom: var(--vn-space-5);
+    max-width: 64ch;
+  }
+}

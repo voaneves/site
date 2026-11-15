@@ -1,0 +1,22 @@
+@layer site {
+  /* Custom Cursor */
+  .vn-cursor {
+    opacity: 0;
+    transition: opacity 200ms var(--vn-ease-out);
+  }
+
+  .vn-cursor.is-ready {
+    opacity: 1;
+  }
+
+  .vn-cursor__label.is-visible,
+  .vn-cursor__media.is-visible {
+    opacity: 1;
+  }
+
+  .vn-cursor__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}

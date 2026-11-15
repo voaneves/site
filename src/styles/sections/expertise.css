@@ -1,0 +1,68 @@
+@layer site {
+  /* 03 Expertise Marquee */
+  .vn-marquee-stack {
+    display: grid;
+    gap: 0;
+    margin-block-end: var(--vn-space-8);
+  }
+
+  .vn-marquee-stack .vn-marquee {
+    border-top: 0;
+  }
+
+  .vn-marquee-stack .vn-marquee:first-child {
+    border-top: 1px solid var(--vn-line);
+  }
+
+  .vn-marquee-stack .vn-marquee__track {
+    animation: vn-mq 34s linear infinite;
+  }
+
+  .vn-marquee--rev .vn-marquee__track {
+    animation-direction: reverse;
+    animation-duration: 42s;
+  }
+
+  .vn-marquee-stack:hover .vn-marquee__track,
+  .vn-marquee-stack.is-paused .vn-marquee__track {
+    animation-play-state: paused;
+  }
+
+  .vn-marquee__item {
+    font-family: var(--vn-font-display);
+    font-style: italic;
+    font-weight: 800;
+    font-size: clamp(1.35rem, 3vw, 2.35rem);
+    letter-spacing: -0.02em;
+    color: var(--vn-text);
+    white-space: nowrap;
+  }
+
+  .vn-marquee__item--accent {
+    font-family: var(--vn-font-mono);
+    font-style: normal;
+    color: var(--vn-signal-ink);
+  }
+
+  .vn-pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--vn-space-4);
+  }
+
+  .vn-pillar-card {
+    display: grid;
+    gap: var(--vn-space-4);
+    align-content: start;
+    padding: var(--vn-space-6);
+    border-radius: var(--vn-radius-lg);
+    border: 1px solid var(--vn-line);
+    background: var(--vn-surface-raised);
+  }
+
+  .vn-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--vn-space-2);
+  }
+}

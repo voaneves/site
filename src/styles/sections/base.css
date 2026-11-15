@@ -1,0 +1,57 @@
+@layer site {
+  html,
+  body {
+    overflow-x: clip;
+  }
+
+  .vn-hero__inner > *,
+  .vn-about-grid > *,
+  .vn-numbers-lower > *,
+  .vn-faq-layout > *,
+  .vn-case-grid > *,
+  .vn-bento-grid > * {
+    min-width: 0;
+  }
+
+  .vn-site-anchor-target {
+    scroll-margin-top: 84px;
+  }
+
+  .vn-muted {
+    color: var(--vn-text-muted);
+  }
+
+  .vn-sec-tag {
+    display: inline-block;
+    color: var(--vn-signal-ink);
+    margin-block-end: var(--vn-space-3);
+  }
+
+  .vn-sec-tag-dark {
+    display: inline-block;
+    color: var(--vn-ref-red-400);
+    margin-block-end: var(--vn-space-3);
+  }
+
+  .vn-sec-head {
+    margin-block-end: var(--vn-space-7);
+  }
+
+  .vn-sec-split {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--vn-space-4);
+    margin-block-end: var(--vn-space-7);
+  }
+
+  .vn-reveal {
+    transform: translateY(14px);
+    transition: transform var(--vn-dur-line) var(--vn-ease-out);
+  }
+
+  .vn-reveal.is-in {
+    transform: translateY(0);
+  }
+}
