@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 const ROUTES = ['/', '/en/'];
 
@@ -92,4 +92,162 @@ test('the display name does not move when the web fonts swap in', async ({ page 
   expect(Math.abs(after.top - before.top)).toBeLessThanOrEqual(1);
   expect(Math.abs(after.height - before.height)).toBeLessThanOrEqual(1);
   after.lines.forEach((t, i) => expect(Math.abs(t - before.lines[i])).toBeLessThanOrEqual(1));
+});
+
+// --- Persistent colour reveal, whole-hero pointer, parallax, idle loop, touch ---
+
+type W = { __vnHeroRunning?: boolean; __vnHeroBrush?: { x: number; y: number } };
+const running = (page: Page) => page.evaluate(() => (window as unknown as W).__vnHeroRunning);
+const settled = (page: Page) =>
+  page.waitForFunction(() => (window as unknown as W).__vnHeroRunning === false, undefined, { timeout: 4000 });
+
+/** Share of canvas pixels the colour brush has revealed (alpha > 20). */
+const revealed = (page: Page) =>
+  page.evaluate(() => {
+    const c = document.querySelector<HTMLCanvasElement>('.vn-hero-portrait__canvas')!;
+    const d = c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data;
+    let n = 0;
+    for (let i = 3; i < d.length; i += 4) if (d[i] > 20) n++;
+    return n / (d.length / 4);
+  });
+
+async function paintPortrait(page: Page) {
+  const box = (await page.locator('[data-vn-portrait-wrap]').boundingBox())!;
+  const cx = box.x + box.width / 2;
+  for (let y = box.y + 40; y < box.y + box.height - 40; y += 30) {
+    await page.mouse.move(cx + (y % 120) - 60, y, { steps: 4 });
+  }
+  await page.mouse.move(cx, box.y + box.height / 2, { steps: 4 });
+  await settled(page);
+  return box;
+}
+
+test.describe('hero pointer effects (fine pointer)', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.setViewportSize({ width: 1366, height: 900 });
+    await page.goto('/?vn-debug');
+    await page.waitForLoadState('load');
+  });
+
+  test('moving outward in 20px steps up to 400px never drops the reveal, and it persists after leaving', async ({ page }) => {
+    const box = await paintPortrait(page);
+    let prev = await revealed(page);
+    expect(prev).toBeGreaterThan(0.1);
+    const cy = box.y + box.height / 2;
+    const right = box.x + box.width;
+    for (let d = 0; d <= 400; d += 20) {
+      // The portrait sits near the right edge: past the viewport, continue outward diagonally down-left.
+      const x = right + d <= 1360 ? right + d : 1360 - (right + d - 1360);
+      const y = right + d <= 1360 ? cy : cy + (right + d - 1360);
+      await page.mouse.move(x, y, { steps: 2 });
+      await page.waitForTimeout(60);
+      const now = await revealed(page);
+      expect(now, `reveal dropped at ${d}px from the edge`).toBeGreaterThanOrEqual(prev - 0.005);
+      prev = now;
+    }
+    // Leave the hero entirely: scroll its bottom into view and move below it.
+    const bottom = await page.evaluate(() => {
+      const h = document.querySelector('.vn-hero')!;
+      scrollTo(0, h.getBoundingClientRect().bottom + scrollY - 500);
+      return h.getBoundingClientRect().bottom;
+    });
+    await page.mouse.move(600, bottom + 60, { steps: 6 });
+    await page.waitForTimeout(1500);
+    expect(await revealed(page)).toBeGreaterThanOrEqual(prev - 0.005);
+  });
+
+  test('the brush follows continuously when the pointer goes far away (no snap back)', async ({ page }) => {
+    await paintPortrait(page);
+    await page.evaluate(() => {
+      const w = window as unknown as W & { __s: { x: number; y: number }[] };
+      w.__s = [];
+      const tick = () => {
+        if (w.__vnHeroBrush) w.__s.push({ ...w.__vnHeroBrush });
+        if (w.__s.length < 400) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+    const start = (await page.evaluate(() => (window as unknown as W).__vnHeroBrush))!;
+    await page.mouse.move(30, 260, { steps: 40 });
+    await settled(page);
+    const s = await page.evaluate(() => (window as unknown as { __s: { x: number; y: number }[] }).__s);
+    expect(s.length).toBeGreaterThan(10);
+    let maxStep = 0;
+    for (let i = 1; i < s.length; i++) maxStep = Math.max(maxStep, Math.hypot(s[i].x - s[i - 1].x, s[i].y - s[i - 1].y));
+    expect(maxStep).toBeLessThan(60);
+    const end = s[s.length - 1];
+    // The far left of the hero maps onto the left of the portrait: the brush travelled there, it did not reset.
+    expect(end.x).toBeLessThan(start.x - 40);
+    expect(end.x).toBeGreaterThanOrEqual(0);
+  });
+
+  test('parallax moves the layers with the pointer anywhere in the hero, never the h1 or sub-copy', async ({ page }) => {
+    const sel = ['.vn-hero-portrait', '.vn-hero-chip', '.vn-hero-badge', '.vn-hero__grid', '[data-vn-hud]', 'h1.vn-hero__title', '.vn-hero__sub'];
+    // The grid lines live on .vn-hero__grid::before and move with the translate property.
+    const read = () =>
+      page.evaluate((s) =>
+        s.map((q) =>
+          q === '.vn-hero__grid'
+            ? getComputedStyle(document.querySelector(q)!, '::before').translate
+            : getComputedStyle(document.querySelector(q)!).transform,
+        ), sel);
+    await page.mouse.move(80, 240, { steps: 5 });
+    await settled(page);
+    const a = await read();
+    await page.mouse.move(1300, 760, { steps: 5 });
+    await settled(page);
+    const b = await read();
+    for (let i = 0; i < 5; i++) {
+      expect(a[i], sel[i]).not.toBe('none');
+      expect(a[i], sel[i]).not.toBe(b[i]);
+    }
+    for (const t of [a[5], b[5], a[6], b[6]]) expect(t).toBe('none');
+  });
+
+  test('the rAF loop runs while moving and stops when the pointer is idle', async ({ page }) => {
+    await page.mouse.move(500, 300, { steps: 3 });
+    await page.mouse.move(700, 420, { steps: 8 });
+    expect(await running(page)).toBe(true);
+    await settled(page);
+    // Leaving eases the layers home, then stops as well.
+    await page.evaluate(() => scrollTo(0, 3000));
+    await page.mouse.move(700, 880, { steps: 3 });
+    await settled(page);
+    expect(await running(page)).toBe(false);
+  });
+});
+
+test('reduced motion: the hero is static (no brush, no parallax, no loop)', async ({ browser }) => {
+  const ctx = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1366, height: 900 } });
+  const page = await ctx.newPage();
+  await page.goto('/?vn-debug');
+  await page.waitForLoadState('load');
+  const box = (await page.locator('[data-vn-portrait-wrap]').boundingBox())!;
+  await page.mouse.move(box.x + 50, box.y + 80, { steps: 10 });
+  await page.mouse.move(80, 240, { steps: 10 });
+  await page.waitForTimeout(400);
+  const st = await page.evaluate(() => ({
+    running: (window as unknown as W).__vnHeroRunning,
+    wrap: getComputedStyle(document.querySelector('.vn-hero-portrait')!).transform,
+    chip: getComputedStyle(document.querySelector('.vn-hero-chip')!).transform,
+    canvas: getComputedStyle(document.querySelector('.vn-hero-portrait__canvas')!).display,
+  }));
+  expect(st).toEqual({ running: undefined, wrap: 'none', chip: 'none', canvas: 'none' });
+  await expect(page.locator('.vn-hero-portrait__hint')).toBeHidden();
+  await ctx.close();
+});
+
+test('touch: tapping the portrait blooms colour, with a tap caption', async ({ browser }) => {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+  const page = await ctx.newPage();
+  await page.goto('/?vn-debug');
+  await page.waitForLoadState('load');
+  await expect(page.locator('.vn-hero-portrait__hint-tap')).toBeVisible();
+  await expect(page.locator('.vn-hero-portrait__hint-hover')).toBeHidden();
+  await expect(page.locator('.vn-hero-portrait__canvas')).toBeHidden();
+  await page.locator('[data-vn-portrait-wrap]').tap({ position: { x: 120, y: 160 } });
+  await expect(page.locator('.vn-hero-portrait__canvas')).toBeVisible();
+  await settled(page);
+  expect(await revealed(page)).toBeGreaterThan(0.02);
+  await ctx.close();
 });

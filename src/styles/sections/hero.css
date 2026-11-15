@@ -9,14 +9,23 @@
     border-bottom: 1px solid var(--vn-line-on-dark);
   }
 
+  /* The grid layer clips its own overscan (and the JS sheen), so parallax never grows the hero's overflow. */
   .vn-hero__grid {
     position: absolute;
     inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .vn-hero__grid::before {
+    content: "";
+    position: absolute;
+    inset: -24px;
     background-image:
       linear-gradient(to right, rgba(244, 234, 212, 0.04) 1px, transparent 1px),
       linear-gradient(to bottom, rgba(244, 234, 212, 0.04) 1px, transparent 1px);
     background-size: 64px 64px;
-    pointer-events: none;
+    translate: var(--vn-gx, 0) var(--vn-gy, 0);
   }
 
   .vn-hero__inner {
@@ -225,6 +234,26 @@
     pointer-events: none;
   }
 
+  .vn-hero-portrait__hint-tap {
+    display: none;
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    html.js .vn-hero-portrait__hint-tap {
+      display: inline;
+    }
+
+    html.js .vn-hero-portrait__hint-hover {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vn-hero-portrait__hint {
+      display: none;
+    }
+  }
+
   .vn-hero-chip {
     position: absolute;
     display: inline-flex;
@@ -241,7 +270,6 @@
     letter-spacing: 0.1em;
     white-space: nowrap;
     box-shadow: var(--vn-shadow-pop);
-    transition: transform 180ms var(--vn-ease-out);
   }
 
   .vn-hero-chip__dot {
