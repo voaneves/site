@@ -103,11 +103,30 @@ jobs:
           msg=$(git log -1 --pretty=%s)
           npx --yes wrangler@4.162.0 pages deploy dist --project-name="$PROJECT" --branch=main --commit-hash="$GITHUB_SHA" --commit-message="$msg"
 
+      # Testa o alias de produção do próprio projeto Pages (o que acabou de ser promovido).
+      # Quando o domínio personalizado estiver ligado ao Pages, defina vars.PROD_CHECK_URL = SITE_URL.
       - name: Smoke em produção
         if: steps.cf.outputs.ready == 'true'
+        env:
+          PROD_CHECK_URL: ${{ vars.PROD_CHECK_URL || format('https://{0}.pages.dev', vars.CF_PAGES_PROJECT || 'voaneves') }}
         run: |
           sleep 5
-          bash scripts/ci/smoke.sh "$SITE_URL" production
+          mode=alias
+          a="${PROD_CHECK_URL%/}"; b="${SITE_URL%/}"
+          [[ "${a,,}" == "${b,,}" && "${b,,}" != *.pages.dev ]] && mode=production
+          bash scripts/ci/smoke.sh "$PROD_CHECK_URL" "$mode"
+
+      - name: Domínio personalizado (aviso, não bloqueia)
+        if: steps.cf.outputs.ready == 'true'
+        continue-on-error: true
+        run: |
+          hdrs="$(curl -sSI "$SITE_URL/en/" || true)"
+          code="$(printf '%s' "$hdrs" | head -n1 | awk '{print $2}')"
+          if printf '%s' "$hdrs" | grep -qi '^x-github-request-id:'; then
+            echo "::warning::$SITE_URL ainda é servido pelo GitHub Pages (origem antiga), não pelo Cloudflare Pages. Ligue o domínio ao projeto $PROJECT."
+          elif [[ "$code" != "200" ]]; then
+            echo "::warning::$SITE_URL/en/ respondeu HTTP $code."
+          fi
 
       - name: Rollback automático em falha pós-promoção
         if: failure() && steps.prod.outcome == 'success' && steps.prev.outputs.id != ''
@@ -142,7 +161,7 @@ jobs:
         id: lh
         continue-on-error: true
         env:
-          SITE_URL: ${{ vars.SITE_URL || 'https://voaneves.pages.dev' }}
+          SITE_URL: ${{ vars.PROD_CHECK_URL || format('https://{0}.pages.dev', vars.CF_PAGES_PROJECT || 'voaneves') }}
         run: npx --yes @lhci/cli autorun --config=lighthouserc.prod.cjs
 
       - name: Abrir issue se Lighthouse < 100
