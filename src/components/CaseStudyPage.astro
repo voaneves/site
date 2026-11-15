@@ -28,12 +28,24 @@ const caseBase = locale === 'en' ? '/en/projects' : '/projetos';
       </nav>
 
       <div class="vn-case-hero__meta">
-        <span class="vn-type-tag vn-sec-tag-dark">{project.category} · {project.year}</span>
+        <p class="vn-eyebrow vn-case-eyebrow"><span aria-hidden="true">[ </span>Case — {project.year}<span aria-hidden="true"> ]</span></p>
         <span class="vn-case-badge">{project.metricBadge}</span>
       </div>
 
       <h1 class="vn-type-h1 vn-case-hero__title">{project.title}</h1>
       <p class="vn-type-lead vn-numbers-sub vn-measure">{project.summary}</p>
+
+      <div class="vn-case-media" data-vt={project.slug}>
+        <img
+          src={project.image}
+          alt={project.imageAlt}
+          width="1600"
+          height="800"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </div>
 
       <div class="vn-case-kpis">
         {project.heroMetrics.map((kpi) => (
@@ -48,18 +60,6 @@ const caseBase = locale === 'en' ? '/en/projects' : '/projetos';
 
   <section class="vn-section">
     <div class="vn-container">
-      <div class="vn-case-media">
-        <img
-          src={project.image}
-          alt={project.imageAlt}
-          width="1600"
-          height="800"
-          loading="eager"
-          decoding="async"
-          class="vn-case-media__img"
-        />
-      </div>
-
       <div class="vn-case-grid">
         <aside class="vn-case-aside">
           <dl class="vn-spec-list">

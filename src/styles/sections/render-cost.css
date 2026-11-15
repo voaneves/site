@@ -21,7 +21,7 @@
   #numeros { contain-intrinsic-block-size: auto 1470px; }
   #expertise { contain-intrinsic-block-size: auto 1125px; }
   #jornada { contain-intrinsic-block-size: auto 1110px; }
-  #projetos { contain-intrinsic-block-size: auto 1500px; }
+  #projetos { contain-intrinsic-block-size: auto 1640px; }
   #servicos { contain-intrinsic-block-size: auto 1760px; }
   #perguntas { contain-intrinsic-block-size: auto 600px; }
   #contato { contain-intrinsic-block-size: auto 880px; }
@@ -31,6 +31,7 @@
     #numeros { contain-intrinsic-block-size: auto 1465px; }
     #expertise { contain-intrinsic-block-size: auto 1400px; }
     #jornada { contain-intrinsic-block-size: auto 1090px; }
+    #projetos { contain-intrinsic-block-size: auto 1700px; }
     #servicos { contain-intrinsic-block-size: auto 1810px; }
     #perguntas { contain-intrinsic-block-size: auto 545px; }
     #contato { contain-intrinsic-block-size: auto 800px; }
@@ -40,10 +41,14 @@
     #quem-sou { contain-intrinsic-block-size: auto 1570px; }
     #numeros { contain-intrinsic-block-size: auto 1750px; }
     #jornada { contain-intrinsic-block-size: auto 1050px; }
-    #projetos { contain-intrinsic-block-size: auto 2000px; }
+    #projetos { contain-intrinsic-block-size: auto 2200px; }
     #servicos { contain-intrinsic-block-size: auto 2100px; }
     #perguntas { contain-intrinsic-block-size: auto 630px; }
     #contato { contain-intrinsic-block-size: auto 700px; }
+  }
+
+  @media (max-width: 720px) {
+    #projetos { contain-intrinsic-block-size: auto 3500px; }
   }
 
   @media (max-width: 600px) {
@@ -51,7 +56,7 @@
     #numeros { contain-intrinsic-block-size: auto 2650px; }
     #expertise { contain-intrinsic-block-size: auto 1850px; }
     #jornada { contain-intrinsic-block-size: auto 1120px; }
-    #projetos { contain-intrinsic-block-size: auto 2350px; }
+    #projetos { contain-intrinsic-block-size: auto 3250px; }
     #servicos { contain-intrinsic-block-size: auto 3850px; }
     #perguntas { contain-intrinsic-block-size: auto 730px; }
     #contato { contain-intrinsic-block-size: auto 800px; }

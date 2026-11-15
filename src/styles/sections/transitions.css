@@ -1,2 +1,29 @@
-/* W4 page transitions (placeholder) */
-@layer site {}
+/* W9 page transitions: cross-document view transitions, motion-safe only.
+   @view-transition and the VT pseudo-elements are never emitted under reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+@layer site {
+  @media (prefers-reduced-motion: no-preference) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: 250ms;
+    }
+
+    ::view-transition-group(*) {
+      animation-duration: 450ms;
+      animation-timing-function: var(--vn-ease-out);
+    }
+  }
+
+  /* Static per-slug names (CSP forbids inline styles). Row thumbnail and case hero image share them. */
+  [data-vt="mte"] { view-transition-name: project-mte; }
+  [data-vt="dashboards"] { view-transition-name: project-dashboards; }
+  [data-vt="caato"] { view-transition-name: project-caato; }
+  [data-vt="mota-godinho"] { view-transition-name: project-mota-godinho; }
+  [data-vt="boas-obras"] { view-transition-name: project-boas-obras; }
+  [data-vt="midflow"] { view-transition-name: project-midflow; }
+}

@@ -21,14 +21,19 @@
     min-width: 3ch;
   }
 
-  .vn-project-row__thumb {
-    width: 112px;
+  .vn-project-row__media {
+    --vn-radius-2xl: var(--vn-radius-md);
+    flex: 0 0 clamp(11rem, 22vw, 18.75rem);
+    border: 1px solid var(--vn-line);
+    border-radius: var(--vn-radius-md);
+  }
+
+  .vn-project-row__media img {
+    display: block;
+    width: 100%;
     height: auto;
     aspect-ratio: 2 / 1;
     object-fit: cover;
-    border-radius: var(--vn-radius-xs);
-    border: 1px solid var(--vn-line);
-    flex-shrink: 0;
   }
 
   .vn-project-row__text {
@@ -45,5 +50,27 @@
 
   .vn-project-row__cta {
     color: var(--vn-signal-ink);
+  }
+
+  @media (max-width: 720px) {
+    .vn-project-row__media {
+      order: -1;
+      flex-basis: 100%;
+    }
+
+    .vn-project-row__text {
+      flex: 1 1 12rem;
+    }
+  }
+
+  /* Hover zoom uses transform so it composes with the scroll-driven unveil, which owns `scale`. */
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    html .vn-work-row.vn-project-row .vn-project-row__media.vn-unveil img {
+      transition: transform 600ms var(--vn-ease-out), scale 1200ms var(--vn-ease-in-out, ease-in-out);
+    }
+
+    html .vn-work-row.vn-project-row:is(:hover, :focus-visible) .vn-project-row__media.vn-unveil img {
+      transform: scale(1.06);
+    }
   }
 }

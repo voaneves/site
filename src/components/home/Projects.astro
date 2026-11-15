@@ -9,6 +9,7 @@ export interface Props {
 const { locale } = Astro.props;
 const c = PORTFOLIO[locale];
 const projectBase = locale === 'en' ? '/en/projects' : '/projetos';
+const L = { 'pt-br': { cta: 'Ver case' }, en: { cta: 'View case' } }[locale];
 ---
 
 <section data-section="05" id="projetos" class="vn-section vn-site-anchor-target">
@@ -26,19 +27,20 @@ const projectBase = locale === 'en' ? '/en/projects' : '/projetos';
           class="vn-work-row vn-project-row"
           href={`${projectBase}/${proj.slug}/`}
           data-cursor-media={proj.image}
-          data-cursor-label={c.projects.cursorPreviewPrefix}
+          data-cursor-label={`${L.cta} →`}
         >
           <div class="vn-project-row__left">
             <span class="vn-type-price vn-project-row__idx">{proj.index}</span>
-            <img
-              src={proj.image}
-              alt={proj.imageAlt}
-              width="1600"
-              height="800"
-              loading="lazy"
-              decoding="async"
-              class="vn-project-row__thumb"
-            />
+            <div class="vn-project-row__media vn-unveil" data-vt={proj.slug}>
+              <img
+                src={proj.image}
+                alt={proj.imageAlt}
+                width="1600"
+                height="800"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
             <div class="vn-project-row__text">
               <span class="vn-type-micro vn-muted">{proj.category} · {proj.year}</span>
               <h3 class="vn-type-h3">{proj.title}</h3>
@@ -48,7 +50,7 @@ const projectBase = locale === 'en' ? '/en/projects' : '/projetos';
 
           <div class="vn-project-row__right">
             <span class="vn-chip vn-project-row__metric">{proj.metricBadge}</span>
-            <span class="vn-type-label vn-project-row__cta">{c.projects.viewCaseLabel} →</span>
+            <span class="vn-type-label vn-project-row__cta">{L.cta} →</span>
           </div>
         </a>
       ))}
