@@ -135,7 +135,10 @@ Read these once; each spec refers to them by number (R1 to R14).
       (3) Números to Expertise: a cream gap (~20 px) between the ink Números section and Expertise's ink wedge.
       (4) Check that scrambled labels resolve quickly and never rest on garbage glyphs.
 
-- [ ] A11 Mobile LCP margin: case pages sit at 1060-1380 ms (CI) against the 1200 cap; A8 showed the image is not the
+- [x] A12 Quiet load window: interaction-only sheets, fonts and motion wait for the first interaction (`b89a223`,
+      `5bd3de6`); software-WebGL trail fallback (`2978e84` cherry-picked); journey logos sized (`8a99c1b` cherry-picked).
+- [ ] A11 **Deferred (2026-11-16):** numbers now inside every limit (case inline CSS ~14.0 KB of 14.3, case mobile LCP
+      ~1.07 s of 1.2); a cross-cutting CSS move this close to release was judged not worth the risk. Mobile LCP margin: case pages sit at 1060-1380 ms (CI) against the 1200 cap; A8 showed the image is not the
       cost (hiding it gives the same LCP). The floor is first-paint weight: about 70 KB raw (13.5 KB gz) of inline site
       CSS on every page plus the case CSS. Cut what a first paint does not need (move more rules to the late or fx
       sheets, drop dead rules), measured with Lighthouse mobile on CI.
@@ -149,7 +152,7 @@ Read these once; each spec refers to them by number (R1 to R14).
       velocity field. The ink trail remains everywhere else and as the fallback.
 - [x] B3 Page transition: 0.65 s cover, 0.25 s hold with a 0 to 100 counter, 0.65 s reveal; the thumbnail still morphs
       into the case hero above the cover. Typed, so the theme toggle's reveal is untouched.
-- [ ] B4 Smooth wheel on fine pointers (exponential ease-out, about 1 s); native scroll on touch and trackpads.
+- [x] B4 Smooth wheel on fine pointers (exponential ease-out, about 1 s); native scroll on touch and trackpads.
 
 ### Phase C: from Era Residence
 

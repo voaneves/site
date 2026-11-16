@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { engage } from './lib/site';
 
 const CHUNK = /\/_astro\/smooth\./;
 const track = (page: Page) => {
@@ -76,6 +77,7 @@ test.describe('smooth wheel', () => {
 
   test('scroll-driven animations follow the smoothed scroll', async ({ page }) => {
     await page.goto('/?vn-debug');
+    await engage(page); // A12: the motion sheet starts on the first interaction
     await expect.poll(() => page.evaluate(() => document.documentElement.dataset.scrollFx)).toBe('tl');
     await arm(page);
     await page.mouse.wheel(0, 300);
