@@ -12,6 +12,7 @@ const SIM_MAX = 176;
 const DYE_PX = 3; // CSS px per dye texel
 const OUT_PX = 1; // CSS px per canvas pixel: the canvas now also redraws images, which must not look soft
 const OUT_MAX = 1920; // ...capped across, so very wide windows do not pay for it
+const WARP_PX = 14; // CSS px: the most any texel of the copy is moved, at any flow speed
 const WARP_T = 0.07; // seconds of flow an image is displaced by
 const WARP_SEL = '.vn-project-row__media.is-done img, .vn-case-media img';
 const ITER = 16; // Jacobi pressure iterations
@@ -96,7 +97,7 @@ vec3 n=c.rgb/max(e,1e-4);n*=mix(1.,.72,smoothstep(.45,1.,e))*(1.+clamp(1.6*(y-x)
 float o=.88*(1.-exp(-4.4*e));o=max(o+(fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5)-.5)/180.,0.);gl_FragColor=vec4(n*o,o);}`,
   // image through the flow: A = velocity, B = the image; I = image rect in screen uv (x, y, w, h; y up),
   // S = 1 / sim size, k = seconds. Alpha follows the flow, so still water leaves the real image showing.
-  x: `${H}uniform vec4 I;uniform vec2 S;uniform float k;void main(){vec2 f=texture2D(A,v).xy*S*k;float a=smoothstep(.003,.02,length(f));
+  x: `${H}uniform vec4 I;uniform vec2 S,V;uniform float k,m;void main(){vec2 f=texture2D(A,v).xy*S*k;float a=smoothstep(.003,.02,length(f));vec2 q=f*V;f=q*m/(m+length(q))/V;
 vec2 p=(v-f-I.xy)/I.zw;vec4 c=texture2D(B,clamp(p,0.,1.));a*=c.a*step(.0,min(min(p.x,p.y),1.-max(p.x,p.y)));gl_FragColor=vec4(c.rgb*a,a);}`,
 };
 
@@ -276,6 +277,8 @@ function webgl(canvas: HTMLCanvasElement): Renderer | null {
         I: [it.rect.left / vw, 1 - it.rect.bottom / vh, it.rect.width / vw, it.rect.height / vh],
         S: [1 / vel[0].w, 1 / vel[0].h],
         k: [WARP_T],
+        V: [vw, vh],
+        m: [WARP_PX],
       });
       n++;
     }
