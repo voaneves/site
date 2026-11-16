@@ -147,7 +147,7 @@ Read these once; each spec refers to them by number (R1 to R14).
 - [x] B2a Cursor label pill follows with a 0.45 s expo-out lag (no spring overshoot).
 - [ ] B2b Fluid trail distorts the images it passes over (project thumbnails, case hero), reusing the solver's
       velocity field. The ink trail remains everywhere else and as the fallback.
-- [ ] B3 Page transition: 0.65 s cover, 0.25 s hold with a 0 to 100 counter, 0.65 s reveal; the thumbnail still morphs
+- [x] B3 Page transition: 0.65 s cover, 0.25 s hold with a 0 to 100 counter, 0.65 s reveal; the thumbnail still morphs
       into the case hero above the cover. Typed, so the theme toggle's reveal is untouched.
 - [ ] B4 Smooth wheel on fine pointers (exponential ease-out, about 1 s); native scroll on touch and trackpads.
 
@@ -179,7 +179,7 @@ Read these once; each spec refers to them by number (R1 to R14).
 
 ### Phase D: polish
 
-- [ ] D1 Footer closing moment: full-width "voaneves." wordmark rising through a mask, Palmas local time.
+- [x] D1 Footer closing moment: full-width "voaneves." wordmark rising through a mask, Palmas local time.
 - [ ] D2 Contact band: larger mobile title; the signal field drifts on its own when the pointer is idle.
 - [ ] D3 Hero portrait colour blooms once on touch devices, on the visitor's first scroll or touch.
 - [x] D4 Service cards open like a frame on mobile; the marquee speeds up with scroll velocity.
