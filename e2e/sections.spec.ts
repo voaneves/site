@@ -176,9 +176,12 @@ for (const route of ['/', '/en/']) {
     await page.goto(route);
     await page.locator('#numeros').scrollIntoViewIfNeeded();
     const m = await page.evaluate(() => {
+      // Layout size, not getBoundingClientRect(): the arch carries a scroll-scrubbed scale (u-arch, 1 x 2.2 at entry 0%),
+      // so its painted box depends on how far the timeline has advanced when this runs (slow runners read it early).
       const s = document.querySelector('#numeros')!.getBoundingClientRect();
       const a = document.querySelector('.vn-arch')!;
-      const r = a.getBoundingClientRect();
+      const cs = getComputedStyle(a);
+      const r = { width: parseFloat(cs.width), height: parseFloat(cs.height) };
       const eb = document.querySelector('#numeros .vn-eyebrow')!;
       return {
         hidden: a.getAttribute('aria-hidden'), w: r.width / s.width, ratio: r.height / r.width,

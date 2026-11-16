@@ -90,7 +90,16 @@ test.describe('chrome fx', () => {
     const color = () => btn.evaluate((e) => getComputedStyle(e).color);
     expect(await fill()).toBe(0);
     const rest = await color();
-    await btn.hover();
+    // Wait on the real conditions: fonts settled (the hero reflows when they land and the button can move under a
+    // still pointer), then the real mouse centred on the button until the browser reports :hover, then the fill.
+    await page.evaluate(() => document.fonts.ready);
+    await expect
+      .poll(async () => {
+        const b = (await btn.boundingBox())!;
+        await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
+        return btn.evaluate((e) => e.matches(':hover'));
+      })
+      .toBe(true);
     await expect.poll(fill, { timeout: 3000 }).toBe(1);
     await expect(btn).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
     await expect.poll(color).not.toBe(rest);

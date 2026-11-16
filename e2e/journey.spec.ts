@@ -59,7 +59,11 @@ test.describe('journey gallery', () => {
       const t = el as HTMLElement;
       const cs = getComputedStyle(t);
       const cards = t.querySelectorAll('.vn-journey-card');
-      const lead = document.querySelector('#jornada .vn-eyebrow')!.getBoundingClientRect().left;
+      // Layout position, not getBoundingClientRect(): the first #jornada container carries a scroll-scrubbed drift (u-drift,
+      // scale .96 on exit), so its painted left edge depends on how far the timeline has advanced when this runs.
+      let lead = 0;
+      for (let n: HTMLElement | null = document.querySelector<HTMLElement>('#jornada .vn-eyebrow'); n; n = n.offsetParent as HTMLElement | null) lead += n.offsetLeft + n.clientLeft;
+      lead -= document.documentElement.scrollLeft;
       return {
         barH: t.offsetHeight - t.clientHeight - parseFloat(cs.borderTopWidth) - parseFloat(cs.borderBottomWidth),
         vOverflow: t.scrollHeight - t.clientHeight,
