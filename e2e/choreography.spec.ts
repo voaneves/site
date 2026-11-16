@@ -53,7 +53,11 @@ function notSettled(sel: string) {
       // 1.18 inside their clip): that is choreography in progress, not an entrance left unfinished. Opacity still counts.
       const scrolled = e.getAnimations().some((a) => a.timeline && !(a.timeline instanceof DocumentTimeline));
       if (scrolled) return cs.opacity !== '1';
-      return cs.opacity !== '1' || !zero(cs.translate) || !['none', '1'].includes(cs.scale) || cs.transform !== 'none';
+      // hover-fx.ts (loaded on idle or the first pointer move) gives [data-fx=tilt] cards a permanent resting
+      // `transform: perspective(800px) ...` that owns the hover tilt; it is not an entrance offset, and whether it is
+      // present depends on timing. The entrance itself runs on opacity, translate and scale, which are still checked.
+      const tilt = e.matches('[data-fx=tilt]');
+      return cs.opacity !== '1' || !zero(cs.translate) || !['none', '1'].includes(cs.scale) || (!tilt && cs.transform !== 'none');
     })
     .map((e) => `${e.tagName.toLowerCase()}.${String(e.className).split(/\s+/)[0]}[${e.getAttribute('data-enter')}]`);
 }

@@ -90,17 +90,23 @@ test.describe('chrome fx', () => {
     const color = () => btn.evaluate((e) => getComputedStyle(e).color);
     expect(await fill()).toBe(0);
     const rest = await color();
-    // Wait on the real conditions: fonts settled (the hero reflows when they land and the button can move under a
-    // still pointer), then the real mouse centred on the button until the browser reports :hover, then the fill.
+    // Wait on the real conditions. The web fonts swap in after LCP (after-lcp.ts flags the end with data-fonts-ready) and
+    // the hero reflows when they land: a button that moves out from under a still pointer loses :hover and the fill
+    // retracts. So: fonts applied first, then the real mouse is kept centred on the button for the whole poll.
+    await page.waitForFunction(() => 'fontsReady' in document.documentElement.dataset);
     await page.evaluate(() => document.fonts.ready);
-    await expect
-      .poll(async () => {
-        const b = (await btn.boundingBox())!;
-        await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
-        return btn.evaluate((e) => e.matches(':hover'));
-      })
-      .toBe(true);
-    await expect.poll(fill, { timeout: 3000 }).toBe(1);
+    let last = '';
+    const hold = async () => {
+      const b = (await btn.boundingBox())!;
+      const x = b.x + b.width / 2;
+      const y = b.y + b.height / 2;
+      await page.mouse.move(x, y);
+      const hov = await btn.evaluate((e) => e.matches(':hover'));
+      const f = await fill();
+      last = `hover=${hov} rect=${Math.round(b.x)},${Math.round(b.y)} ${Math.round(b.width)}x${Math.round(b.height)} pointer=${Math.round(x)},${Math.round(y)} fill=${f}`;
+      return f;
+    };
+    await expect.poll(hold, { timeout: 5000, message: () => `fill never reached 1 (${last})` }).toBe(1);
     await expect(btn).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
     await expect.poll(color).not.toBe(rest);
     await page.mouse.move(5, 5);

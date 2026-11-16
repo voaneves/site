@@ -200,6 +200,9 @@ for (const route of ROUTES) {
       });
       await page.goto(route);
       await settle(page);
+      // fonts.ready resolves before the after-LCP font swap; scroll only once every face is loaded and applied
+      // (after-lcp.ts flags it), so the measurement is of scrolling, not of a swap racing a slow runner.
+      await page.waitForFunction(() => 'fontsReady' in document.documentElement.dataset);
       await scrollSteps(page, 10);
       await page.evaluate(
         () => new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res))),
