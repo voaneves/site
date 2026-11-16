@@ -11,7 +11,7 @@
     "hover-fx": 1408,
     "signal-field": 2560,
     "hero-fx": 3584,
-    "scroll-fx": 2304,
+    "scroll-fx": 3584,
     "late": 1792
   },
   "strictLazyChunks": false,

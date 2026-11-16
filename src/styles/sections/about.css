@@ -15,6 +15,27 @@
     color: var(--vn-signal-ink);
   }
 
+  /* C6: the statement has its own stage, about one viewport tall, centred, with a small caption below. */
+  .vn-about-stage {
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: var(--vn-space-8);
+    min-height: min(92svh, 60rem);
+    margin-block-end: var(--vn-space-9);
+    text-align: center;
+  }
+
+  .vn-about-stage .vn-about-statement {
+    max-width: 15em;
+    margin: 0;
+    font-size: clamp(2.5rem, 6.4vw, 6.5rem);
+    line-height: .95;
+    letter-spacing: -.024em;
+  }
+
+  .vn-about-cap { max-width: 38ch; }
+
   .vn-about-prose {
     display: grid;
     gap: var(--vn-space-4);

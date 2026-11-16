@@ -33,5 +33,16 @@
       animation-timeline: view(); animation-range: entry 10% entry 60%;
     }
     @keyframes vn-hair { from { scale: 0 1; } }
+    /* C6: the About statement inks in word by word while its stage crosses the viewport. A veil in the ground
+       colour covers each word and fades out; the text keeps its real colour. --w (word index) and --ws (step,
+       a percentage) are written by scroll-fx.ts; without them every word inks together. */
+    .vn-about-stage { view-timeline: --st block; }
+    .vn-about-statement .vn-w { position: relative; }
+    .vn-about-statement .vn-w::after {
+      content: ""; position: absolute; inset: -.1em -.02em; background: var(--g-bg); opacity: 0; pointer-events: none;
+      animation-name: vn-ink; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: --st;
+      animation-range: cover calc(16% + var(--w, 0) * var(--ws, 0%)) cover calc(30% + var(--w, 0) * var(--ws, 0%));
+    }
+    @keyframes vn-ink { from { opacity: .84; } to { opacity: 0; } }
   }
 }

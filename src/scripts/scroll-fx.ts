@@ -19,6 +19,14 @@ export function init(): void {
   }
   document.adoptedStyleSheets = [...document.adoptedStyleSheets, S];
   document.documentElement.dataset.scrollFx = tl ? 'tl' : 'base';
+  // C6: index the words of the About statement for the scroll inking (fx/text.css). 26% of the stage's
+  // cover range is shared between the words, so the last one is full ink while the statement is still on screen.
+  const st = document.querySelector<HTMLElement>('.vn-about-statement');
+  if (st && tl) {
+    const ws = st.querySelectorAll<HTMLElement>('.vn-w');
+    st.style.setProperty('--ws', `${(26 / Math.max(1, ws.length)).toFixed(2)}%`);
+    ws.forEach((w, i) => w.style.setProperty('--w', String(i)));
+  }
   // Reduced motion switched on at runtime: drop the sheet, so every timeline and clip goes with it.
   const mq = matchMedia('(prefers-reduced-motion: reduce)');
   mq.addEventListener('change', () => {

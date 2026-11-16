@@ -105,3 +105,66 @@ test('without timelines the real borders stay; reduced motion hides nothing', as
   expect(await p2.locator('.vn-faq-item').first().evaluate((e) => getComputedStyle(e).borderBottomColor)).not.toBe('rgba(0, 0, 0, 0)');
   await b.close();
 });
+
+test.describe('About statement stage', () => {
+  const veil = (page: Page, i: 'first' | 'last') =>
+    page.evaluate((k) => {
+      const ws = document.querySelectorAll('.vn-about-statement .vn-w');
+      return parseFloat(getComputedStyle(ws[k === 'first' ? 0 : ws.length - 1], '::after').opacity);
+    }, i);
+  // puts the stage at `p` of its view() cover range
+  const cover = (page: Page, p: number) =>
+    page.evaluate(async (q) => {
+      const place = () => {
+        const r = document.querySelector('.vn-about-stage')!.getBoundingClientRect();
+        scrollTo({ top: scrollY + r.top - innerHeight + q * (innerHeight + r.height), behavior: 'instant' });
+      };
+      place();
+      await new Promise((r) => setTimeout(r, 150));
+      place();
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    }, p);
+
+  test('layout: tall, centred, caption below, no overflow', async ({ page }) => {
+    for (const [w, h] of [[1440, 900], [390, 844], [320, 640]]) {
+      await page.setViewportSize({ width: w, height: h });
+      await page.goto('/en/');
+      const m = await page.evaluate(() => {
+        const s = document.querySelector('.vn-about-stage')!.getBoundingClientRect();
+        const t = document.querySelector('.vn-about-statement')!.getBoundingClientRect();
+        const c = document.querySelector('.vn-about-cap')!.getBoundingClientRect();
+        return { sh: s.height, vh: innerHeight, mid: Math.abs((t.left + t.right) / 2 - innerWidth / 2), capBelow: c.top >= t.bottom, over: document.documentElement.scrollWidth - innerWidth };
+      });
+      expect(m.sh, `${w}`).toBeGreaterThanOrEqual(Math.min(m.vh * 0.9, 950));
+      expect(m.mid, `${w}`).toBeLessThan(12);
+      expect(m.capBelow, `${w}`).toBe(true);
+      expect(m.over, `${w}`).toBeLessThanOrEqual(0);
+    }
+  });
+
+  test('words ink in order with scroll and end at full ink', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await expect.poll(() => page.evaluate(() => document.documentElement.dataset.scrollFx)).toBe('tl');
+    await cover(page, 0.08);
+    expect(await veil(page, 'first')).toBeGreaterThan(0.8);
+    expect(await veil(page, 'last')).toBeGreaterThan(0.8);
+    await cover(page, 0.36);
+    expect(await veil(page, 'first')).toBe(0);
+    expect(await veil(page, 'last')).toBeGreaterThan(0.5);
+    await cover(page, 0.6);
+    expect(await veil(page, 'last')).toBe(0);
+    // the real text never fades
+    // (poll: the B1 entrance of the words may still be running right after the jump)
+    await expect.poll(() => page.locator('.vn-about-statement .vn-w').evaluateAll((els) => els.every((e) => getComputedStyle(e).opacity === '1'))).toBe(true);
+  });
+
+  test('reduced motion: no veil at all', async ({ browser }) => {
+    const ctx = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1440, height: 900 }, baseURL: test.info().project.use.baseURL });
+    const page = await ctx.newPage();
+    await page.goto('/');
+    await page.waitForTimeout(1200);
+    expect(await page.evaluate(() => getComputedStyle(document.querySelector('.vn-about-statement .vn-w')!, '::after').content)).toBe('none');
+    await ctx.close();
+  });
+});
