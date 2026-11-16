@@ -94,6 +94,46 @@ test('the display name does not move when the web fonts swap in', async ({ page 
   after.lines.forEach((t, i) => expect(Math.abs(t - before.lines[i])).toBeLessThanOrEqual(1));
 });
 
+test('hero opening plays only after the first interaction, touches no LCP element and ends at rest', async ({ browser }) => {
+  const ctx = await browser.newContext({ viewport: { width: 1366, height: 800 }, baseURL: test.info().project.use.baseURL, reducedMotion: 'no-preference' });
+  const page = await ctx.newPage();
+  await page.goto('/en/');
+  await expect.poll(() => page.evaluate(() => document.documentElement.dataset.scrollFx)).toBeTruthy();
+  const opening = () => page.evaluate(() => document.getAnimations().filter((a) => /^vn-o-/.test((a as CSSAnimation).animationName ?? '')).length);
+  // no interaction: nothing animates and nothing is hidden
+  expect(await opening()).toBe(0);
+  expect(await page.evaluate(() => 'heroOpen' in document.documentElement.dataset)).toBe(false);
+  for (const sel of ['.vn-hero__strip', '.vn-hero__strap', '.vn-hero__actions > a', '.vn-hero-chip', '.vn-hero-badge', '.vn-hero__grid', '.vn-hero-portrait__frame']) {
+    expect(await page.locator(sel).first().evaluate((e) => getComputedStyle(e).opacity), sel).toBe('1');
+  }
+  await page.mouse.move(400, 300);
+  await expect.poll(opening).toBeGreaterThan(5);
+  // the LCP elements and their ancestors never carry an opening animation
+  const lcp = await page.evaluate(() => {
+    const els = ['h1.vn-hero__title', '.vn-hero__sub', '.vn-hero-portrait__img', '.vn-hero__inner', '.vn-hero__stage', '.vn-hero__copy', '.vn-hero'].map((s) => document.querySelector(s)!);
+    return document.getAnimations().filter((a) => /^vn-o-/.test((a as CSSAnimation).animationName ?? '') && els.some((e) => { const t = (a.effect as KeyframeEffect).target as Element; return t.contains(e); })).length;
+  });
+  expect(lcp).toBe(0);
+  await expect.poll(opening, { timeout: 8000 }).toBe(0);
+  for (const sel of ['.vn-hero__strip', '.vn-hero__strap', '.vn-hero__actions > a', '.vn-hero-chip', '.vn-hero-badge', '.vn-hero__grid']) {
+    const s = await page.locator(sel).first().evaluate((e) => { const c = getComputedStyle(e); return [c.opacity, c.clipPath]; });
+    expect(s, sel).toEqual(['1', 'none']);
+  }
+  await ctx.close();
+});
+
+test('hero opening is off under reduced motion and without JS', async ({ browser }) => {
+  for (const opts of [{ reducedMotion: 'reduce' as const }, { javaScriptEnabled: false }]) {
+    const ctx = await browser.newContext({ viewport: { width: 1366, height: 800 }, baseURL: test.info().project.use.baseURL, ...opts });
+    const page = await ctx.newPage();
+    await page.goto('/en/');
+    await page.mouse.move(400, 300);
+    const names = await page.locator('.vn-hero__strip, .vn-hero__strap, .vn-hero-chip, .vn-hero-badge, .vn-hero__actions > a').evaluateAll((els) => els.map((e) => getComputedStyle(e).animationName));
+    expect(new Set(names)).toEqual(new Set(['none']));
+    await ctx.close();
+  }
+});
+
 // --- Persistent colour reveal, whole-hero pointer, parallax, idle loop, touch ---
 
 type W = { __vnHeroRunning?: boolean; __vnHeroBrush?: { x: number; y: number } };

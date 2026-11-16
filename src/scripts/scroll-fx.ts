@@ -3,6 +3,7 @@ import parallax from '../styles/fx/parallax.css?inline';
 import text from '../styles/fx/text.css?inline';
 import moments from '../styles/fx/moments.css?inline';
 import cases from '../styles/fx/case.css?inline';
+import open from '../styles/fx/open.css?inline';
 
 // U7a: scroll choreography engine. Loaded on idle under prefers-reduced-motion: no-preference (all pointers).
 // One constructable sheet in @layer site, assembled from src/styles/fx/*.css. BASE is every top-level rule;
@@ -10,7 +11,7 @@ import cases from '../styles/fx/case.css?inline';
 export function init(): void {
   const tl = CSS.supports('animation-timeline: view()');
   const S = new CSSStyleSheet();
-  S.replaceSync(`@layer site{${handoff}${parallax}${text}${moments}${cases}}`);
+  S.replaceSync(`@layer site{${handoff}${parallax}${text}${moments}${cases}${open}}`);
   if (!tl) {
     const rules = (S.cssRules[0] as CSSLayerBlockRule).cssRules;
     for (let i = rules.length; i--; ) {
@@ -26,6 +27,14 @@ export function init(): void {
     const ws = st.querySelectorAll<HTMLElement>('.vn-w');
     st.style.setProperty('--ws', `${(26 / Math.max(1, ws.length)).toFixed(2)}%`);
     ws.forEach((w, i) => w.style.setProperty('--w', String(i)));
+  }
+  // C2: the hero opening plays once, on the first interaction (Lighthouse never interacts), only while the hero is on screen.
+  if (scrollY < innerHeight / 2) {
+    const go = () => {
+      for (const t of ['pointermove', 'wheel', 'touchstart', 'keydown']) removeEventListener(t, go);
+      document.documentElement.dataset.heroOpen = '';
+    };
+    for (const t of ['pointermove', 'wheel', 'touchstart', 'keydown']) addEventListener(t, go, { passive: true });
   }
   // Reduced motion switched on at runtime: drop the sheet, so every timeline and clip goes with it.
   const mq = matchMedia('(prefers-reduced-motion: reduce)');

@@ -1,0 +1,22 @@
+/* C2: hero opening, an accent that plays once on the visitor's first interaction (data-hero-open, set by scroll-fx.ts).
+   Nothing is hidden before it: every element is already at rest. Composited properties only (opacity, translate, scale).
+   Never the h1, the lead, the portrait image or an ancestor of them. --t0 delays the sequence (preloader, page transition). */
+@media screen and (prefers-reduced-motion: no-preference) {
+  @keyframes vn-o-slide { from { translate: -2.5rem 0; } }
+  @keyframes vn-o-rise { from { translate: 0 1rem; } }
+  @keyframes vn-o-pop { from { scale: .82; } }
+  @keyframes vn-o-fade { from { opacity: .3; } }
+  html[data-hero-open] :is(.vn-hero__strip, .vn-hero__strap, .vn-hero__grid, .vn-hero__actions > *, .vn-hero-chip, .vn-hero-badge, .vn-hero-portrait__frame) {
+    animation: vn-o-rise .8s cubic-bezier(.25, 1, .5, 1) calc(var(--t0, 0s) + var(--d, 0) * 80ms) backwards;
+  }
+  html[data-hero-open] :is(.vn-hero__strip, .vn-hero__strap) { animation-name: vn-o-slide; animation-duration: 1s; }
+  html[data-hero-open] :is(.vn-hero__grid, .vn-hero-portrait__frame) { animation-name: vn-o-fade; }
+  html[data-hero-open] :is(.vn-hero-chip, .vn-hero-badge) { animation-name: vn-o-pop; }
+  .vn-hero__strap, .vn-hero-portrait__frame { --d: 2; }
+  .vn-hero__actions > :nth-child(1) { --d: 3; }
+  .vn-hero__actions > :nth-child(2), .vn-hero-chip--tl { --d: 4; }
+  .vn-hero__actions > :nth-child(3), .vn-hero-chip--tr { --d: 5; }
+  .vn-hero-chip--bl { --d: 6; }
+  .vn-hero-chip--br { --d: 7; }
+  .vn-hero-badge { --d: 8; }
+}
