@@ -139,6 +139,19 @@ test.describe('journey pinned', () => {
     }), { timeout: 10_000 }).toBe(true);
   });
 
+  test('the scroll rail steps aside while the chapter is pinned and returns after it', async ({ page }) => {
+    await ready(page);
+    await page.waitForFunction(() => 'late' in document.documentElement.dataset);
+    const vis = () => page.evaluate(() => getComputedStyle(document.querySelector('.vn-rail')!).visibility);
+    await at(page, 0.5);
+    await expect.poll(vis).toBe('hidden');
+    const g = await geo(page);
+    await page.evaluate(async (y) => { scrollTo({ top: y, behavior: 'instant' }); await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); }, g.top + g.h + 50);
+    await expect.poll(vis).toBe('visible');
+    await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
+    await expect.poll(vis).toBe('visible');
+  });
+
   test('english has the same pinned chapter', async ({ page }) => {
     await ready(page, '/en/');
     expect(await page.locator('[data-vn-journey]').evaluate((e) => getComputedStyle(e).animationName)).toBe('vn-jpin');

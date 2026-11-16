@@ -3,17 +3,18 @@
    timelines are missing, and inside one media query, so touch, small or short windows and reduced motion keep the
    swipe carousel. Longhand animation properties only, no duration (see R4 in docs/AWWWARDS-PLAN.md). */
 @supports (animation-timeline: view()) {
-  @media screen and (min-width: 1081px) and (min-height: 720px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  @media screen and (min-width: 1081px) and (min-height: 740px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
     #jornada {
       --j-side: calc(max(0px, (100vw - var(--vn-layout-container-max)) / 2) + clamp(var(--vn-layout-pad-x-min), 5vw, var(--vn-layout-pad-x-max)));
       --j-travel: calc(var(--j-n, 8) * 376px - 16px + 2 * var(--j-side) - 100vw);
-      --ci: calc(760px + 100svh + 1.25 * var(--j-travel));
+      --ci: calc(450px + 100svh + 1.25 * var(--j-travel));
     }
-    .vn-journey-run { height: calc(100svh + 1.25 * var(--j-travel)); view-timeline: --jr block; view-timeline-inset: 0; } /* inset 0: the page's scroll-padding-top (header) must not shorten the range */
+    /* the run starts one header height early: the pin's own top padding then closes the entry gap to the head */
+    .vn-journey-run { margin-block-start: calc(-1 * var(--nav-h, 73px)); height: calc(100svh + 1.25 * var(--j-travel)); view-timeline: --jr block; view-timeline-inset: 0; } /* inset 0: the page's scroll-padding-top (header) must not shorten the range */
     .vn-journey-pin {
       position: sticky; top: 0; height: 100svh; overflow: clip;
-      display: flex; flex-direction: column; justify-content: center;
-      padding-block-start: var(--nav-h, 73px);
+      display: flex; flex-direction: column; justify-content: flex-start;
+      padding-block-start: calc(var(--nav-h, 73px) + 1.5rem);
     }
     .vn-journey-pin > * { position: relative; z-index: 1; }
     #jornada .vn-journey-track {
@@ -28,7 +29,7 @@
       animation-timeline: --jr; animation-range: contain 0% contain 100%;
     }
     #jornada .vn-journey-ghost {
-      display: block; position: absolute; z-index: 0; left: 0; bottom: 4svh; margin: 0;
+      display: block; position: absolute; z-index: 0; left: 0; bottom: .26em; margin: 0;
       font: italic 900 clamp(12rem, 30vw, 30rem) / .8 var(--vn-font-display);
       font-variation-settings: "opsz" 144, "WONK" 1; letter-spacing: -.045em; text-transform: lowercase; white-space: nowrap;
       color: color-mix(in srgb, currentColor 8%, transparent); pointer-events: none;

@@ -14,6 +14,8 @@ test.describe('scroll rail', () => {
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.goto(route);
       await late(page);
+      // the fx sheet adds the pinned Jornada runway (C3): measure the page height only once it is in
+      await page.waitForFunction(() => document.documentElement.dataset.scrollFx !== undefined);
       const rail = page.locator('.vn-rail');
       await expect(rail).toBeVisible();
       await expect(rail).toHaveAttribute('aria-hidden', 'true');

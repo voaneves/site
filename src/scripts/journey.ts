@@ -29,6 +29,7 @@ export function init(): void {
 
   let shown = -1;
   const update = () => {
+    document.documentElement.classList.toggle('vn-jpin', pin && scrollY > runTop() + 1 && scrollY < runTop() + span() - 1);
     if (pin) {
       const idx = Math.round(pinP() * (cards.length - 1));
       if (count && idx !== shown) count.textContent = `${pad(idx + 1)} / ${pad(cards.length)}`;

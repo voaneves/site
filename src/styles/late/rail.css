@@ -16,6 +16,9 @@
     .vn-rail__line i { display: block; width: 100%; height: 100%; background: #fff; transform-origin: 50% 0; animation-name: vn-rail-l; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: scroll(root); }
     .vn-rail__cue { writing-mode: vertical-rl; text-transform: uppercase; }
     .vn-rail__cue::after { content: "Scroll →"; } /* generated text (axe cannot model the blend colour); vertical-rl turns the arrow to point down */
+    /* C3: while Jornada is pinned (journey.ts sets .vn-jpin) the section has its own counter and bar; slide out, then hide */
+    .vn-rail { transition: translate .3s var(--vn-ease-out, ease), visibility 0s; }
+    html.vn-jpin .vn-rail { translate: -40px -50%; visibility: hidden; transition: translate .3s var(--vn-ease-out, ease), visibility 0s .3s; }
     @keyframes vn-rail-n { to { --vn-p: 99; } }
     @keyframes vn-rail-l { from { scale: 1 0; } }
     /* the rail leaves before its middle reaches the red contact band (difference blending would turn it cyan) */
