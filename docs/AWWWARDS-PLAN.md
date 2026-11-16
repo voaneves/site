@@ -198,8 +198,12 @@ Read these once; each spec refers to them by number (R1 to R14).
       `9968da8`, `68e30c2`).
 - [ ] E2 Second UX/UI review from fresh captures (desktop 1440, mobile 390), both locales, light and dark,
       reduced motion, JavaScript off.
-- [ ] E3 Full gate, full Playwright suite, Lighthouse with `lighthouserc.cjs` (mobile and desktop).
-- [ ] E4 Final push; deploy run green; voaneves.com serving the new build; Lighthouse on production.
+- [x] E3 Full gate, full Playwright suite, Lighthouse with `lighthouserc.cjs` (mobile and desktop).
+- [x] E4 Final push; deploy run green; voaneves.com serving the new build; Lighthouse on production. (`0efb168`,
+      2026-11-16 11:33: every CI job, the deploy and the production Lighthouse audit green.)
+      Last fixes on the way: the contact band's seeded height (944 px vs 876 px real on Linux fonts) shifted the
+      footer; every section now lays out at its real size after the first interaction (`f40e197`). On phones the
+      case card renders at two thirds so the title, not the image, is the LCP element (`0efb168`).
 
 ### What changed in the outline, and why
 
