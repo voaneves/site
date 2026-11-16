@@ -47,7 +47,7 @@ const [titlePre, titleEm] = splitTail(c.numbers.title);
       <div class="vn-impact-grid">
         {c.numbers.impacts.map((imp) => (
           <article class="vn-impact-card" data-enter data-fx="spot">
-            <span class="vn-impact-card__metric">{imp.metric}</span>
+            <span class="vn-impact-card__metric" data-count>{imp.metric}</span>
             <h3 class="vn-type-body-strong vn-impact-card__label">{imp.label}</h3>
             <p class="vn-type-micro vn-impact-card__src">{imp.source}</p>
           </article>

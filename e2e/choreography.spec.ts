@@ -167,6 +167,24 @@ test('stats count up on an aria-hidden overlay; the real number never changes', 
   await expect(val).toHaveText(finalText ?? '');
 });
 
+test('impact metrics roll digit by digit, decimals and signs included', async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 900 });
+  await page.goto('/');
+  await settle(page);
+  const all = page.locator('#numeros .vn-impact-card__metric[data-count]');
+  await expect(all).toHaveCount(8);
+  const el = all.filter({ hasText: '4,5' });
+  const finalText = (await el.evaluate((e) => e.firstChild!.textContent))!.trim();
+  await el.scrollIntoViewIfNeeded();
+  const ghost = el.locator('.vn-count');
+  await expect(ghost).toHaveAttribute('aria-hidden', 'true');
+  await expect(ghost.locator('.vn-od')).toHaveCount(2); // 4 and 5; the sign, comma and % are plain text
+  await expect.poll(() => ghost.locator('.vn-od > span').first().evaluate((e) => (e as HTMLElement).style.transform)).toBe('translateY(-70%)');
+  expect(await el.evaluate((e) => e.firstChild!.textContent!.trim())).toBe(finalText);
+  await expect(ghost).toHaveCount(0, { timeout: 5000 });
+  await expect(el).toHaveText(finalText);
+});
+
 test('CLS <= 0.01 while reading down the page with the entrances', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.addInitScript(() => {

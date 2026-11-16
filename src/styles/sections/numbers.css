@@ -19,6 +19,7 @@
 
   .vn-stat-hero {
     display: grid;
+    align-content: start;
     gap: var(--vn-space-1);
   }
 
@@ -33,6 +34,8 @@
 
   .vn-stat-hero__lbl {
     color: var(--vn-ref-sand-500);
+    padding-block-start: var(--vn-space-3);
+    border-block-start: 1px solid var(--vn-line-on-dark);
   }
 
   .vn-numbers-lower {

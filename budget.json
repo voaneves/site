@@ -12,7 +12,8 @@
     "signal-field": 2560,
     "hero-fx": 3584,
     "scroll-fx": 3584,
-    "late": 1792
+    "late": 1792,
+    "count": 1024
   },
   "strictLazyChunks": false,
   "preloadFontsMaxBytes": 61440
