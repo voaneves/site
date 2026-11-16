@@ -6,7 +6,7 @@ import { init as nav } from './nav';
 import { init as marquee } from './marquee';
 import { init as hero } from './hero';
 import { init as afterLcp } from './after-lcp';
-import { onIdle, onEngage, onFirstPointer, motionOK } from './lazy';
+import { onIdle, onFirstPointer, motionOK } from './lazy';
 
 theme();
 drawer();
