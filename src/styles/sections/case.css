@@ -1,3 +1,4 @@
+@layer vn.reset, vn.tokens, vn.base, vn.type, vn.components, vn.utilities, site;
 @layer site {
   /* Case Study Pages */
   .vn-case-hero {
@@ -140,4 +141,13 @@
   }
 
   /* Spec-row wipe and pager lift (hover, focus-within, focus-visible) live in src/scripts/main.ts, adopted on case pages. */
+
+  @media (max-width: 1080px) {
+    .vn-case-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 720px) {
+    .vn-case-pager { grid-template-columns: 1fr; }
+    .vn-case-pager__link--next { text-align: left; }
+  }
 }

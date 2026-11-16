@@ -33,8 +33,7 @@
     .vn-hero__inner,
     .vn-about-grid,
     .vn-numbers-lower,
-    .vn-faq-layout,
-    .vn-case-grid {
+    .vn-faq-layout {
       grid-template-columns: 1fr;
     }
 
@@ -65,13 +64,6 @@
       flex-wrap: wrap;
     }
 
-    .vn-case-pager {
-      grid-template-columns: 1fr;
-    }
-
-    .vn-case-pager__link--next {
-      text-align: left;
-    }
   }
 
   /* Brand + EN + theme + menu need ~378px at full size; below that the hamburger slid off-screen (clipped at 320). */

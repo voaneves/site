@@ -307,3 +307,17 @@ test.describe('no javascript', () => {
     });
   }
 });
+
+test('case CSS is inlined only on case pages and still beats the brand layers', async ({ page }) => {
+  await page.goto('/');
+  expect(await page.evaluate(() => [...document.querySelectorAll('style')].some((s) => s.textContent!.includes('.vn-case-hero')))).toBe(false);
+  await page.setViewportSize({ width: 1366, height: 800 });
+  await page.goto('/projetos/caato/');
+  // a site-layer rule that the brand would otherwise override: the pager is a two-column grid
+  await expect(page.locator('.vn-case-pager')).toHaveCSS('display', 'grid');
+  expect(await page.locator('.vn-case-grid').evaluate((e) => getComputedStyle(e).gridTemplateColumns.split(' ').length)).toBe(2);
+  await page.setViewportSize({ width: 700, height: 800 });
+  expect(await page.locator('.vn-case-grid').evaluate((e) => getComputedStyle(e).gridTemplateColumns.split(' ').length)).toBe(1);
+  expect(await page.locator('.vn-case-pager').evaluate((e) => getComputedStyle(e).gridTemplateColumns.split(' ').length)).toBe(1);
+  await expect(page.locator('.vn-case-pager__link--next')).toHaveCSS('text-align', 'left');
+});

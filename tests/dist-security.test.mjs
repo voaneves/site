@@ -56,7 +56,19 @@ eachPage('every inline <style> body is covered by a CSP style-src hash', (p) => 
 // is not assertable); what matters is that every page ships the same, complete policy.
 distTest('all pages ship byte-identical CSP policies', () => {
   const pages = ROUTES.map(loadPage);
-  for (const p of pages) assert.equal(cspOf(p), cspOf(pages[0]), `${p.route} has a different CSP`);
+  // Case pages inline their own <style> block (case.css), so their style-src carries one extra hash: compare every
+  // directive except style-src for equality, and require each page's style-src to include the home page's hashes.
+  const split = (p) => {
+    const c = parseCsp(cspOf(p));
+    const { 'style-src': style, ...rest } = c;
+    return { style, rest: JSON.stringify(rest) };
+  };
+  const base = split(pages[0]);
+  for (const p of pages) {
+    const c = split(p);
+    assert.equal(c.rest, base.rest, `${p.route} has a different CSP`);
+    for (const h of base.style) assert.ok(c.style.includes(h), `${p.route} style-src lacks ${h}`);
+  }
 });
 
 distTest('the CSP carries a bounded number of hashes (no unbounded growth)', () => {

@@ -117,7 +117,7 @@ Read these once; each spec refers to them by number (R1 to R14).
 - [x] A3 Header nav unreadable (brown on red, 1.6:1) when it sits over the contact band. `64d904d`
 - [x] A4 Projects subtitle is pointer-only copy; the cursor image preview duplicates the row thumbnail. `b431edd`
 - [ ] A5 Late sheet: interaction-only CSS leaves the inline sheet and the first-load script (new lazy chunk `late`).
-- [ ] A6 Case-study CSS is inlined only on case pages (frees about 600 B gz of home HTML and inline CSS).
+- [x] A6 Case-study CSS is inlined only on case pages (freed 363 B gz of home inline CSS, 332 B of home HTML).
 
 ### Phase B: from lamalama
 
@@ -252,7 +252,8 @@ and 5, about 170 B); (3) drop the two words of the preloader, keeping the hairli
 
 | Task | home html | home inlineCss | first-load max | lazy total | Notes |
 |---|---|---|---|---|---|
-| baseline | | | | | measured by A6 before its change |
+| baseline | 31240 | 13307 | 5170 | 16616 | measured by A6 before its change; case page caato: html 21468, inlineCss 13307 |
+| A6 | 30908 | 12944 | 5170 | 16616 | case.css only on case pages; case page caato: html 21610, inlineCss 13357; home -363 B inline CSS, -332 B html |
 
 ## Brand deviations
 
