@@ -198,3 +198,40 @@ for (const route of ['/', '/en/']) {
     await expect(page.locator('.vn-arch__text')).toBeHidden();
   });
 }
+
+// C6: the manifesto statement always fits its stage and the viewport, and stays centred, in both locales.
+for (const route of ['/', '/en/']) {
+  for (const [w, h] of [[320, 640], [390, 844], [1024, 768], [1480, 822], [1866, 1030], [2560, 1300]] as const) {
+    test(`About statement fits and is centred at ${w}px (${route})`, async ({ browser }) => {
+      const ctx = await browser.newContext({ viewport: { width: w, height: h }, reducedMotion: 'no-preference' });
+      const page = await ctx.newPage();
+      await page.goto(route);
+      const st = page.locator('.vn-about-statement');
+      await st.scrollIntoViewIfNeeded();
+      await expect(st).toHaveClass(/is-done/, { timeout: 8000 }); // words are at rest: no entrance offset in the rects
+      const m = await page.evaluate(() => {
+        const s = document.querySelector<HTMLElement>('.vn-about-statement')!;
+        const stage = document.querySelector('.vn-about-stage')!.getBoundingClientRect();
+        const box = s.getBoundingClientRect();
+        const lines = new Map<number, [number, number]>();
+        for (const wd of s.querySelectorAll('.vn-w')) {
+          const r = wd.getBoundingClientRect();
+          const k = Math.round(r.top / 8);
+          const [l, rr] = lines.get(k) ?? [Infinity, -Infinity];
+          lines.set(k, [Math.min(l, r.left), Math.max(rr, r.right)]);
+        }
+        return { sw: s.scrollWidth, cw: s.clientWidth, vw: document.documentElement.clientWidth, box: [box.left, box.right], stage: [stage.left, stage.right], lines: [...lines.values()] };
+      });
+      expect(m.sw).toBeLessThanOrEqual(m.cw);
+      expect(m.box[0]).toBeGreaterThanOrEqual(0);
+      expect(m.box[1]).toBeLessThanOrEqual(m.vw);
+      const mid = (m.stage[0] + m.stage[1]) / 2;
+      for (const [l, r] of m.lines) {
+        expect(l).toBeGreaterThanOrEqual(m.stage[0] - 1);
+        expect(r).toBeLessThanOrEqual(m.stage[1] + 1);
+        expect(Math.abs((l + r) / 2 - mid), 'each line is centred on the stage').toBeLessThan(24);
+      }
+      await ctx.close();
+    });
+  }
+}

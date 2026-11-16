@@ -23,13 +23,19 @@
     gap: var(--vn-space-8);
     min-height: min(92svh, 60rem);
     margin-block-end: var(--vn-space-9);
+    grid-template-columns: minmax(0, 1fr); /* the track never grows past the container, whatever the lines measure */
+    container-type: inline-size;
     text-align: center;
   }
 
+  /* Sized from the stage (cqi), not the viewport: a scrollbar or the container's own padding cannot push a line out. */
   .vn-about-stage .vn-about-statement {
-    max-width: 15em;
+    max-width: min(15em, 100%);
+    min-width: 0;
     margin: 0;
-    font-size: clamp(2.5rem, 6.4vw, 6.5rem);
+    font-size: clamp(2.5rem, 6.8cqi, 6.5rem);
+    text-wrap: balance;
+    overflow-wrap: break-word;
     line-height: .95;
     letter-spacing: -.024em;
   }
