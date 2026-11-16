@@ -1,13 +1,26 @@
-/* W9 page transitions: cross-document view transitions, motion-safe only.
-   @view-transition and the VT pseudo-elements are never emitted under reduced motion. */
+/* Page transitions: cross-document view transitions, motion-safe only. The at-rule declares the type "nav";
+   every rule for the long transition is scoped with :active-view-transition-type(nav), so the theme toggle's
+   same-document transition (src/scripts/theme.ts, no types) never matches them. */
 @media (prefers-reduced-motion: no-preference) {
   @view-transition {
     navigation: auto;
+    types: nav;
   }
 }
 
+/* Integer behind the 0-100 counter. Top level and unlayered, so it is registered before any script runs. */
+@property --vn-n {
+  syntax: "<integer>";
+  inherits: false;
+  initial-value: 0;
+}
+
 @layer site {
+  /* The counter element (Base.astro) exists on every page and shows only while html.vn-vt is set. */
+  .vn-vt-count { display: none; }
+
   @media (prefers-reduced-motion: no-preference) {
+    /* Engines without typed transitions: the short fade and morph, as before. */
     ::view-transition-old(root),
     ::view-transition-new(root) {
       animation-duration: 250ms;
@@ -16,6 +29,67 @@
     ::view-transition-group(*) {
       animation-duration: 450ms;
       animation-timing-function: var(--vn-ease-out);
+    }
+
+    /* Typed navigation: 0.65s cover (sine-out), 0.25s hold, 0.65s reveal (quart-out) = 1.55s.
+       41.9% = 0.65 / 1.55 and 58.1% = 0.90 / 1.55. */
+    :root:active-view-transition-type(nav)::view-transition,
+    :root:active-view-transition-type(nav)::view-transition-group(root) {
+      background: #0a0a0a;
+    }
+
+    :root:active-view-transition-type(nav)::view-transition-old(root) {
+      animation: vn-nav-out 1.55s linear both;
+      mix-blend-mode: normal;
+    }
+
+    :root:active-view-transition-type(nav)::view-transition-new(root) {
+      animation: vn-nav-in 1.55s linear both;
+      mix-blend-mode: normal;
+    }
+
+    /* The shared thumbnail flies above the ink for most of the transition. */
+    :root:active-view-transition-type(nav)::view-transition-group(*) {
+      animation-duration: 1.2s;
+      animation-timing-function: cubic-bezier(.76, 0, .24, 1);
+    }
+
+    @keyframes vn-nav-out {
+      from { clip-path: inset(0); animation-timing-function: cubic-bezier(.61, 1, .88, 1); }
+      41.9%, to { clip-path: inset(0 0 100% 0); }
+    }
+
+    @keyframes vn-nav-in {
+      from, 58.1% { clip-path: inset(100% 0 0 0); animation-timing-function: cubic-bezier(.25, 1, .5, 1); }
+      to { clip-path: inset(0); }
+    }
+
+    /* Counter: a live element of the new document with its own transition name. */
+    html.vn-vt .vn-vt-count {
+      display: block;
+      position: fixed;
+      left: 5vw;
+      bottom: 5vh;
+      z-index: 300;
+      view-transition-name: vn-count;
+      font: italic 900 clamp(4rem, 14vw, 12rem) / 1 var(--vn-font-display);
+      color: #f4ead4;
+      counter-reset: n var(--vn-n);
+      animation: vn-count .9s cubic-bezier(.25, 1, .5, 1) both;
+    }
+
+    .vn-vt-count::after { content: counter(n); }
+
+    :root:active-view-transition-type(nav)::view-transition-new(vn-count) {
+      animation: vn-count-o 1.55s linear both;
+    }
+
+    @keyframes vn-count { to { --vn-n: 100; } }
+
+    @keyframes vn-count-o {
+      from { opacity: 0; }
+      12%, 56% { opacity: 1; }
+      68%, to { opacity: 0; }
     }
   }
 

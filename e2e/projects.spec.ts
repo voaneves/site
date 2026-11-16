@@ -71,8 +71,61 @@ test('cross-document view transition is armed and names the shared element', asy
   expect(name).toBe('project-caato');
 });
 
+const record = () => {
+  addEventListener('pagereveal', (e) => {
+    const vt = (e as unknown as { viewTransition?: { types: Set<string>; ready: Promise<void> } }).viewTransition;
+    sessionStorage.setItem('vtTypes', vt ? [...vt.types].join(',') : 'none');
+    vt?.ready.then(() =>
+      sessionStorage.setItem('vtAnims', document.getAnimations().map((a) => (a as CSSAnimation).animationName ?? '').join(',')),
+    );
+  });
+};
+
+test('navigation transition is typed: cover, counter and reveal run, then everything is cleared', async ({ page }) => {
+  await page.addInitScript(record);
+  await page.setViewportSize({ width: 1366, height: 800 });
+  await page.goto('/');
+  const row = page.locator('.vn-project-row[href="/projetos/caato/"]');
+  await row.scrollIntoViewIfNeeded();
+  await row.click();
+  await page.waitForURL('**/projetos/caato/');
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem('vtTypes'))).toBe('nav');
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem('vtAnims') ?? '')).toContain('vn-nav-in');
+  const anims = (await page.evaluate(() => sessionStorage.getItem('vtAnims')))!;
+  expect(anims).toContain('vn-nav-out');
+  expect(anims).toContain('vn-count');
+  await expect(page.locator('html')).not.toHaveClass(/vn-vt/, { timeout: 5000 });
+  await expect(page.locator('.vn-vt-count')).toBeHidden();
+  await expect(page.locator('h1')).toBeVisible();
+});
+
+test('the theme toggle keeps its own reveal: no navigation rules, no counter', async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 800 });
+  await page.goto('/projetos/caato/');
+  const names = () => page.evaluate(() => document.getAnimations().map((a) => (a as CSSAnimation).animationName ?? ''));
+  await page.locator('#vn-theme-toggle').click();
+  await expect.poll(async () => (await names()).some((n) => n === 'vn-dusk' || n === 'vn-dawn')).toBe(true);
+  const seen = await names();
+  expect(seen).not.toContain('vn-nav-in');
+  expect(seen).not.toContain('vn-nav-out');
+  expect(seen).not.toContain('vn-count');
+  await expect(page.locator('html')).not.toHaveClass(/vn-vt/);
+  await expect(page.locator('.vn-vt-count')).toBeHidden();
+});
+
 test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
+
+  test('navigation has no view transition', async ({ page }) => {
+    await page.addInitScript(record);
+    await page.goto('/');
+    const row = page.locator('.vn-project-row[href="/projetos/caato/"]');
+    await row.scrollIntoViewIfNeeded();
+    await row.click();
+    await page.waitForURL('**/projetos/caato/');
+    await expect.poll(() => page.evaluate(() => sessionStorage.getItem('vtTypes'))).toBe('none');
+    await expect(page.locator('.vn-vt-count')).toBeHidden();
+  });
 
   test('matchMedia reports reduce and no zoom or transition runs on the row thumbnails', async ({ page }) => {
     await page.goto('/');

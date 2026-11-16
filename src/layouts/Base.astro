@@ -150,9 +150,15 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
   {graphs.map((entry) => (
     <script type="application/ld+json" set:html={JSON.stringify(entry)} />
   ))}
+  {/* pagereveal: marks the document while a navigation view transition reveals it (page counter). */}
   <script is:inline>
     (() => {
       document.documentElement.classList.add('js');
+      addEventListener('pagereveal', (e) => {
+        if (!e.viewTransition) return;
+        document.documentElement.classList.add('vn-vt');
+        e.viewTransition.finished.finally(() => document.documentElement.classList.remove('vn-vt'));
+      });
       try {
         const s = localStorage.getItem('vn-theme');
         const m = s === 'light' || s === 'dark' ? s : matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
@@ -178,6 +184,7 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
     </div>
   )}
   <div class="vn-scroll-progress" id="vn-scroll-progress" aria-hidden="true"></div>
+  <div class="vn-vt-count" aria-hidden="true"></div>
 
   <header class="vn-navbar">
     <div class="vn-container vn-navbar__inner">
