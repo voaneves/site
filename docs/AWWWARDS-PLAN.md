@@ -163,7 +163,7 @@ Read these once; each spec refers to them by number (R1 to R14).
       hero.c2.css, hero.c2-variant-b.css, hero.spec.c2.ts). C9, B3 and C1 must not assume C2 shipped.
 - [x] A7 Without JavaScript the hero renders dark-theme text on the light ground (h1 cream on cream, lead faint,
       chips dark). Found while checking C2 on the live /en/; pre-existing.
-- [ ] C3 Jornada pinned on desktop: vertical scroll carries the career cards sideways behind an oversized ghost
+- [x] C3 Jornada pinned on desktop: vertical scroll carries the career cards sideways behind an oversized ghost
       word that drifts slower. Touch, small screens and browsers without scroll timelines keep the swipe carousel.
 - [x] C4 Números rises over About as a large arch (replaces the diagonal wedge), with its label set on the curve.
       For E2: a faint 1 px horizontal hairline shows at the arch's top edge on desktop (light y1831, dark y1631 frames).
