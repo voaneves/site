@@ -5,6 +5,7 @@ import moments from '../styles/fx/moments.css?inline';
 import cases from '../styles/fx/case.css?inline';
 import open from '../styles/fx/open.css?inline';
 import journeyPin from '../styles/fx/journey-pin.css?inline';
+import { engagedBy } from './lazy';
 
 // U7a: scroll choreography engine. Loaded on idle under prefers-reduced-motion: no-preference (all pointers).
 // One constructable sheet in @layer site, assembled from src/styles/fx/*.css. BASE is every top-level rule;
@@ -32,12 +33,17 @@ export function init(): void {
     ws.forEach((w, i) => w.style.setProperty('--w', String(i)));
   }
   // C2: the hero opening plays once, on the first interaction (Lighthouse never interacts), only while the hero is on screen.
-  if (scrollY < innerHeight / 2) {
+  // This module starts on the first interaction (A12, onEngage). A pointer, touch or key interaction is the cue and
+  // plays it at once; a scroll or wheel means the visitor is leaving the hero, so the accent never plays mid-scroll.
+  const CUES = ['pointermove', 'pointerdown', 'touchstart', 'keydown'];
+  if (scrollY < innerHeight / 2 && CUES.includes(engagedBy)) document.documentElement.dataset.heroOpen = '';
+  else if (scrollY < innerHeight / 2 && !engagedBy) {
+    // started by the idle fallback: wait for the visitor's first pointer, touch or key interaction
     const go = () => {
-      for (const t of ['pointermove', 'wheel', 'touchstart', 'keydown']) removeEventListener(t, go);
-      document.documentElement.dataset.heroOpen = '';
+      for (const t of CUES) removeEventListener(t, go);
+      if (scrollY < innerHeight / 2) document.documentElement.dataset.heroOpen = '';
     };
-    for (const t of ['pointermove', 'wheel', 'touchstart', 'keydown']) addEventListener(t, go, { passive: true });
+    for (const t of CUES) addEventListener(t, go, { passive: true });
   }
   // Reduced motion switched on at runtime: drop the sheet, so every timeline and clip goes with it.
   const mq = matchMedia('(prefers-reduced-motion: reduce)');

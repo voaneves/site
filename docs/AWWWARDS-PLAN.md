@@ -153,7 +153,10 @@ Read these once; each spec refers to them by number (R1 to R14).
 
 ### Phase C: from Era Residence
 
-- [ ] C1 Preloader on the first home visit of a session: split words slide apart, hairline progress, the curtain
+- [ ] C1 **Dropped (2026-11-16):** built on branch `wave/c1` (`ecfa0b6`, unmerged) but the curtain over the first frames
+      raised mobile Speed Index by ~20-220 ms in every interleaved run, and no ladder step removed it; Lighthouse 100
+      wins. Spec bug found: `vn-pre` named both the html flag and the curtain (hid the page); the branch uses `.vn-curtain`.
+      Preloader on the first home visit of a session: split words slide apart, hairline progress, the curtain
       lifts as an arch. The page under it is painted from the first frame.
 - [x] C2 Hero opening on non-LCP elements: strip and strap wipe in, grid fades, CTAs rise, chips and badge pop.
       Shipped as an accent played on the first interaction (`de0abd4`): nothing hidden or animated during load.

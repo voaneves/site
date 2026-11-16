@@ -11,8 +11,8 @@
     "hover-fx": 1450,
     "signal-field": 1792,
     "hero-fx": 3584,
-    "scroll-fx": 3584,
-    "late": 2048,
+    "scroll-fx": 4352,
+    "late": 2304,
     "count": 1024,
     "journey": 1792
   },

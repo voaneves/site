@@ -98,7 +98,9 @@ test('hero opening plays only after the first interaction, touches no LCP elemen
   const ctx = await browser.newContext({ viewport: { width: 1366, height: 800 }, baseURL: test.info().project.use.baseURL, reducedMotion: 'no-preference' });
   const page = await ctx.newPage();
   await page.goto('/en/');
-  await expect.poll(() => page.evaluate(() => document.documentElement.dataset.scrollFx)).toBeTruthy();
+  await page.waitForLoadState('load');
+  // A12: before any interaction the motion module has not even started, so nothing can animate yet.
+  expect(await page.evaluate(() => 'scrollFx' in document.documentElement.dataset)).toBe(false);
   const opening = () => page.evaluate(() => document.getAnimations().filter((a) => /^vn-o-/.test((a as CSSAnimation).animationName ?? '')).length);
   // no interaction: nothing animates and nothing is hidden
   expect(await opening()).toBe(0);

@@ -23,11 +23,18 @@ const ENGAGE_FALLBACK_MS = 9000;
 const engageQueue: Array<() => void> = [];
 let engageArmed = false;
 let engageFired = false;
+/** The event type of the interaction that engaged the page ('' when the idle fallback did): accents can decide on it. */
+export let engagedBy = '';
+
+function onUserEngage(e: Event): void {
+  engagedBy = e.type;
+  fireEngage();
+}
 
 function fireEngage(): void {
   if (engageFired) return;
   engageFired = true;
-  for (const t of ENGAGE_EVENTS) removeEventListener(t, fireEngage, true);
+  for (const t of ENGAGE_EVENTS) removeEventListener(t, onUserEngage, true);
   // One callback per task: the first interaction frame stays cheap, and each sheet's style recalc lands on its own.
   const next = () => {
     const cb = engageQueue.shift();
@@ -48,7 +55,7 @@ export function onEngage(cb: () => void): void {
   engageQueue.push(cb);
   if (engageArmed) return;
   engageArmed = true;
-  for (const t of ENGAGE_EVENTS) addEventListener(t, fireEngage, { capture: true, passive: true });
+  for (const t of ENGAGE_EVENTS) addEventListener(t, onUserEngage, { capture: true, passive: true });
   const arm = () => setTimeout(() => ('requestIdleCallback' in window ? requestIdleCallback(fireEngage, { timeout: 2000 }) : fireEngage()), ENGAGE_FALLBACK_MS);
   if (document.readyState === 'complete') arm();
   else addEventListener('load', arm, { once: true });

@@ -70,10 +70,10 @@ test.describe('handoffs, timelines', () => {
     rest(t0);
     expect(num(t5, 1)).toBeGreaterThan(30);
     expect(num(t1, 1)).toBeGreaterThan(num(t5, 1));
-    // The sink equals the hero's bottom padding, so the content reaches the hero's edge at most and is never sliced.
+    // The sink is the hero's bottom padding minus 1.5rem (24 px), so the content never reaches the hero's edge.
     const pad = await page.evaluate(() => parseFloat(getComputedStyle(document.querySelector('.vn-hero')!).paddingBottom));
-    expect(num(t1, 1)).toBeGreaterThan(pad - 2);
-    expect(num(t1, 1)).toBeLessThan(pad + 2);
+    expect(num(t1, 1)).toBeGreaterThan(pad - 24 - 2);
+    expect(num(t1, 1)).toBeLessThan(pad - 24 + 2);
     expect(parseFloat(o5)).toBeLessThan(0.1);
     expect(parseFloat(o1)).toBeGreaterThan(0.5);
   });

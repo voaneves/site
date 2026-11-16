@@ -1,8 +1,11 @@
 import { test, expect, type Page } from '@playwright/test';
+import { engage } from './lib/site';
 
 // C3: pinned horizontal Jornada (desktop, fine pointer, scroll timelines). Carousel mode: journey.spec.ts.
+// The motion sheet starts on the first interaction (A12), so each page is engaged before waiting for it.
 const ready = async (page: Page, url = '/') => {
   await page.goto(url);
+  await engage(page);
   await expect.poll(() => page.evaluate(() => document.documentElement.dataset.scrollFx)).toBe('tl');
   await page.evaluate(() => document.documentElement.classList.add('vn-cv-off')); // real heights everywhere
   await expect(page.locator('[data-vn-journey]')).toHaveAttribute('data-ready', '', { timeout: 10_000 }).catch(async () => {
@@ -185,6 +188,7 @@ test.describe('journey pinned: fallbacks keep the carousel', () => {
       CSS.supports = ((a: string, b?: string) => (/animation-timeline/.test(a) ? false : b === undefined ? s(a) : s(a, b))) as typeof CSS.supports;
     });
     await page.goto('/');
+    await engage(page);
     await expect.poll(() => page.evaluate(() => document.documentElement.dataset.scrollFx)).toBe('base');
     await carousel(page);
     await ctx.close();
@@ -199,6 +203,7 @@ test.describe('journey pinned: fallbacks keep the carousel', () => {
       const ctx = await browser.newContext({ reducedMotion: 'no-preference', baseURL: test.info().project.use.baseURL, ...opts });
       const page = await ctx.newPage();
       await page.goto('/');
+      await engage(page);
       await expect.poll(() => page.evaluate(() => document.documentElement.dataset.scrollFx)).toBe('tl');
       await carousel(page);
       await ctx.close();

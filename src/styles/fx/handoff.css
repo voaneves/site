@@ -35,9 +35,10 @@
     #numeros > .vn-container { --u: -8vh; }
     #jornada > .vn-container:first-of-type { --u: -4vh; --us: .96; }
     #contato > .vn-container { --u: -10vh; animation-range: exit 0% exit 10%; } /* the footer is short, so the last exit never reaches 100% */
-    /* The inner sinks by exactly the hero's bottom padding (same clamp as hero.css), so it reaches the hero's bottom
-       edge at most and is never sliced, while staying fully visible as long as the hero is on screen. */
-    @keyframes u-sink { to { translate: 0 clamp(var(--vn-space-8), 7vw, var(--vn-space-11)); } }
+    /* The inner sinks by the hero's bottom padding (same clamp as hero.css) minus 1.5rem, because the portrait's corner
+       chip already hangs ~14 px into that padding (measured room under the content: 82 px of 96 at desktop, 65 of 48+
+       on phones). So the content never reaches the hero's bottom edge, and it stays fully visible while on screen. */
+    @keyframes u-sink { to { translate: 0 calc(clamp(var(--vn-space-8), 7vw, var(--vn-space-11)) - 1.5rem); } }
     @keyframes u-scrim { 45% { opacity: 0; } to { opacity: .55; } }
     @keyframes u-wedge { from { scale: 1 0; } }
     @keyframes u-arch { from { scale: 1 2.2; } }

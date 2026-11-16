@@ -1,4 +1,13 @@
 import { test, expect, type Page } from '@playwright/test';
+import { engage } from './lib/site';
+
+// A12: the motion sheet (which gives the pinned Jornada its scroll runway) starts on the first interaction. A visitor
+// interacts before reaching the contact band; jumping there as the very first interaction would land on a layout
+// that grows above it. Engage, then wait for the sheet, so the jump lands on the final layout.
+const settleLayout = async (page: Page) => {
+  await engage(page);
+  await expect.poll(() => page.evaluate(() => 'scrollFx' in document.documentElement.dataset)).toBe(true);
+};
 
 const CHUNK = /\/_astro\/signal-field\./;
 
@@ -49,6 +58,7 @@ for (const route of ['/', '/en/']) {
       await page.setViewportSize({ width: 1366, height: 800 });
       await page.goto(`${route}?vn-debug`);
       await page.waitForLoadState('networkidle');
+      await settleLayout(page);
       await page.locator('#contato').scrollIntoViewIfNeeded();
       const canvas = page.locator('#contato canvas.vn-sf');
       await expect(canvas).toHaveCount(1);
@@ -91,6 +101,7 @@ for (const route of ['/', '/en/']) {
       await page.setViewportSize({ width: 1366, height: 800 });
       await page.goto(route);
       await page.waitForLoadState('networkidle');
+      await settleLayout(page);
       await page.locator('#contato').scrollIntoViewIfNeeded();
       await expect(page.locator('#contato canvas.vn-sf')).toHaveCount(1);
       const top = await page.evaluate(() => {
