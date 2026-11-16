@@ -33,6 +33,7 @@ interface WarpItem {
   img: HTMLImageElement;
   box: DOMRect; // the clipping frame (the image's parent)
   rect: DOMRect; // the image itself, transforms included
+  r: number; // the frame's corner radius in CSS px
 }
 interface Renderer {
   resize(): void;
@@ -96,9 +97,10 @@ vec2 f=vec2(U-D,L-R);f*=k*C/(length(f)+1e-5);gl_FragColor=vec4(texture2D(A,v).xy
 vec3 n=c.rgb/max(e,1e-4);n*=mix(1.,.72,smoothstep(.45,1.,e))*(1.+clamp(1.6*(y-x),-.18,.22));
 float o=.88*(1.-exp(-4.4*e));o=max(o+(fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5)-.5)/180.,0.);gl_FragColor=vec4(n*o,o);}`,
   // image through the flow: A = velocity, B = the image; I = image rect in screen uv (x, y, w, h; y up),
-  // S = 1 / sim size, k = seconds. Alpha follows the flow, so still water leaves the real image showing.
-  x: `${H}uniform vec4 I;uniform vec2 S,V;uniform float k,m;void main(){vec2 f=texture2D(A,v).xy*S*k;float a=smoothstep(.003,.02,length(f));vec2 q=f*V;f=q*m/(m+length(q))/V;
-vec2 p=(v-f-I.xy)/I.zw;vec4 c=texture2D(B,clamp(p,0.,1.));a*=c.a*step(.0,min(min(p.x,p.y),1.-max(p.x,p.y)));gl_FragColor=vec4(c.rgb*a,a);}`,
+  // S = 1 / sim size, k = seconds, R = the frame (left, top, right, bottom in CSS px), r = its corner radius (uniform E; r and d are varyings). Alpha follows the flow, so still water leaves the real image showing.
+  x: `${H}uniform vec4 I,R;uniform vec2 S,V;uniform float k,m,E;void main(){vec2 f=texture2D(A,v).xy*S*k;float a=smoothstep(.003,.02,length(f));vec2 q=f*V;f=q*m/(m+length(q))/V;
+vec2 p=(v-f-I.xy)/I.zw;vec4 c=texture2D(B,clamp(p,0.,1.));a*=c.a*step(.0,min(min(p.x,p.y),1.-max(p.x,p.y)));
+vec2 h=(R.zw-R.xy)*.5,g=abs(vec2(v.x,1.-v.y)*V-(R.xy+h))-h+E;a*=1.-smoothstep(-.5,.5,length(max(g,0.))+min(max(g.x,g.y),0.)-E);gl_FragColor=vec4(c.rgb*a,a);}`,
 };
 
 interface Tgt {
@@ -279,6 +281,8 @@ function webgl(canvas: HTMLCanvasElement): Renderer | null {
         k: [WARP_T],
         V: [vw, vh],
         m: [WARP_PX],
+        R: [it.box.left, it.box.top, it.box.right, it.box.bottom],
+        E: [it.r],
       });
       n++;
     }
@@ -433,30 +437,47 @@ let gx = 0;
 let gy = 0;
 let gn = 0;
 let resizeRaf = 0;
-let warpImgs: HTMLImageElement[] = [];
-let warpN = 0;
+let warpCache: WarpItem[] = [];
 let navBottom = 0;
 let lastScroll = 0;
+let measureT = 0;
+
+// All layout reads happen here, never inside the frame loop: on start, resize, scroll end and when a
+// transition/animation ends (hover zoom, enter reveals flipping .is-done).
+function measure() {
+  measureT = 0;
+  navBottom = document.querySelector('.vn-navbar')?.getBoundingClientRect().bottom ?? 0;
+  warpCache = [];
+  for (const img of document.querySelectorAll<HTMLImageElement>(WARP_SEL)) {
+    const frame = img.parentElement!;
+    const rad = parseFloat(getComputedStyle(frame).borderTopLeftRadius);
+    warpCache.push({ img, box: frame.getBoundingClientRect(), rect: img.getBoundingClientRect(), r: rad > 0 ? rad : 0 });
+  }
+}
+const remeasure = (ms: number) => {
+  clearTimeout(measureT);
+  measureT = window.setTimeout(measure, ms);
+};
 const onScroll = () => {
   lastScroll = performance.now();
+  remeasure(150);
 };
+const onSettle = () => remeasure(60);
 
-// Images near the pointer, with their frame and their own rect (transforms included), at most three.
+// Images near the pointer (from the cache), at most three.
 function warpItems(now: number): WarpItem[] {
   if (now - lastScroll < 140) return []; // the page is moving and the canvas is a frame behind it
-  if (warpN++ % 30 === 0) {
-    warpImgs = [...document.querySelectorAll<HTMLImageElement>(WARP_SEL)];
-    navBottom = document.querySelector('.vn-navbar')?.getBoundingClientRect().bottom ?? 0;
-  }
   const out: WarpItem[] = [];
-  for (const img of warpImgs) {
-    const box = img.parentElement!.getBoundingClientRect();
+  for (const it of warpCache) {
+    const box = it.box;
     if (px < box.left - 160 || px > box.right + 160 || py < box.top - 160 || py > box.bottom + 160) continue;
-    out.push({ img, box, rect: img.getBoundingClientRect() });
+    out.push(it);
     if (out.length === 3) break;
   }
   return out;
-}const mql = matchMedia('(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference)');
+}
+
+const mql = matchMedia('(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference)');
 
 // Luminance of the first opaque background up the tree; falls back to the theme.
 function groundDark(el: Element | null, fallback: boolean): boolean {
@@ -545,7 +566,7 @@ function onMove(e: PointerEvent) {
     qy = py;
     lastT = lastMove;
     gn = 0;
-    warpN = 0;
+    measure();
     flag('__vnTrailRunning', true);
     raf = requestAnimationFrame(tick);
   }
@@ -560,6 +581,7 @@ const onResize = () => {
   resizeRaf = requestAnimationFrame(() => {
     resizeRaf = 0;
     r?.resize();
+    remeasure(0);
   });
 };
 const onMq = (e: MediaQueryListEvent) => {
@@ -574,6 +596,9 @@ function off() {
   removeEventListener('pagehide', off);
   removeEventListener('resize', onResize);
   removeEventListener('scroll', onScroll);
+  removeEventListener('transitionend', onSettle, true);
+  removeEventListener('animationend', onSettle, true);
+  clearTimeout(measureT);
   document.removeEventListener('visibilitychange', onHidden);
   mql.removeEventListener('change', onMq);
   r?.destroy();
@@ -599,6 +624,8 @@ function start() {
   addEventListener('pagehide', off);
   addEventListener('resize', onResize, { passive: true });
   addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('transitionend', onSettle, true);
+  addEventListener('animationend', onSettle, true);
   document.addEventListener('visibilitychange', onHidden);
   mql.addEventListener('change', onMq);
 }

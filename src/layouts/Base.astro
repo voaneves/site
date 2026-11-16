@@ -157,7 +157,8 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
       addEventListener('pagereveal', (e) => {
         if (!e.viewTransition) return;
         document.documentElement.classList.add('vn-vt');
-        e.viewTransition.finished.finally(() => document.documentElement.classList.remove('vn-vt'));
+        const clean = () => document.documentElement.classList.remove('vn-vt');
+        e.viewTransition.finished.then(clean, clean);
       });
       try {
         const s = localStorage.getItem('vn-theme');
