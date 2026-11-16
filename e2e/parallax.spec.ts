@@ -88,3 +88,19 @@ test('animations are really bound to scroll/view timelines', async ({ page }) =>
   expect(r.names).toEqual(['vn-pz', 'vn-pt']);
   expect(r.hasScroll && r.hasView).toBe(true);
 });
+
+test('hero badge turns with scroll and keeps its time-based spin', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const isTl = await ready(page);
+  test.skip(!isTl, 'view timelines unsupported');
+  const turn = page.locator('.vn-hero-badge__turn');
+  expect(['none', '0deg']).toContain(await turn.evaluate((e) => getComputedStyle(e).rotate));
+  await page.evaluate(() => scrollTo({ top: 450, behavior: 'instant' }));
+  await raf2(page);
+  const deg = parseFloat(await turn.evaluate((e) => getComputedStyle(e).rotate));
+  expect(deg).toBeGreaterThan(90);
+  expect(deg).toBeLessThan(110);
+  expect(await page.locator('.vn-hero-badge__svg').evaluate((e) => getComputedStyle(e).animationName)).toBe('vn-spin');
+  const box = await page.locator('.vn-hero-badge').evaluate((e) => [e.clientWidth, e.clientHeight]);
+  expect(box).toEqual([110, 110]); // the wrapper did not change the badge size
+});

@@ -7,6 +7,9 @@
   @media screen and (prefers-reduced-motion: no-preference) {
     @keyframes vn-pz { to { scale: 1.15; translate: 0 6%; } }
     @keyframes vn-pt { from { scale: 1.18; translate: 0 -8%; } to { scale: 1.18; translate: 0 8%; } }
+    /* C9: the badge turns with scroll (wrapper), on top of its time-based spin (the svg inside). Identity at scrollY 0. */
+    @keyframes vn-bt { to { rotate: 200deg; } }
+    .vn-hero-badge__turn { animation-name: vn-bt; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: scroll(root); animation-range: 0 100svh; }
     .vn-hero-portrait__img, .vn-hero-portrait__canvas { animation-name: vn-pz; animation-timing-function: linear; animation-fill-mode: both; }
     .vn-project-row__media img { animation-name: vn-pt; animation-timing-function: linear; animation-fill-mode: both; }
     /* Longhands only, no duration/delay: the minifier folds longhands into the shorthand, and Chrome drops view()/scroll() there. */

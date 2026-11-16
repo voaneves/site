@@ -305,6 +305,7 @@
   }
 
   .vn-hero-badge__svg {
+    display: block; /* no inline gap inside the turn wrapper */
     fill: var(--vn-cream);
     animation: vn-spin 18s linear infinite;
   }

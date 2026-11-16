@@ -110,14 +110,16 @@ const idle = [c.hero.essence.replace(/[.,]/g, '').replace(' ', '·').toUpperCase
       ))}
 
       <div class="vn-hero-badge" aria-hidden="true">
-        <svg viewBox="0 0 120 120" width="112" height="112" class="vn-hero-badge__svg">
-          <defs>
-            <path id={`badge-circle-${locale}`} d="M 60, 60 m -44, 0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0" />
-          </defs>
-          <text font-size="8.2" font-weight="700" letter-spacing="2.2">
-            <textPath href={`#badge-circle-${locale}`}>{badgeLoop}</textPath>
-          </text>
-        </svg>
+        <span class="vn-hero-badge__turn">
+          <svg viewBox="0 0 120 120" width="112" height="112" class="vn-hero-badge__svg">
+            <defs>
+              <path id={`badge-circle-${locale}`} d="M 60, 60 m -44, 0 a 44,44 0 1,1 88,0 a 44,44 0 1,1 -88,0" />
+            </defs>
+            <text font-size="8.2" font-weight="700" letter-spacing="2.2">
+              <textPath href={`#badge-circle-${locale}`}>{badgeLoop}</textPath>
+            </text>
+          </svg>
+        </span>
         <span class="vn-hero-badge__center">VN</span>
       </div>
     </div>
