@@ -44,5 +44,7 @@
       animation-range: cover calc(16% + var(--w, 0) * var(--ws, 0%)) cover calc(30% + var(--w, 0) * var(--ws, 0%));
     }
     @keyframes vn-ink { from { opacity: .84; } to { opacity: 0; } }
+    /* Windows High Contrast: no veil, the words are always readable. */
+    @media (forced-colors: active) { .vn-about-statement .vn-w::after { display: none; } }
   }
 }
