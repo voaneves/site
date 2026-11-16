@@ -205,6 +205,10 @@ for (const route of ROUTES) {
       // (after-lcp.ts flags it), so the measurement is of scrolling, not of a swap racing a slow runner.
       await engage(page);
       await page.waitForFunction(() => 'fontsReady' in document.documentElement.dataset);
+      // Since A12 the late sheet (footer wordmark size) and the motion sheet start on the first interaction; on a slow
+      // runner they can still be landing when this scroll reaches the page end ~1 s after load, which no visitor can
+      // do. Same principle as the fonts above: measure scrolling a settled page, not a sheet racing the runner.
+      await page.waitForFunction(() => 'late' in document.documentElement.dataset && 'scrollFx' in document.documentElement.dataset);
       await scrollSteps(page, 10);
       await page.evaluate(
         () => new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res))),
