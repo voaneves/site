@@ -12,23 +12,35 @@ export function init(): void {
     } catch {
       /* already registered, or no Houdini: the number then jumps from 00 to 99 halfway, the line still fills */
     }
+    // --vn-late is the stable marker tests use to tell this sheet from the motion sheets (it survives minification).
     const sh = new CSSStyleSheet();
-    sh.replaceSync(`@layer site{${hover}${rail}${footer}}`);
+    sh.replaceSync(`@layer site{:root{--vn-late:1}${hover}${rail}${footer}}`);
     document.adoptedStyleSheets = [...document.adoptedStyleSheets, sh];
     document.documentElement.dataset.late = ''; // ready flag: tests wait on it
-    // D1: Palmas local time in the footer (the static "UTC−3" stays if the time zone is unknown)
-    const clock = document.querySelector<HTMLElement>('[data-vn-clock]');
-    if (clock) {
-      try {
-        const f = new Intl.DateTimeFormat(document.documentElement.lang, { timeZone: 'America/Araguaina', hour: '2-digit', minute: '2-digit', hour12: false });
-        const tick = () => { clock.textContent = f.format(new Date()); };
-        tick();
-        setInterval(tick, 30_000);
-      } catch {
-        /* keep the static offset */
-      }
-    }
   } catch {
     /* no constructable stylesheets: the page keeps its inline styles */
   }
+  clock();
+}
+
+// D1: Palmas local time in the footer (the static "UTC−3" stays if the time zone is unknown).
+// h23 so midnight is 00:xx (hour12:false gives 24:xx in en); ticks at minute boundaries, refreshed on becoming visible.
+function clock(): void {
+  const el = document.querySelector<HTMLElement>('[data-vn-clock]');
+  if (!el) return;
+  let f: Intl.DateTimeFormat;
+  try {
+    f = new Intl.DateTimeFormat(document.documentElement.lang, { timeZone: 'America/Araguaina', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+  } catch {
+    return; // keep the static offset
+  }
+  let timer = 0;
+  const tick = () => {
+    el.textContent = f.format(new Date());
+    clearTimeout(timer);
+    if (document.hidden) return; // resumed by visibilitychange
+    timer = window.setTimeout(tick, 60_000 - (Date.now() % 60_000) + 50);
+  };
+  document.addEventListener('visibilitychange', tick);
+  tick();
 }

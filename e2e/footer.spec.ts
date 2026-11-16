@@ -48,11 +48,20 @@ test.describe('footer closing moment', () => {
     await late(page);
     const clock = page.locator('[data-vn-clock]');
     await expect(clock).toHaveText(/^\d{2}:\d{2}$/);
-    const want = await page.evaluate(() => new Intl.DateTimeFormat('en', { timeZone: 'America/Araguaina', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date()));
+    const want = await page.evaluate(() => new Intl.DateTimeFormat('en', { timeZone: 'America/Araguaina', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date()));
     const got = (await clock.textContent())!;
     const mins = (s: string) => Number(s.slice(0, 2)) * 60 + Number(s.slice(3));
     expect(Math.abs(mins(got) - mins(want)) % 1439).toBeLessThanOrEqual(1);
   });
+
+  for (const route of ['/', '/en/']) {
+    test(`Palmas midnight reads 00:05, never 24:05 (${route})`, async ({ page }) => {
+      await page.clock.setFixedTime(new Date('2026-11-16T03:05:30Z')); // 00:05:30 in Palmas (UTC-3)
+      await page.goto(route);
+      await late(page);
+      await expect(page.locator('[data-vn-clock]')).toHaveText('00:05');
+    });
+  }
 
   test('no JS: no wordmark, static offset', async ({ browser }) => {
     const ctx = await browser.newContext({ javaScriptEnabled: false, baseURL: test.info().project.use.baseURL });
