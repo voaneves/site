@@ -124,7 +124,7 @@ test.describe('trail: runtime', () => {
     // the loop must not stop early: it keeps running TRAIL_STOP_MS (1500) past the last move
     expect(stopAt - lastMove).toBeGreaterThan(900);
     const mode = await page.evaluate(() => (window as unknown as { __vnTrailMode?: string }).__vnTrailMode);
-    expect(['webgl', '2d']).toContain(mode);
+    expect(['webgl', 'webgl-lite', '2d']).toContain(mode);
   });
 
   test('the default path (WebGL, or Canvas2D when the GPU has none) renders without errors', async ({ page }) => {
@@ -135,10 +135,10 @@ test.describe('trail: runtime', () => {
     await expect(trail(page)).toHaveCount(1);
     const size = await trail(page).evaluate((c: HTMLCanvasElement) => [c.width, c.height]);
     // exact size, as the code computes it: WebGL draws one canvas pixel per CSS px capped at 1920 across;
-    // the 2D fallback draws one per 2 CSS px
+    // the lite mode (software GL or slow frames) one per 2 CSS px capped at 640 across; the 2D fallback one per 2 CSS px
     const mode = await page.evaluate(() => (window as unknown as { __vnTrailMode?: string }).__vnTrailMode);
     const [iw, ih] = await page.evaluate(() => [innerWidth, innerHeight]);
-    const cell = mode === 'webgl' ? Math.max(1, iw / 1920) : Math.max(2, iw / 1e4);
+    const cell = mode === 'webgl' ? Math.max(1, iw / 1920) : mode === 'webgl-lite' ? Math.max(2, iw / 640) : Math.max(2, iw / 1e4);
     expect(size).toEqual([Math.max(2, Math.ceil(iw / cell)), Math.max(2, Math.ceil(ih / cell))]);
     if (mode === 'webgl') expect(size[0]).toBe(Math.min(iw, 1920));
     expect(errors).toEqual([]);
@@ -265,8 +265,8 @@ test.describe('trail: image distortion', () => {
   // Explicit skip: CI runners may lack WebGL; the reason (and the mode actually in use) shows in the report.
   const requireWebgl = async (page: Page) => {
     const mode = await wv(page, '__vnTrailMode');
-    if (mode !== 'webgl') test.info().annotations.push({ type: 'skipped', description: `no WebGL on this runner (trail mode: ${String(mode)}); the 2D ink fallback has no image pass` });
-    test.skip(mode !== 'webgl', `no WebGL on this runner (trail mode: ${String(mode)}): the 2D ink fallback has no image pass`);
+    if (mode !== 'webgl') test.info().annotations.push({ type: 'skipped', description: `no hardware WebGL on this runner (trail mode: ${String(mode)}); the ink-only modes have no image pass` });
+    test.skip(mode !== 'webgl', `no hardware WebGL on this runner (trail mode: ${String(mode)}): the ink-only modes have no image pass`);
   };
   const sweep = async (page: Page, sel: string) => {
     const box = (await page.locator(sel).first().boundingBox())!;

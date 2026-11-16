@@ -12,6 +12,14 @@ const SIM_MAX = 176;
 const DYE_PX = 3; // CSS px per dye texel
 const OUT_PX = 1; // CSS px per canvas pixel: the canvas now also redraws images, which must not look soft
 const OUT_MAX = 1920; // ...capped across, so very wide windows do not pay for it
+const LITE_PX = 2; // software GL or slow frames: the pre-B2b output, ink only, no image pass
+const LITE_MAX = 640;
+const LITE_SIM = 14; // lite: coarser velocity grid, coarser dye, fewer pressure iterations
+const LITE_DYE = 6;
+const LITE_ITER = 8;
+const SOFT_GL = /swiftshader|llvmpipe|software|basic render|microsoft basic/i;
+const GUARD_FRAMES = 30; // the frame-budget guard looks at the first trail frames of the page
+const GUARD_MS = 20; // ...and drops to lite when their median is slower than this
 const WARP_PX = 14; // CSS px: the most any texel of the copy is moved, at any flow speed
 const WARP_T = 0.07; // seconds of flow an image is displaced by
 const WARP_SEL = '.vn-project-row__media.is-done img, .vn-case-media img';
@@ -39,6 +47,7 @@ interface Renderer {
   resize(): void;
   frame(x0: number, y0: number, x1: number, y1: number, dt: number, ink: number[]): void;
   warp?(items: WarpItem[], top: number): number; // WebGL only: redraw images through the flow; returns how many
+  lite?(): void; // WebGL only: drop to the low-resolution, ink-only mode for the rest of the page
   clear(): void;
   destroy(): void;
 }
@@ -115,6 +124,17 @@ function webgl(canvas: HTMLCanvasElement): Renderer | null {
   const gl2 = canvas.getContext('webgl2', opts) as WebGL2RenderingContext | null;
   const gl = (gl2 || canvas.getContext('webgl', opts)) as GL | null;
   if (!gl) return null;
+
+  // A software rasteriser (SwiftShader, llvmpipe, WARP) cannot afford a full-resolution pass per pointer frame.
+  let lite = false;
+  try {
+    const info = gl.getExtension('WEBGL_debug_renderer_info');
+    const names = [info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : '', gl.getParameter(gl.RENDERER)];
+    lite = names.some((n) => SOFT_GL.test(String(n)));
+    flag('__vnTrailGL', String(names[0] || names[1]));
+  } catch {
+    /* unreadable: assume hardware */
+  }
 
   // Signed, filterable, renderable half floats, or no WebGL path at all (the 2D fallback takes over).
   let type = 0;
@@ -302,9 +322,9 @@ function webgl(canvas: HTMLCanvasElement): Renderer | null {
     gl.clear(gl.COLOR_BUFFER_BIT);
   };
   const resize = () => {
-    const [w, h] = grid(SIM_PX, SIM_MAX);
-    const [dw, dh] = grid(DYE_PX);
-    const [cw, ch] = grid(OUT_PX, OUT_MAX);
+    const [w, h] = lite ? grid(LITE_SIM, SIM_MAX) : grid(SIM_PX, SIM_MAX);
+    const [dw, dh] = grid(lite ? LITE_DYE : DYE_PX);
+    const [cw, ch] = lite ? grid(LITE_PX, LITE_MAX) : grid(OUT_PX, OUT_MAX);
     SW = cw;
     SH = ch;
     canvas.width = cw;
@@ -328,9 +348,17 @@ function webgl(canvas: HTMLCanvasElement): Renderer | null {
   };
   canvas.addEventListener('webglcontextlost', onLost);
 
-  return {
+  const api: Renderer = {
     resize,
-    warp,
+    warp: lite ? undefined : warp,
+    lite() {
+      if (lite) return;
+      lite = true;
+      api.warp = undefined;
+      flag('__vnTrailMode', 'webgl-lite');
+      flag('__vnTrailWarp', 0);
+      resize();
+    },
     frame(x0, y0, x1, y1, dt, ink) {
       const t = dt / 1000;
       const w = innerWidth;
@@ -354,7 +382,7 @@ function webgl(canvas: HTMLCanvasElement): Renderer | null {
       run('w', vel[1], vel[0], crl, { k: [SWIRL], t: [t] });
       swap(vel);
       run('d', div, vel[0], null, {});
-      for (let i = 0; i < ITER; i++) {
+      for (let i = 0, n = lite ? LITE_ITER : ITER; i < n; i++) {
         run('j', prs[1], prs[0], div, { k: [i ? 1 : 0.8] });
         swap(prs);
       }
@@ -372,6 +400,7 @@ function webgl(canvas: HTMLCanvasElement): Renderer | null {
       free();
     },
   };
+  return api;
 }
 
 // ---------------------------------------------------------------- Canvas2D fallback
@@ -441,6 +470,7 @@ let warpCache: WarpItem[] = [];
 let navBottom = 0;
 let lastScroll = 0;
 let measureT = 0;
+const gaps: number[] = []; // raw frame gaps of the first trail frames (frame-budget guard)
 
 // All layout reads happen here, never inside the frame loop: on start, resize, scroll end and when a
 // transition/animation ends (hover zoom, enter reveals flipping .is-done).
@@ -506,6 +536,10 @@ function tick(now: number) {
     canvas.style.opacity = '0';
     fade = window.setTimeout(stop, 420);
     return;
+  }
+  if (r.lite && gaps.length < GUARD_FRAMES) {
+    gaps.push(Math.min(100, now - lastT));
+    if (gaps.length === GUARD_FRAMES && gaps.slice().sort((a, b) => a - b)[GUARD_FRAMES >> 1] > GUARD_MS) r.lite();
   }
   const dt = Math.max(4, Math.min(34, now - lastT)) || 16.67;
   lastT = now;
@@ -610,7 +644,7 @@ function start() {
   const force2d = dbg && location.search.includes('vn-trail=2d');
   let c = makeCanvas();
   r = force2d ? null : webgl(c);
-  flag('__vnTrailMode', r ? 'webgl' : '2d');
+  flag('__vnTrailMode', r ? (r.warp ? 'webgl' : 'webgl-lite') : '2d');
   if (!r) {
     c = makeCanvas(); // a canvas that tried WebGL cannot hand out a 2D context
     r = canvas2d(c);
