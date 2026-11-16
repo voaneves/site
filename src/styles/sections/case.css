@@ -80,6 +80,13 @@
     height: auto;
   }
 
+  /* Phones: at full width the card (~68k px²) outgrew the title (40-49k px²) and became the LCP element, so mobile LCP
+     followed the image's simulated download (1.08-1.39 s against a 1.2 s cap). At two thirds it reads as a figure beside
+     the copy and the title, painted with the first frame, stays the largest element. */
+  @media (max-width: 600px) {
+    .vn-case-media { width: 66%; }
+  }
+
   .vn-case-grid {
     display: grid;
     grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
