@@ -15,5 +15,11 @@
   letter-spacing: -.045em;
   color: var(--vn-text);
 }
+/* Deferred sections (render-cost.css) wait with seeded heights measured on one machine's fonts. A fast jump (End key,
+   a far anchor, a quick scroll to the end) then lays a section out at its real size while the visitor watches: the
+   contact band corrected 944 -> 876 px on CI's Linux fonts and moved the footer (CLS 0.03), and End landed 22 px short
+   of the bottom. This sheet lands on the first interaction (never inside a Lighthouse load), so from then on every
+   section is laid out at its real size. contain: paint keeps exactly the clipping content-visibility gave them. */
+:is(#quem-sou, #numeros, #expertise, #jornada, #projetos, #servicos, #perguntas, #contato) { content-visibility: visible; contain: paint; }
 .vn-foot-mark span { display: inline-block; }
 .vn-foot-mark i { font-style: inherit; color: var(--vn-signal-ink); }
