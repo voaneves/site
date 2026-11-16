@@ -70,6 +70,23 @@ for (const route of ['/', '/en/']) {
       );
     });
 
+    test('with no pointer over the band the field drifts, and stops when the band leaves the screen', async ({ page }) => {
+      await page.setViewportSize({ width: 1366, height: 800 });
+      await page.goto(`${route}?vn-debug`);
+      await page.waitForLoadState('networkidle');
+      await page.mouse.move(600, 20); // a real move (motionOK chunks load); it stays over the header, not the band
+      await page.locator('#contato').scrollIntoViewIfNeeded();
+      const canvas = page.locator('#contato canvas.vn-sf');
+      await expect(canvas).toHaveCount(1);
+      await page.waitForFunction(() => (window as unknown as { __vnFieldDrift?: boolean }).__vnFieldDrift === true, undefined, { timeout: 5000 });
+      const a = await canvas.evaluate((cv: HTMLCanvasElement) => cv.toDataURL());
+      await page.waitForTimeout(500);
+      const b = await canvas.evaluate((cv: HTMLCanvasElement) => cv.toDataURL());
+      expect(b).not.toBe(a);
+      await page.evaluate(() => scrollTo({ top: 0, behavior: 'instant' }));
+      await page.waitForFunction(() => (window as unknown as { __vnFieldRunning?: boolean }).__vnFieldRunning === false, undefined, { timeout: 4000 });
+    });
+
     test('the copy stays clickable and keeps contrast above the canvas', async ({ page }) => {
       await page.setViewportSize({ width: 1366, height: 800 });
       await page.goto(route);

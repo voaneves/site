@@ -93,10 +93,6 @@
       text-align: center;
     }
 
-    .vn-contact-title {
-      font-size: clamp(2.5rem, 11vw, 4rem);
-    }
-
     .vn-hero__title {
       font-size: clamp(3rem, 14vw, 4.5rem);
     }

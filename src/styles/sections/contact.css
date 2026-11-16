@@ -47,6 +47,12 @@
     margin-block-end: var(--vn-space-5);
   }
 
+  @media (max-width: 600px) {
+    .vn-contact-band .vn-contact-title {
+      font-size: clamp(3.25rem, 16.5vw, 6rem);
+    }
+  }
+
   /* The two display lines drift in from opposite sides as the band scrolls in ([data-drift], motion.css). */
   .vn-contact-l1 {
     display: inline-block;

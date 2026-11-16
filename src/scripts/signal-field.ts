@@ -7,6 +7,7 @@ const PULL = 12; // max lean toward the pointer (px)
 const SW = 3; // max extra swell (x radius)
 const K = 0.18; // spring stiffness per frame
 const D = 0.8; // damping per frame
+const IDLE_MS = 1200; // with no pointer over the band for this long, the field starts to drift on its own
 
 export function init(band: HTMLElement): void {
   const cv = document.createElement('canvas');
@@ -24,9 +25,13 @@ export function init(band: HTMLElement): void {
   let st = new Float32Array(0); // per dot: dx, dy, swell
   let vl = new Float32Array(0);
   let px = -1e4, py = -1e4, raf = 0, last = 0;
+  let idleAt = performance.now(), vis = false, drift = false;
 
   const flag = () => {
-    if (dbg) (window as unknown as Record<string, unknown>).__vnFieldRunning = !!raf;
+    if (!dbg) return;
+    const w = window as unknown as Record<string, unknown>;
+    w.__vnFieldRunning = !!raf;
+    w.__vnFieldDrift = drift;
   };
 
   const draw = () => {
@@ -63,8 +68,12 @@ export function init(band: HTMLElement): void {
     const dm = D ** k;
     last = t;
     let e = 0;
+    // no pointer over the band: after IDLE_MS a slow wandering point takes its place
+    drift = px < -9e3 && vis && t - idleAt > IDLE_MS;
+    const ax = drift ? W * (0.5 + 0.38 * Math.sin(t * 0.00037)) : px;
+    const ay = drift ? H * (0.5 + 0.32 * Math.sin(t * 0.00053 + 1.3)) : py;
     for (let i = 0; i < n; i++) {
-      const dx = px - (i % cols + 0.5) * G, dy = py - (((i / cols) | 0) + 0.5) * G;
+      const dx = ax - (i % cols + 0.5) * G, dy = ay - (((i / cols) | 0) + 0.5) * G;
       const d = Math.hypot(dx, dy);
       const f = d < R ? (1 - d / R) ** 2 * (i === sig ? 1.8 : 1) : 0;
       const o = i * 3;
@@ -83,7 +92,8 @@ export function init(band: HTMLElement): void {
       }
     }
     draw();
-    raf = e > 0 ? requestAnimationFrame(step) : 0;
+    // keep ticking while idle and on screen (waiting for, or running, the drift); otherwise stop when settled
+    raf = e > 0 || (px < -9e3 && vis) ? requestAnimationFrame(step) : 0;
     flag();
   };
 
@@ -117,7 +127,7 @@ export function init(band: HTMLElement): void {
   };
 
   band.addEventListener('pointermove', (e) => { at(e); go(); }, { passive: true });
-  band.addEventListener('pointerleave', () => { px = py = -1e4; go(); }, { passive: true });
+  band.addEventListener('pointerleave', () => { px = py = -1e4; idleAt = performance.now(); go(); }, { passive: true });
   band.addEventListener('pointerdown', (e) => {
     at(e);
     for (let i = 0; i < n; i++) {
@@ -139,5 +149,12 @@ export function init(band: HTMLElement): void {
       flag();
     }
   });
+  new IntersectionObserver(([en]) => {
+    vis = en.isIntersecting;
+    if (vis) {
+      idleAt = performance.now();
+      go();
+    }
+  }).observe(band);
   new ResizeObserver(size).observe(band);
 }
