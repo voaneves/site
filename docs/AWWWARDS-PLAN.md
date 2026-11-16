@@ -143,7 +143,8 @@ Read these once; each spec refers to them by number (R1 to R14).
       chips dark). Found while checking C2 on the live /en/; pre-existing.
 - [ ] C3 Jornada pinned on desktop: vertical scroll carries the career cards sideways behind an oversized ghost
       word that drifts slower. Touch, small screens and browsers without scroll timelines keep the swipe carousel.
-- [ ] C4 Números rises over About as a large arch (replaces the diagonal wedge), with its label set on the curve.
+- [x] C4 Números rises over About as a large arch (replaces the diagonal wedge), with its label set on the curve.
+      For E2: a faint 1 px horizontal hairline shows at the arch's top edge on desktop (light y1831, dark y1631 frames).
 - [ ] C5 Scroll rail on the left edge with a live percentage and a scroll cue (desktop); the top bar stays on small
       screens and as the fallback.
 - [ ] C6 About manifesto as a tall centred statement that inks in word by word with scroll; small caption below.
@@ -265,6 +266,7 @@ and 5, about 170 B); (3) drop the two words of the preloader, keeping the hairli
 | B1 | 30837 | 12871 | 4866 | 17483 | lamalama line reveal; home +50 B inline CSS, +52 B html, +39 B first-load (reveal.ts), +33 B lazy total (scroll-fx) |
 | C2 | 30837 | 12871 | 4866 | 17483 | REVERTED, no code change: full spec added +223 B inline CSS (html 31060, inlineCss 13090) but mobile Lighthouse failed on / and /en/ (TBT 52-87 ms vs cap 50, /en/ LCP 1217-1468 ms) while the baseline passed 15/15; ladder (a) 50ms/.6s and (b) without strap and CTAs still failed; (c) revert. Desktop passed with the full spec (SI ~387 ms, TBT 0) |
 | A7 | 30946 | 12979 | 4866 | 17483 | No-JS theme: ground presets default to light and follow the OS through a dark media block; home +108 B inline CSS, +109 B html (before: html 30837, inlineCss 12871); en html 30386; case page caato: html 21648, inlineCss 13398 (before 21537 / 13283) |
+| C4 | 31153 | 13061 | 4865 | 17494 | Números arch replaces the wedge (before: html 30946, inlineCss 12979, first-load 4866, lazy 17483); home +207 B html, +82 B inline CSS, +11 B lazy total; en html 30582 (before 30386); no cap changed; render-cost spec green without new values |
 
 ## Brand deviations
 

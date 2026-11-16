@@ -27,7 +27,7 @@ for (const { route, sections } of CASES) {
         expect(info.hiddenText[1]).toBe(' ]');
         expect(info.exposed.length).toBeGreaterThan(2);
         expect(info.exposed).not.toMatch(/\d\d\s*·/);
-        await expect(page.locator(`#${id}`).getByText(info.exposed)).toHaveCount(1);
+        await expect(page.locator(`#${id} .vn-eyebrow`).getByText(info.exposed)).toHaveCount(1); // scoped: the Numbers arch repeats the tag in an aria-hidden SVG
         await expect(page.getByRole('region').or(page.locator(`#${id}`)).locator('.vn-eyebrow')).toContainText(info.exposed);
       });
     }
@@ -167,5 +167,31 @@ for (const route of ['/', '/en/']) {
       return [...new Set(tops)].map((t) => tops.filter((x) => x === t).length);
     });
     expect(rows).toEqual([3, 2]);
+  });
+}
+
+for (const route of ['/', '/en/']) {
+  test(`${route} Numbers arch: decorative, full width, inside the section, label on the curve`, async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(route);
+    await page.locator('#numeros').scrollIntoViewIfNeeded();
+    const m = await page.evaluate(() => {
+      const s = document.querySelector('#numeros')!.getBoundingClientRect();
+      const a = document.querySelector('.vn-arch')!;
+      const r = a.getBoundingClientRect();
+      const eb = document.querySelector('#numeros .vn-eyebrow')!;
+      return {
+        hidden: a.getAttribute('aria-hidden'), w: r.width / s.width, ratio: r.height / r.width,
+        before: getComputedStyle(document.querySelector('#numeros')!, '::before').content,
+        label: a.querySelector('textPath')!.textContent, tag: eb.textContent!.replace(/[\[\]—\d\s]+/g, ' ').trim(),
+      };
+    });
+    expect(m.hidden).toBe('true');
+    expect(m.w).toBeCloseTo(1, 2);
+    expect(m.ratio).toBeCloseTo(0.15, 2);
+    expect(m.before).toBe('none');
+    expect(m.tag).toContain(m.label!.trim());
+    await page.setViewportSize({ width: 390, height: 800 });
+    await expect(page.locator('.vn-arch__text')).toBeHidden();
   });
 }

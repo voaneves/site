@@ -6,17 +6,18 @@
 @supports (animation-timeline: view()) {
   @media screen and (prefers-reduced-motion: no-preference) {
     /* One view timeline per ground so pseudo-elements and children scrub against their section. */
-    #quem-sou, #expertise, #perguntas, .vn-site-footer { view-timeline: --h; }
+    #quem-sou, #numeros, #expertise, #perguntas, .vn-site-footer { view-timeline: --h; }
     /* Entries (Ink tide, Side shutter, Horizon rise, Lamp on, wedge lifts, footer set): eased, held at the start pose before the range. */
-    :is(#numeros, #jornada, #servicos, #contato, .vn-stats-hero-grid, .vn-site-footer__inner) {
+    :is(#jornada, #servicos, #contato, .vn-stats-hero-grid, .vn-site-footer__inner) {
       animation-timing-function: cubic-bezier(.25, 1, .5, 1); animation-fill-mode: backwards; animation-timeline: view(); animation-range: entry 0% entry 100%;
     }
     #quem-sou::before, #expertise::before, #perguntas::before { animation-timing-function: cubic-bezier(.25, 1, .5, 1); animation-fill-mode: backwards; }
-    #numeros { animation-name: u-tide; }
+    .vn-arch { animation-name: u-arch; animation-timing-function: cubic-bezier(.25, 1, .5, 1); animation-fill-mode: backwards; animation-timeline: --h; animation-range: entry 0% entry 90%; }
+    #numeros:focus-within .vn-arch { animation: none; } /* the deep dome covers the head: release it for a focused control (WCAG 2.4.11) */
     #jornada { animation-name: u-shut; }
     #servicos { animation-name: u-hor; animation-range: entry 0% entry 80%; }
     #contato { animation-name: u-lamp; transition: none; } /* a transition would outrank the scrubbed animation */
-    :is(#numeros, #jornada, #servicos, #contato):focus-within { animation: none; }
+    :is(#jornada, #servicos, #contato):focus-within { animation: none; }
     :is(#numeros, #contato) > .vn-container:focus-within, #jornada > .vn-container:first-of-type:focus-within { animation: none; }
     .vn-stats-hero-grid { --r: 6rem; animation-name: u-rise; animation-range: entry 20% entry 100%; }
     .vn-site-footer__inner { --r: 4rem; animation-name: u-rise; animation-timeline: --h; }
@@ -35,7 +36,7 @@
     @keyframes u-sink { to { translate: 0 14vh; } }
     @keyframes u-scrim { 45% { opacity: 0; } to { opacity: .55; } }
     @keyframes u-wedge { from { scale: 1 0; } }
-    @keyframes u-tide { from { clip-path: inset(5rem 4vw 0 round 3rem 3rem 0 0); } to { clip-path: inset(-3vw 0 0 round 0); } }
+    @keyframes u-arch { from { scale: 1 2.2; } }
     @keyframes u-shut { from { clip-path: inset(0 12vw round 2rem); } to { clip-path: inset(0 round 0); } }
     @keyframes u-hor { from { clip-path: inset(4rem 0 0 round 50% 50% 0 0 / 4rem 4rem 0 0); } to { clip-path: inset(0 round 0); } }
     @keyframes u-lamp { from { clip-path: inset(4rem 5vw 0 round 3rem); } to { clip-path: inset(0 round 0); } }

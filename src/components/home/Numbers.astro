@@ -22,6 +22,11 @@ const [titlePre, titleEm] = splitTail(c.numbers.title);
 
 <section data-section="02" id="numeros" class="vn-section vn-numbers-band vn-chapter--ink vn-site-anchor-target" data-surface="inverse" data-cursor-zone="ring" data-cursor-idle={idle}>
   <span id="work" class="vn-sr-only"></span>
+  <svg class="vn-arch" viewBox="0 0 1000 150" aria-hidden="true" focusable="false">
+    <path class="vn-arch__fill" d="M0 0H1000V150A500 150 0 0 0 0 150Z" />
+    <path id={`arch-curve-${locale}`} d="M60 150A440 132 0 0 1 940 150" fill="none" />
+    <text class="vn-arch__text"><textPath href={`#arch-curve-${locale}`} startOffset="50%" text-anchor="middle">{eyebrowTag}</textPath></text>
+  </svg>
   <div class="vn-container">
     <div class="vn-sec-head" data-stagger>
       <p class="vn-eyebrow" data-enter data-fx="scramble"><span aria-hidden="true">[ {eyebrowNum} — </span>{eyebrowTag}<span aria-hidden="true"> ]</span></p>

@@ -123,10 +123,29 @@
 
   #numeros { color-scheme: dark; }
 
-  #numeros::before {
-    top: 0;
-    translate: none;
-    clip-path: polygon(0 0, 100% 0, 0 100%);
+  /* C4: the wedge is replaced by an arch drawn by an inline SVG (Numbers.astro). */
+  #numeros::before { content: none; }
+
+  .vn-arch {
+    position: absolute;
+    inset: 0 0 auto;
+    display: block;
+    width: 100%;
+    height: auto;
+    transform-origin: 50% 0;
+    pointer-events: none;
+  }
+
+  .vn-arch__fill { fill: var(--w-about); }
+
+  .vn-arch__text {
+    fill: var(--vn-text-muted);
+    font: 500 14px var(--vn-font-mono);
+    letter-spacing: .3em;
+  }
+
+  @media (max-width: 899px) {
+    .vn-arch__text { display: none; } /* 14 viewBox units are under 13px here: unreadable, so not shown */
   }
 
   .vn-split-title em {

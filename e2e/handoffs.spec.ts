@@ -69,15 +69,15 @@ test.describe('handoffs, timelines', () => {
     expect(parseFloat(o1)).toBeGreaterThan(0.5);
   });
 
-  test('2 Ink tide: #numeros clip opens, grid rises', async ({ page }) => {
+  test('2 Arch rise: the dome over About settles, grid rises', async ({ page }) => {
     await ready(page);
-    const c0 = await at(page, '#numeros', 'entry', 0.02, 'clipPath');
-    const c5 = await at(page, '#numeros', 'entry', 0.5, 'clipPath');
-    const c1 = await at(page, '#numeros', 'entry', 1, 'clipPath');
-    expect(num(c0)).toBeGreaterThan(60);
-    expect(num(c5)).toBeLessThan(num(c0));
-    expect(c5).not.toBe(c0);
-    expect(c1).not.toBe(c5);
+    const a0 = await at(page, '#numeros', 'entry', 0.02, 'scale', undefined, '.vn-arch');
+    const a5 = await at(page, '#numeros', 'entry', 0.45, 'scale', undefined, '.vn-arch');
+    const a1 = await at(page, '#numeros', 'entry', 1, 'scale', undefined, '.vn-arch');
+    expect(num(a0, 1)).toBeGreaterThan(1.8); // "1 2.2" at the start of the entry
+    expect(num(a5, 1)).toBeLessThan(num(a0, 1));
+    expect(num(a5, 1)).toBeGreaterThan(1);
+    rest(a1);
     const g0 = await at(page, '#numeros', 'entry', 0.2, 'translate', undefined, '.vn-stats-hero-grid');
     const g1 = await at(page, '#numeros', 'entry', 1, 'translate', undefined, '.vn-stats-hero-grid');
     expect(num(g0, 1)).toBeGreaterThan(60);
@@ -205,14 +205,14 @@ test.describe('handoffs, timelines', () => {
 
   test('focus inside a clipped section releases the clip', async ({ page }) => {
     await ready(page);
-    const before = await at(page, '#numeros', 'entry', 0.3, 'clipPath');
+    const before = await at(page, '#servicos', 'entry', 0.3, 'clipPath');
     expect(before).not.toBe('none');
     await page.evaluate(() => {
-      const el = document.querySelector('#numeros .vn-container') as HTMLElement;
+      const el = document.querySelector('#servicos .vn-container') as HTMLElement;
       el.tabIndex = -1;
       el.focus({ preventScroll: true });
     });
-    await expect.poll(() => page.evaluate(() => getComputedStyle(document.querySelector('#numeros')!).clipPath)).toBe('none');
+    await expect.poll(() => page.evaluate(() => getComputedStyle(document.querySelector('#servicos')!).clipPath)).toBe('none');
   });
 });
 
@@ -220,7 +220,7 @@ test.describe('handoffs, wiring', () => {
   test.use({ reducedMotion: 'no-preference', viewport: { width: 1440, height: 900 } });
   test('every hand-off resolves to a named animation on a Scroll/View timeline', async ({ page }) => {
     await ready(page);
-    const sels = ['.vn-hero__inner', '#numeros', '#jornada', '#servicos', '#contato', '.vn-stats-hero-grid', '.vn-site-footer__inner', '#numeros > .vn-container', '#jornada > .vn-container:first-of-type', '#contato > .vn-container'];
+    const sels = ['.vn-hero__inner', '.vn-arch', '#jornada', '#servicos', '#contato', '.vn-stats-hero-grid', '.vn-site-footer__inner', '#numeros > .vn-container', '#jornada > .vn-container:first-of-type', '#contato > .vn-container'];
     for (const q of sels) {
       await page.evaluate((s) => document.querySelector(s)!.scrollIntoView({ block: 'center' }), q);
       await page.waitForTimeout(100);

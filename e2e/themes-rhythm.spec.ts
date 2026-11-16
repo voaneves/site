@@ -33,7 +33,7 @@ const META: Record<Theme, string> = { light: '#fdfbf6', dark: '#0a0a0a' };
 // Each chapter's corner wedge is drawn in the ground of the section ABOVE it (it bleeds into the chapter, so
 // the join reads as a diagonal). Same-colour-as-self would be invisible, so §U6k.7 test 10 is read as "equals
 // the previous section's ground", which also covers the Numbers exception (its wedge is About's ground).
-const WEDGES: [Key, Key][] = [['about', 'hero'], ['numbers', 'about'], ['expertise', 'numbers'], ['faq', 'services']];
+const WEDGES: [Key, Key][] = [['about', 'hero'], ['expertise', 'numbers'], ['faq', 'services']];
 const selOf = (k: Key) => GROUNDS.find((g) => g.key === k)!.sel;
 
 async function open(page: Page, theme: Theme, url = '/') {
@@ -154,6 +154,8 @@ for (const theme of THEMES) {
           .poll(() => page.evaluate((s) => getComputedStyle(document.querySelector(s)!, '::before').backgroundColor, selOf(k)), { message: k })
           .toBe(EXPECTED[theme][prev]);
       }
+      // Numbers has an arch instead of a wedge: its mask is filled with About's ground
+      await expect.poll(() => page.evaluate(() => getComputedStyle(document.querySelector('.vn-arch__fill')!).fill)).toBe(EXPECTED[theme].about);
     });
 
     test(`theme-color is ${META[theme]} on load without a click, and flips on toggle`, async ({ page }) => {
