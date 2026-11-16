@@ -64,8 +64,10 @@ test.describe('handoffs, timelines', () => {
     rest(t0);
     expect(num(t5, 1)).toBeGreaterThan(30);
     expect(num(t1, 1)).toBeGreaterThan(num(t5, 1));
-    expect(num(t1, 1)).toBeGreaterThan(110); // 14vh at 900px = 126px
-    expect(num(t1, 1)).toBeLessThan(140);
+    // The sink equals the hero's bottom padding, so the content reaches the hero's edge at most and is never sliced.
+    const pad = await page.evaluate(() => parseFloat(getComputedStyle(document.querySelector('.vn-hero')!).paddingBottom));
+    expect(num(t1, 1)).toBeGreaterThan(pad - 2);
+    expect(num(t1, 1)).toBeLessThan(pad + 2);
     expect(parseFloat(o5)).toBeLessThan(0.1);
     expect(parseFloat(o1)).toBeGreaterThan(0.5);
   });
@@ -296,10 +298,12 @@ test.describe('hero hand-off and chapter seams (owner screenshots)', () => {
           const box = document.querySelector('.vn-hero')!.getBoundingClientRect();
           const op = parseFloat(getComputedStyle(document.querySelector('.vn-hero__inner')!).opacity);
           const els = [...document.querySelectorAll<HTMLElement>('.vn-hero__actions > *, .vn-hero-portrait, .vn-hero-portrait__hint, .vn-hero-chip, .vn-hero__sub')];
-          return { op, over: els.filter((e) => e.getBoundingClientRect().bottom > box.bottom + 0.5).map((e) => e.className) };
+          return { op, visible: box.bottom > 120, over: els.filter((e) => e.getBoundingClientRect().bottom > box.bottom + 0.5).map((e) => e.className) };
         });
-        // cut by the hero box while still visible = a slice; once the inner has faded to nothing there is nothing to cut
-        if (r.over.length && r.op > 0.02) bad.push(`scrollY ${y}: opacity ${r.op}, past the hero bottom: ${r.over.join(', ')}`);
+        // Never cut by the hero box, and never faded away while the hero is still on screen (owner: "the hero suddenly
+        // faded and vanished" when the earlier fix faded the inner instead of keeping it inside the box).
+        if (r.over.length) bad.push(`scrollY ${y}: past the hero bottom: ${r.over.join(', ')}`);
+        if (r.visible && r.op < 1) bad.push(`scrollY ${y}: hero content faded to ${r.op} while the hero is on screen`);
       }
       expect(bad).toEqual([]);
     });
