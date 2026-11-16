@@ -27,6 +27,13 @@ let engageFired = false;
 export let engagedBy = '';
 
 function onUserEngage(e: Event): void {
+  // Chromium on Linux (headless and Lighthouse included) dispatches a trusted pointermove at exactly (0,0) with zero
+  // movement once layout settles, with nobody at the mouse: that is not an interaction. A real first move also has zero
+  // movement but lands anywhere else, and a real pointer at the corner keeps streaming, so only this fingerprint is ignored.
+  if (e.type === 'pointermove') {
+    const p = e as PointerEvent;
+    if (!p.clientX && !p.clientY && !p.movementX && !p.movementY) return;
+  }
   engagedBy = e.type;
   fireEngage();
 }
