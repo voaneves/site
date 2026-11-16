@@ -155,7 +155,8 @@ Read these once; each spec refers to them by number (R1 to R14).
 
 - [ ] C1 Preloader on the first home visit of a session: split words slide apart, hairline progress, the curtain
       lifts as an arch. The page under it is painted from the first frame.
-- [ ] C2 Hero opening on non-LCP elements: strip and strap wipe in, grid fades, CTAs rise, chips and badge pop.
+- [x] C2 Hero opening on non-LCP elements: strip and strap wipe in, grid fades, CTAs rise, chips and badge pop.
+      Shipped as an accent played on the first interaction (`de0abd4`): nothing hidden or animated during load.
       **Deferred (2026-11-16):** mobile Lighthouse failed TBT (56-87 ms against 50) and LCP on /en/ even after ladder
       steps (a) and (b); reverted per step (c). Baseline passed 15/15 on the same machine. Retry after D5 only with a
       variant that animates nothing during the Lighthouse window (attempt files in the session scratchpad:
@@ -175,7 +176,7 @@ Read these once; each spec refers to them by number (R1 to R14).
 - [x] C7 Era's easings and hover duration as site-wide token overrides. (Image parallax in clipped frames and drawn
       hairlines already shipped in WOW-PLAN U7: `fx/parallax.css`, `fx/text.css`.)
 - [x] C8 Edge-fill hover on outline buttons (0.8 s in-out, text colour flips). (The nav text roll already shipped.)
-- [ ] C9 Hero badge rotation tied to scroll, on top of its slow spin.
+- [x] C9 Hero badge rotation tied to scroll, on top of its slow spin.
 
 ### Phase D: polish
 
