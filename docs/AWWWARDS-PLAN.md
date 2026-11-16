@@ -120,7 +120,7 @@ Read these once; each spec refers to them by number (R1 to R14).
 - [x] A6 Case-study CSS is inlined only on case pages (freed 363 B gz of home inline CSS, 332 B of home HTML).
 - [ ] A8 Case pages fail mobile LCP (caato 1267 to 1377 ms vs 1200): the hero image sits after about 78 KB of inline CSS and was a 1600 px file for a 369 px slot; add a head preload with `imagesrcset` and an 800 px variant (`srcset`/`sizes`) on every case page.
 
-- [ ] A9 CI green: `7561b36` still fails shard 1 on the button-fill test (hover reached, then lost, most likely
+- [x] A9 CI green (`dfce4f1`, `9118391`; confirm on the next CI run): `7561b36` still fails shard 1 on the button-fill test (hover reached, then lost, most likely
       when the after-LCP font swap reflows the hero under a still pointer; `fonts.ready` resolves before that swap),
       on "CLS <= 0.01 while scrolling" (footer 56 -> 124 px tall at the page end, `.vn-contact-l1` 716 -> 764 px wide,
       #numeros 685 -> 713 px as it enters; late font swaps and Windows-measured `--ci` seeds are suspects; treat as a
