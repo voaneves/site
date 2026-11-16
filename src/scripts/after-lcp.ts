@@ -1,3 +1,5 @@
+import { onEngage } from './lazy';
+
 // Work that is useful but must not compete with first paint / LCP: the web fonts (swapped in over
 // metric-matched fallbacks, see site.css) and the web app manifest (whose icon fetch otherwise lands
 // inside the LCP window). It starts once the page has loaded and the last LCP candidate is a beat old.
@@ -16,12 +18,14 @@ function run(): void {
   // first paint (head script in Base.astro) instead of flashing the fallbacks again. rAF first, so
   // the style recalc has queued the font loads before we wait on `ready`; only flag real success.
   requestAnimationFrame(() => {
-    // Fetch every face now, not when its text first renders: the deferred sections (content-visibility) and the
-    // italic display file would otherwise download as the reader scrolls to them, and the swap reflows text in
-    // view (the oversized contact title shifted by ~49 px on a slow connection, a real CLS). Marks the swap done.
-    const faces = ['400 1em Fraunces', 'italic 800 1em Fraunces', '400 1em "Schibsted Grotesk"', '400 1em "JetBrains Mono"'];
-    const all = Promise.allSettled(faces.map((f) => document.fonts?.load(f)));
-    void all.then(() => { document.documentElement.dataset.fontsReady = ''; });
+    // Fetch every face on the first interaction (or ~9 s of reading), not when its text first renders: the deferred
+    // sections (content-visibility) and the italic display file would otherwise download as the reader scrolls to
+    // them, and the swap reflows text in view (the oversized contact title shifted by ~49 px, a real CLS). Not at
+    // load: the extra faces' style recalc and layout would land inside an idle load window. Marks the swap done.
+    onEngage(() => {
+      const faces = ['400 1em Fraunces', 'italic 800 1em Fraunces', '400 1em "Schibsted Grotesk"', '400 1em "JetBrains Mono"'];
+      void Promise.allSettled(faces.map((f) => document.fonts?.load(f))).then(() => { document.documentElement.dataset.fontsReady = ''; });
+    });
     return document.fonts?.ready.then((set) => {
       const loaded = [...set].some((f) => f.status === 'loaded');
       const failed = [...set].some((f) => f.status === 'error');

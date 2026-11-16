@@ -1,4 +1,5 @@
 import { inflateSync } from 'node:zlib';
+import { engage } from './lib/site';
 import { test, expect, type Page } from '@playwright/test';
 
 // N animation frames: scroll-driven styles are current after a frame, no wall-clock sleep.
@@ -10,6 +11,7 @@ type Kind = 'entry' | 'exit';
 
 async function ready(page: Page, want = 'tl') {
   await page.goto('/');
+  await engage(page);
   await expect.poll(() => page.evaluate(() => document.documentElement.dataset.scrollFx)).toBe(want);
 }
 

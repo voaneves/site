@@ -6,7 +6,7 @@ import { init as nav } from './nav';
 import { init as marquee } from './marquee';
 import { init as hero } from './hero';
 import { init as afterLcp } from './after-lcp';
-import { onIdle, onFirstPointer, motionOK } from './lazy';
+import { onIdle, onEngage, onFirstPointer, motionOK } from './lazy';
 
 theme();
 drawer();
@@ -19,8 +19,11 @@ afterLcp();
 
 // --- module registrations ---
 {
-  // A5: interaction-only CSS (hover colours, case rows, nav hover, thumbnail zoom), one lazy sheet for everyone.
-  onIdle(() => void import('./late').then((m) => m.init()));
+  // A5: interaction-only CSS (hover colours, case rows, nav hover, thumbnail zoom, rail, footer wordmark and clock), one lazy
+  // sheet for everyone. Adopted on the first interaction (or ~9 s of reading): adopting it restyles the whole document, which
+  // an idle, non-interacting load (Lighthouse) must not pay for. The chunk is only fetched on idle so the first move is instant.
+  const late = new Promise<typeof import('./late')>((res) => onIdle(() => void import('./late').then(res)));
+  onEngage(() => void late.then((m) => m.init()));
   // faq: the details open/close transition (no inline CSS cost) is adopted once #perguntas is within one viewport
   onIdle(() => {
     const sec = document.getElementById('perguntas');
@@ -69,8 +72,12 @@ afterLcp();
       void import('./count').then((m) => m.init(sec));
     }, { rootMargin: '100% 0px' }).observe(sec);
   });
-  // U7: scroll choreography (CSS scroll timelines + word split), on idle, all pointers, never under reduced motion.
-  onIdle(() => matchMedia('(prefers-reduced-motion: no-preference)').matches && void import('./scroll-fx').then((m) => m.init()));
+  // U7: scroll choreography (CSS scroll timelines + word split), all pointers, never under reduced motion. Adopted on the
+  // first interaction or scroll (or ~9 s of reading); the chunk is fetched on idle. Nothing in the first viewport needs it.
+  if (matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+    const fx = new Promise<typeof import('./scroll-fx')>((res) => onIdle(() => void import('./scroll-fx').then(res)));
+    onEngage(() => void fx.then((m) => m.init()));
+  }
   // W16: fluid cursor trail, only after the first real pointer move (Lighthouse never pays for it).
   onFirstPointer(() => motionOK() && import('./cursor-trail'));
   // W15: cursor dot + label pill, same trigger.

@@ -1,7 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
+import { engage } from './lib/site';
 
 // U7g: pinned moments. Proof board (Numbers, sticky chart + scroll-tied bars) and Track focus (Journey cards).
-const ready = (page: Page) => expect.poll(() => page.evaluate(() => document.documentElement.dataset.scrollFx)).toBe('tl');
+const ready = async (page: Page) => { await engage(page); await expect.poll(() => page.evaluate(() => document.documentElement.dataset.scrollFx)).toBe('tl'); };
 const scrollTo = (page: Page, y: number) => page.evaluate((v) => scrollTo({ top: v, behavior: 'instant' }), y);
 const raf2 = (page: Page) => page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
 const pos = (page: Page) => page.locator('.vn-chart-panel').evaluate((el) => getComputedStyle(el).position);
@@ -180,6 +181,7 @@ test.describe('moments, timeline fallback', () => {
     });
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
+    await engage(page);
     await expect.poll(() => page.evaluate(() => document.documentElement.dataset.scrollFx)).toBe('base');
     const r = await page.evaluate(() => ({
       sticky: getComputedStyle(document.querySelector('.vn-chart-panel')!).position,

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { engage } from './lib/site';
 
 test.describe('chrome fx', () => {
   test('easing and hover tokens: Era values, brand 1ms under reduced motion', async ({ page }) => {
@@ -18,6 +19,9 @@ test.describe('chrome fx', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' }); // it must load under reduced motion too
     await page.setViewportSize({ width: 1366, height: 800 });
     await page.goto('/');
+    await expect.poll(() => hits.length).toBe(1); // chunk fetched on idle
+    expect(await page.evaluate(() => 'late' in document.documentElement.dataset)).toBe(false); // not applied yet
+    await engage(page);
     await page.waitForFunction(() => 'late' in document.documentElement.dataset);
     expect(hits.length).toBe(1);
     const inline = await page.evaluate(() => [...document.querySelectorAll('style')].map((s) => s.textContent).join(''));
@@ -84,6 +88,7 @@ test.describe('chrome fx', () => {
   test('outline buttons fill from the edge on hover and on keyboard focus', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
+    await engage(page);
     await page.waitForFunction(() => 'late' in document.documentElement.dataset);
     const btn = page.locator('.vn-hero-btn-ghost');
     const fill = () => btn.evaluate((e) => new DOMMatrix(getComputedStyle(e, '::before').transform).a);
@@ -123,6 +128,7 @@ test.describe('chrome fx', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.setViewportSize({ width: 1366, height: 800 });
     await page.goto('/');
+    await engage(page);
     await page.waitForFunction(() => 'late' in document.documentElement.dataset);
     const btn = page.locator('.vn-hero-btn-ghost');
     expect(await btn.evaluate((e) => getComputedStyle(e, '::before').content)).toBe('none');

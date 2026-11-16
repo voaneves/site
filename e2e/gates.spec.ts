@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { engage } from './lib/site';
 
 const ROUTES = ['/', '/en/', '/projetos/caato/'];
 
@@ -202,6 +203,7 @@ for (const route of ROUTES) {
       await settle(page);
       // fonts.ready resolves before the after-LCP font swap; scroll only once every face is loaded and applied
       // (after-lcp.ts flags it), so the measurement is of scrolling, not of a swap racing a slow runner.
+      await engage(page);
       await page.waitForFunction(() => 'fontsReady' in document.documentElement.dataset);
       await scrollSteps(page, 10);
       await page.evaluate(

@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
+import { engage } from './lib/site';
 
-const late = (page: Page) => page.waitForFunction(() => 'late' in document.documentElement.dataset);
+const late = async (page: Page) => { await engage(page); await page.waitForFunction(() => 'late' in document.documentElement.dataset); };
 const pct = (page: Page) => page.evaluate(() => Number(getComputedStyle(document.querySelector('.vn-rail__n')!).getPropertyValue('--vn-p')));
 const to = (page: Page, f: number) =>
   page.evaluate(async (q) => {

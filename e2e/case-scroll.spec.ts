@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { engage } from './lib/site';
 
 test.use({ reducedMotion: 'no-preference' });
 
@@ -6,6 +7,7 @@ const CASE = '/projetos/caato/';
 const raf2 = (p: Page) => p.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
 const ready = async (p: Page, url = CASE) => {
   await p.goto(url);
+  await engage(p);
   await expect.poll(() => p.evaluate(() => document.documentElement.dataset.scrollFx)).toBeTruthy();
   return (await p.evaluate(() => document.documentElement.dataset.scrollFx)) === 'tl';
 };

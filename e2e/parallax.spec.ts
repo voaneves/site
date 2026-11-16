@@ -1,10 +1,12 @@
 import { test, expect, type Page } from '@playwright/test';
+import { engage } from './lib/site';
 
 test.use({ reducedMotion: 'no-preference' });
 
 const tl = (p: Page) => p.evaluate(() => document.documentElement.dataset.scrollFx);
 const ready = async (p: Page) => {
   await p.goto('/');
+  await engage(p);
   await expect.poll(() => tl(p)).toBeTruthy();
   return (await tl(p)) === 'tl';
 };
@@ -69,6 +71,7 @@ test('TL unsupported: base fallback leaves images untransformed', async ({ page 
     CSS.supports = ((a: string, b?: string) => (/animation-timeline/.test(a) ? false : b === undefined ? o(a) : o(a, b))) as typeof CSS.supports;
   });
   await page.goto('/');
+  await engage(page);
   await expect.poll(() => tl(page)).toBe('base');
   await page.evaluate(() => scrollTo({ top: innerHeight, behavior: 'instant' }));
   await raf2(page);

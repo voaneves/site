@@ -84,3 +84,11 @@ export async function scrollThrough(page: Page): Promise<void> {
     await wait(40);
   });
 }
+
+/**
+ * The first real interaction. Interaction-only work (the late sheet, scroll motion, the extra font faces) loads on the
+ * first pointer, wheel, touch, key or scroll event (lazy.ts onEngage). A Shift key press is the most inert one.
+ */
+export async function engage(page: Page): Promise<void> {
+  await page.keyboard.press('Shift');
+}

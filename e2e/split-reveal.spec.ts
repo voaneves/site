@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { engage } from './lib/site';
 
 // U7e: fx/text.css. Paragraph word rise, eyebrow clip wipe, rules that draw in.
 test.use({ reducedMotion: 'no-preference' });
@@ -6,6 +7,7 @@ test.use({ reducedMotion: 'no-preference' });
 async function ready(page: Page) {
   await page.setViewportSize({ width: 1366, height: 900 });
   await page.goto('/');
+  await engage(page);
   await page.waitForFunction(() => document.documentElement.dataset.scrollFx !== undefined);
 }
 
@@ -93,6 +95,7 @@ test('without timelines the real borders stay; reduced motion hides nothing', as
     CSS.supports = ((q: string, v?: string) => (String(q).includes('animation-timeline') ? false : v === undefined ? s(q) : s(q, v))) as typeof CSS.supports;
   });
   await p1.goto('/');
+  await engage(p1);
   await p1.waitForFunction(() => document.documentElement.dataset.scrollFx === 'base');
   const c = await p1.locator('.vn-faq-item').first().evaluate((e) => getComputedStyle(e).borderBottomColor);
   expect(c).not.toBe('rgba(0, 0, 0, 0)');
@@ -145,6 +148,7 @@ test.describe('About statement stage', () => {
   test('words ink in order with scroll and end at full ink', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
+    await engage(page);
     await expect.poll(() => page.evaluate(() => document.documentElement.dataset.scrollFx)).toBe('tl');
     await cover(page, 0.08);
     expect(await veil(page, 'first')).toBeGreaterThan(0.8);

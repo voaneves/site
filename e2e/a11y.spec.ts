@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { engage } from './lib/site';
 import AxeBuilder from '@axe-core/playwright';
 
 const ROUTES = [
@@ -23,6 +24,7 @@ for (const route of ROUTES) {
       await page.setViewportSize(vp);
       await page.goto(route);
       // scroll-fx adopts its sheet on idle and its line reveals start transitions then; audit after that (404/privacy included: they load it too).
+      await engage(page);
       await page.waitForFunction(() => !!document.documentElement.dataset.scrollFx, null, { timeout: 5000 }).catch(() => {});
       await page.evaluate(async (mode) => {
         document.documentElement.dataset.theme = mode;

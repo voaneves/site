@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
+import { engage } from './lib/site';
 
-const late = (page: Page) => page.waitForFunction(() => 'late' in document.documentElement.dataset);
+const late = async (page: Page) => { await engage(page); await page.waitForFunction(() => 'late' in document.documentElement.dataset); };
 const bottom = (page: Page) =>
   page.evaluate(async () => {
     for (let i = 0; i < 3; i++) {

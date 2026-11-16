@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { engage } from './lib/site';
 
 // U7f: paragraph line reveal (data-enter=lines), Journey mask heading, S/M/L ladder, Proof-board sticky panel.
 test.use({ reducedMotion: 'no-preference' });
@@ -6,6 +7,7 @@ test.use({ reducedMotion: 'no-preference' });
 async function ready(page: Page) {
   await page.setViewportSize({ width: 1366, height: 900 });
   await page.goto('/');
+  await engage(page);
   await page.waitForFunction(() => document.documentElement.dataset.scrollFx !== undefined);
 }
 
@@ -119,6 +121,7 @@ for (const width of [320, 390, 1440]) {
 
       await page.setViewportSize({ width, height: 900 });
       await page.goto(path);
+      await engage(page);
       await page.waitForFunction(() => document.documentElement.dataset.scrollFx !== undefined);
       const blocks = page.locator('[data-enter=lines]');
       await expect(blocks).toHaveCount(server.length);
