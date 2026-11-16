@@ -184,6 +184,11 @@ for (const route of ROUTES) {
         w.__cls = 0;
         // Attribution, so a failure on CI says which element moved, when, and whether the late fonts had landed.
         const log: string[] = ((window as unknown as { __clsLog: string[] }).__clsLog = []);
+        // DIAG: section heights every 50 ms, so a shift can be attributed to the section whose height changed.
+        const snap = () => [...document.querySelectorAll('main > section, main > article, footer, main')].map((s) => `${(s as HTMLElement).id || s.tagName}:${Math.round(s.getBoundingClientRect().height)}`).join(',') + ` sh:${document.documentElement.scrollHeight} y:${Math.round(scrollY)} jpin:${document.documentElement.classList.contains('vn-jpin')}`;
+        let prev = '';
+        setInterval(() => { prev = snap(); }, 50);
+        (window as unknown as { __snapPrev: () => string }).__snapPrev = () => prev;
         type Src = { node: Node | null; previousRect: DOMRectReadOnly; currentRect: DOMRectReadOnly };
         new PerformanceObserver((list) => {
           for (const e of list.getEntries() as unknown as { value: number; hadRecentInput: boolean; startTime: number; sources: Src[] }[]) {
@@ -195,7 +200,7 @@ for (const route of ROUTES) {
               const r = (q: DOMRectReadOnly) => `${Math.round(q.x)},${Math.round(q.y)} ${Math.round(q.width)}x${Math.round(q.height)}`;
               return `${el?.tagName}.${String(el?.className ?? '').slice(0, 30)} in ${where?.id || where?.tagName} ${r(x.previousRect)} -> ${r(x.currentRect)}`;
             });
-            log.push(`${e.value.toFixed(4)} t=${Math.round(e.startTime)} y=${Math.round(scrollY)} fonts=${document.documentElement.classList.contains('vn-fonts')} :: ${src.join(' | ')}`);
+            log.push(`${e.value.toFixed(4)} t=${Math.round(e.startTime)} y=${Math.round(scrollY)} fonts=${document.documentElement.classList.contains('vn-fonts')} :: ${src.join(' | ')} ## BEFORE ${prev} ## AFTER ${snap()}`);
           }
         }).observe({ type: 'layout-shift', buffered: true });
       });
