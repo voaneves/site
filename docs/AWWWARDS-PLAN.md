@@ -135,6 +135,12 @@ Read these once; each spec refers to them by number (R1 to R14).
 - [ ] C1 Preloader on the first home visit of a session: split words slide apart, hairline progress, the curtain
       lifts as an arch. The page under it is painted from the first frame.
 - [ ] C2 Hero opening on non-LCP elements: strip and strap wipe in, grid fades, CTAs rise, chips and badge pop.
+      **Deferred (2026-11-16):** mobile Lighthouse failed TBT (56-87 ms against 50) and LCP on /en/ even after ladder
+      steps (a) and (b); reverted per step (c). Baseline passed 15/15 on the same machine. Retry after D5 only with a
+      variant that animates nothing during the Lighthouse window (attempt files in the session scratchpad:
+      hero.c2.css, hero.c2-variant-b.css, hero.spec.c2.ts). C9, B3 and C1 must not assume C2 shipped.
+- [x] A7 Without JavaScript the hero renders dark-theme text on the light ground (h1 cream on cream, lead faint,
+      chips dark). Found while checking C2 on the live /en/; pre-existing.
 - [ ] C3 Jornada pinned on desktop: vertical scroll carries the career cards sideways behind an oversized ghost
       word that drifts slower. Touch, small screens and browsers without scroll timelines keep the swipe carousel.
 - [ ] C4 Números rises over About as a large arch (replaces the diagonal wedge), with its label set on the curve.
@@ -257,6 +263,8 @@ and 5, about 170 B); (3) drop the two words of the preloader, keeping the hairli
 | A5 | 30753 | 12790 | 4827 | 17450 | late chunk 859 B gz (hover css, case rows, nav hover, thumbnail zoom, impact spotlight, marquee hover pause); home -154 B inline CSS, -155 B html, -343 B first-load; case page caato: html 21450, inlineCss 13198 |
 | C7 | 30785 | 12821 | 4827 | 17450 | Era easing and hover tokens in base.css; home +31 B inline CSS, +32 B html |
 | B1 | 30837 | 12871 | 4866 | 17483 | lamalama line reveal; home +50 B inline CSS, +52 B html, +39 B first-load (reveal.ts), +33 B lazy total (scroll-fx) |
+| C2 | 30837 | 12871 | 4866 | 17483 | REVERTED, no code change: full spec added +223 B inline CSS (html 31060, inlineCss 13090) but mobile Lighthouse failed on / and /en/ (TBT 52-87 ms vs cap 50, /en/ LCP 1217-1468 ms) while the baseline passed 15/15; ladder (a) 50ms/.6s and (b) without strap and CTAs still failed; (c) revert. Desktop passed with the full spec (SI ~387 ms, TBT 0) |
+| A7 | 30946 | 12979 | 4866 | 17483 | No-JS theme: ground presets default to light and follow the OS through a dark media block; home +108 B inline CSS, +109 B html (before: html 30837, inlineCss 12871); en html 30386; case page caato: html 21648, inlineCss 13398 (before 21537 / 13283) |
 
 ## Brand deviations
 

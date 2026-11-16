@@ -5,18 +5,24 @@
     --vn-surface-soft: var(--vn-ref-cream-300);
     --vn-surface-raised: #fff;
   }
+  /* Without JS there is no data-theme: light is the default and the OS scheme (media block below) picks dark. */
+  :root:not([data-theme]) {
+    --vn-surface: light-dark(var(--vn-ref-paper), var(--vn-ink));
+    --vn-surface-soft: light-dark(var(--vn-ref-cream-300), var(--vn-ref-ink-925));
+    --vn-surface-raised: light-dark(#fff, var(--vn-ink-soft));
+  }
 
   /* Ground presets: private --g-* vars plus color-scheme, so brand light-dark() tokens resolve per ground. */
-  :root[data-theme="light"] :is(#inicio, #expertise, #projetos, #perguntas) {
+  :root:not([data-theme="dark"]) :is(#inicio, #expertise, #projetos, #perguntas) {
     --g-bg: var(--vn-ref-paper); --g-fg: var(--vn-ref-ink-950); --g-muted: var(--vn-ref-sand-800);
     --g-line: rgba(10, 10, 10, 0.12); --g-red: var(--vn-ref-red-800); color-scheme: light;
   }
-  :root[data-theme="light"] :is(#quem-sou, #jornada, #servicos, .vn-site-footer) {
+  :root:not([data-theme="dark"]) :is(#quem-sou, #jornada, #servicos, .vn-site-footer) {
     --g-bg: var(--vn-ref-cream-300); --g-fg: var(--vn-ref-ink-950); --g-muted: var(--vn-ref-sand-800);
     --g-line: rgba(10, 10, 10, 0.12); --g-red: var(--vn-ref-red-800); color-scheme: light;
   }
   :root[data-theme="dark"] :is(#inicio, #expertise, #perguntas),
-  :root[data-theme="light"] #numeros {
+  :root:not([data-theme="dark"]) #numeros {
     --g-bg: var(--vn-ref-ink-950); --g-fg: var(--vn-ref-cream-300); --g-muted: var(--vn-ref-sand-500);
     --g-line: rgba(232, 222, 197, 0.14); --g-red: var(--vn-ref-red-450); color-scheme: dark;
   }
@@ -46,7 +52,7 @@
   }
 
   /* Chapter wedges: the corner triangle of each chapter is the ground of the section above it (--w-*), per theme. */
-  :root[data-theme="light"] {
+  :root:not([data-theme="dark"]) {
     --w-hero: var(--vn-ref-paper); --w-about: var(--vn-ref-cream-300); --w-numbers: var(--vn-ref-ink-950); --w-services: var(--vn-ref-cream-300);
   }
   :root[data-theme="dark"] {
@@ -62,7 +68,7 @@
     color: var(--hero-fg);
     --vn-signal-ink: var(--hero-accent);
   }
-  :root[data-theme="light"] #inicio {
+  :root:not([data-theme="dark"]) #inicio {
     --hero-fg: var(--vn-ref-ink-950);
     --hero-sub: var(--vn-ref-sand-800);
     --hero-muted: var(--vn-ref-sand-800);
@@ -76,5 +82,42 @@
     --hero-mat: #fff;
     --hero-frame-shadow: 0 30px 60px -20px rgba(10, 10, 10, 0.28);
     --hero-img-filter: grayscale(1) sepia(0.12) contrast(1.02);
+  }
+
+  /* No JS and a dark OS: the dark theme, as the JS-on page renders it. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) :is(#inicio, #expertise, #perguntas) {
+      --g-bg: var(--vn-ref-ink-950); --g-fg: var(--vn-ref-cream-300); --g-muted: var(--vn-ref-sand-500);
+      --g-line: rgba(232, 222, 197, 0.14); --g-red: var(--vn-ref-red-450); color-scheme: dark;
+    }
+    :root:not([data-theme]) :is(#quem-sou, #jornada, #servicos, .vn-site-footer) {
+      --g-bg: var(--vn-ref-ink-1000); --g-fg: var(--vn-ref-cream-300); --g-muted: var(--vn-ref-sand-500);
+      --g-line: rgba(232, 222, 197, 0.14); --g-red: var(--vn-ref-red-450); color-scheme: dark;
+    }
+    :root:not([data-theme]) :is(#numeros, #projetos) {
+      --g-bg: var(--vn-ref-ink-900); --g-fg: var(--vn-ref-cream-300); --g-muted: var(--vn-ref-sand-500);
+      --g-line: rgba(232, 222, 197, 0.14); --g-red: var(--vn-ref-red-450); color-scheme: dark;
+    }
+    :root:not([data-theme]) #numeros {
+      background-image: radial-gradient(60% 80% at 50% 0%, rgb(255 56 56 / 0.16), transparent 70%);
+    }
+    :root:not([data-theme]) {
+      --w-hero: var(--vn-ref-ink-950); --w-about: var(--vn-ref-ink-1000); --w-numbers: var(--vn-ref-ink-900); --w-services: var(--vn-ref-ink-1000);
+    }
+    :root:not([data-theme]) #inicio {
+      --hero-fg: var(--vn-cream);
+      --hero-sub: var(--vn-ref-cream-300);
+      --hero-muted: var(--vn-ref-sand-500);
+      --hero-line: var(--vn-line-on-dark);
+      --hero-edge: rgba(244, 234, 212, 0.22);
+      --hero-grid: rgba(244, 234, 212, 0.04);
+      --hero-pill: var(--vn-ref-ink-900);
+      --hero-panel: rgba(20, 20, 20, 0.92);
+      --hero-accent: var(--vn-ref-red-400);
+      --hero-btn-fg: var(--vn-cream);
+      --hero-mat: var(--vn-ref-ink-900);
+      --hero-frame-shadow: 0 32px 72px rgba(0, 0, 0, 0.65);
+      --hero-img-filter: grayscale(1) contrast(1.08);
+    }
   }
 }

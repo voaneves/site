@@ -53,3 +53,67 @@ test.describe('theme reveal', () => {
     });
   });
 });
+
+// Without JavaScript there is no data-theme: the hero follows the OS colour scheme and stays readable.
+test.describe('hero colours without JavaScript', () => {
+  type Rgba = [number, number, number, number];
+  const probe = () => {
+    const parse = (s: string): Rgba => {
+      const m = s.match(/[\d.]+/g)!.map(Number);
+      return [m[0], m[1], m[2], m.length > 3 ? m[3] : 1];
+    };
+    const lum = (c: Rgba) => {
+      const f = (v: number) => {
+        const x = v / 255;
+        return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+      };
+      return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]);
+    };
+    const ratio = (el: Element) => {
+      const fg = parse(getComputedStyle(el).color);
+      const layers: Rgba[] = [];
+      for (let n: Element | null = el; n; n = n.parentElement) {
+        const c = parse(getComputedStyle(n).backgroundColor);
+        if (c[3] > 0) layers.push(c);
+        if (c[3] === 1) break;
+      }
+      let base: Rgba = layers.length && layers[layers.length - 1][3] === 1 ? layers.pop()! : [255, 255, 255, 1];
+      while (layers.length) {
+        const t = layers.pop()!;
+        base = [0, 1, 2].map((i) => t[i] * t[3] + base[i] * (1 - t[3])).concat(1) as Rgba;
+      }
+      const [a, b] = [lum([fg[0], fg[1], fg[2], 1]), lum(base)];
+      return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+    };
+    const q = (s: string) => [...document.querySelectorAll(s)];
+    return {
+      h1: getComputedStyle(document.querySelector('h1.vn-hero__title')!).color,
+      parts: [
+        ['h1', ratio(document.querySelector('h1.vn-hero__title')!)],
+        ['lead', ratio(document.querySelector('.vn-hero__sub')!)],
+        ...q('.vn-hero-chip').map((e, i) => [`chip ${i}`, ratio(e)]),
+      ] as [string, number][],
+    };
+  };
+
+  for (const route of ['/', '/en/']) {
+    for (const scheme of ['light', 'dark'] as const) {
+      test(`${route} ${scheme}: contrast >= 4.5 and the h1 matches the JS-on page`, async ({ browser }) => {
+        const base = test.info().project.use.baseURL;
+        const run = async (javaScriptEnabled: boolean) => {
+          const ctx = await browser.newContext({ javaScriptEnabled, colorScheme: scheme, baseURL: base });
+          const page = await ctx.newPage();
+          await page.goto(route);
+          const r = await page.evaluate(probe);
+          await ctx.close();
+          return r;
+        };
+        const plain = await run(false);
+        const withJs = await run(true);
+        expect(plain.parts.length).toBeGreaterThan(2);
+        for (const [name, ratio] of plain.parts) expect(ratio, `${name} contrast`).toBeGreaterThanOrEqual(4.5);
+        expect(plain.h1).toBe(withJs.h1);
+      });
+    }
+  }
+});
