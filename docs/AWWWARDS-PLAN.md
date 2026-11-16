@@ -141,7 +141,7 @@ Read these once; each spec refers to them by number (R1 to R14).
 - [ ] C5 Scroll rail on the left edge with a live percentage and a scroll cue (desktop); the top bar stays on small
       screens and as the fallback.
 - [ ] C6 About manifesto as a tall centred statement that inks in word by word with scroll; small caption below.
-- [ ] C7 Era's easings and hover duration as site-wide token overrides. (Image parallax in clipped frames and drawn
+- [x] C7 Era's easings and hover duration as site-wide token overrides. (Image parallax in clipped frames and drawn
       hairlines already shipped in WOW-PLAN U7: `fx/parallax.css`, `fx/text.css`.)
 - [ ] C8 Edge-fill hover on outline buttons (0.8 s in-out, text colour flips). (The nav text roll already shipped.)
 - [ ] C9 Hero badge rotation tied to scroll, on top of its slow spin.
@@ -255,6 +255,7 @@ and 5, about 170 B); (3) drop the two words of the preloader, keeping the hairli
 | baseline | 31240 | 13307 | 5170 | 16616 | measured by A6 before its change; case page caato: html 21468, inlineCss 13307 |
 | A6 | 30908 | 12944 | 5170 | 16616 | case.css only on case pages; case page caato: html 21610, inlineCss 13357; home -363 B inline CSS, -332 B html |
 | A5 | 30753 | 12790 | 4827 | 17450 | late chunk 859 B gz (hover css, case rows, nav hover, thumbnail zoom, impact spotlight, marquee hover pause); home -154 B inline CSS, -155 B html, -343 B first-load; case page caato: html 21450, inlineCss 13198 |
+| C7 | 30785 | 12821 | 4827 | 17450 | Era easing and hover tokens in base.css; home +31 B inline CSS, +32 B html |
 
 ## Brand deviations
 

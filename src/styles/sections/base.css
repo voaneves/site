@@ -4,6 +4,16 @@
   :root[data-theme="light"] { color-scheme: light; }
   :root[data-theme="dark"] { color-scheme: dark; }
 
+  /* Era's curves and hover time, site-wide. Only under no-preference: the brand sets the durations to 1ms
+     under reduced motion and that must keep winning. */
+  @media (prefers-reduced-motion: no-preference) {
+    :root {
+      --vn-ease-out: cubic-bezier(.25, 1, .5, 1);
+      --vn-ease-in-out: cubic-bezier(.76, 0, .24, 1);
+      --vn-dur-hover: .4s;
+    }
+  }
+
   html,
   body {
     overflow-x: clip;

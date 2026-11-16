@@ -1,6 +1,17 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('chrome fx', () => {
+  test('easing and hover tokens: Era values, brand 1ms under reduced motion', async ({ page }) => {
+    await page.setViewportSize({ width: 1366, height: 800 });
+    await page.goto('/');
+    const v = (n: string) => page.evaluate((k) => getComputedStyle(document.documentElement).getPropertyValue(k).replace(/\s+/g, ''), n);
+    expect(await v('--vn-ease-out')).toBe('cubic-bezier(.25,1,.5,1)');
+    expect(await v('--vn-ease-in-out')).toBe('cubic-bezier(.76,0,.24,1)');
+    expect(await page.locator('.vn-navbar__link').first().evaluate((e) => getComputedStyle(e, '::after').transitionDuration)).toBe('0.4s');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    expect(await v('--vn-dur-hover')).toBe('1ms');
+  });
+
   test('late sheet: lazy for everyone, carries the hover rules, none of them inline', async ({ page }) => {
     const hits: string[] = [];
     page.on('request', (r) => /\/_astro\/late\./.test(r.url()) && hits.push(r.url()));
