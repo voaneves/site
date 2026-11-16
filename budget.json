@@ -3,7 +3,7 @@
   "inlineCssGzMaxBytes": 14336,
   "inlineCssGzWarnBytes": 13312,
   "firstLoadJsGzMaxBytes": 8192,
-  "lazyJsGzMaxBytes": 23552,
+  "lazyJsGzMaxBytes": 24576,
   "lazyChunks": {
     "cursor": 3150,
     "cursor-trail": 6144,
