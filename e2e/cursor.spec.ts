@@ -304,3 +304,104 @@ test.describe('cursor: never hides the native cursor, no CSP violations', () => 
     expect(res.cssApplied).toBe('fixed');
   });
 });
+
+test.describe('cursor: label pill stays inside the viewport', () => {
+  const inside = (page: Page) =>
+    page.evaluate(() => {
+      const r = document.querySelector('.vn-cursor__pill')!.getBoundingClientRect();
+      return { l: r.left, t: r.top, r: r.right, b: r.bottom, w: document.documentElement.clientWidth, h: innerHeight, below: document.querySelector('.vn-cursor__pill')!.hasAttribute('data-b') };
+    });
+
+  test('hovering the header "Conversar" at 1440x900 keeps the pill on screen, below the pointer', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    await wake(page);
+    const cta = page.locator('.vn-navbar__cta');
+    await hoverCentre(page, cta);
+    await expect(cursor(page)).toHaveAttribute('data-state', 'label');
+    await expect(page.locator('.vn-cursor__pill span')).toHaveText(/CONVERSAR|TALK/);
+    await page.waitForTimeout(900); // lag and decode done
+    const b = (await cta.boundingBox())!;
+    const r = await inside(page);
+    expect(r.t).toBeGreaterThanOrEqual(0);
+    expect(r.l).toBeGreaterThanOrEqual(0);
+    expect(r.r).toBeLessThanOrEqual(r.w);
+    expect(r.below).toBe(true);
+    expect(r.t).toBeGreaterThan(b.y + b.height / 2); // under the pointer, not above it
+  });
+
+  for (const [name, x, y] of [
+    ['top', 700, 4],
+    ['left', 4, 450],
+    ['right', 1436, 450],
+    ['bottom', 700, 896],
+    ['top-left', 4, 4],
+    ['bottom-right', 1436, 896],
+  ] as const) {
+    test(`near the ${name} edge the pill is fully inside the viewport`, async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto('/');
+      await page.waitForLoadState('networkidle');
+      await wake(page, 700, 450);
+      await page.evaluate(() => {
+        const a = document.createElement('a');
+        a.href = '#x';
+        a.setAttribute('data-cursor-label', 'ESTE ROTULO E LONGO');
+        a.style.cssText = 'position:fixed;inset:0;z-index:9000;background:transparent';
+        document.body.append(a);
+      });
+      await page.mouse.move(x === 4 ? 40 : x - 40, y === 4 ? 40 : y - 40);
+      await page.mouse.move(x, y, { steps: 3 });
+      await expect(cursor(page)).toHaveAttribute('data-state', 'label');
+      await page.waitForTimeout(900);
+      const r = await inside(page);
+      expect(r.t, 'top').toBeGreaterThanOrEqual(0);
+      expect(r.l, 'left').toBeGreaterThanOrEqual(0);
+      expect(r.r, 'right').toBeLessThanOrEqual(r.w);
+      expect(r.b, 'bottom').toBeLessThanOrEqual(r.h);
+    });
+  }
+});
+
+test.describe('cursor: labels never rest on noise', () => {
+  test('moving fast between labelled targets resolves every label to its text within 600 ms', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    await wake(page);
+    await page.evaluate(() => {
+      for (const [i, t] of ['SINAL', 'PROJETOS', 'CONVERSAR'].entries()) {
+        const a = document.createElement('a');
+        a.href = '#x';
+        a.className = 'vn-test-label';
+        a.setAttribute('data-cursor-label', t);
+        a.textContent = t;
+        a.style.cssText = `position:fixed;left:${100 + i * 220}px;top:500px;width:200px;height:60px;z-index:9000;background:#ccc`;
+        document.body.append(a);
+      }
+    });
+    const boxes = await page.locator('.vn-test-label').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().x + 100));
+    for (let k = 0; k < 3; k++) for (const x of boxes) await page.mouse.move(x, 530, { steps: 2 });
+    const last = await page.locator('.vn-test-label').last().getAttribute('data-cursor-label');
+    await expect(page.locator('.vn-cursor__pill span')).toHaveText(last!, { timeout: 600 });
+  });
+
+  test('the eyebrow scramble resolves under 600 ms and restores the exact text', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    await page.mouse.move(500, 300);
+    const eyebrow = page.locator('[data-fx=scramble]').first();
+    await eyebrow.scrollIntoViewIfNeeded();
+    const want = await eyebrow.textContent();
+    await expect.poll(async () => {
+      const b = (await eyebrow.boundingBox())!;
+      await page.mouse.move(b.x + 2, b.y + 2);
+      await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
+      return true;
+    }).toBe(true);
+    await page.waitForTimeout(600);
+    expect(await eyebrow.textContent()).toBe(want);
+  });
+});

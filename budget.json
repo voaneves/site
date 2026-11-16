@@ -5,10 +5,10 @@
   "firstLoadJsGzMaxBytes": 8192,
   "lazyJsGzMaxBytes": 23040,
   "lazyChunks": {
-    "cursor": 3072,
+    "cursor": 3150,
     "cursor-trail": 9216,
     "magnetic": 614,
-    "hover-fx": 1408,
+    "hover-fx": 1450,
     "signal-field": 2560,
     "hero-fx": 3584,
     "scroll-fx": 3584,

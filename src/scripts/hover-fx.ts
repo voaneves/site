@@ -73,7 +73,8 @@ document.addEventListener('pointerover', (e) => {
   const w0 = el.style.width;
   el.style.width = el.getBoundingClientRect().width + 'px';
   const t0 = performance.now();
-  const D = 800;
+  const D = 450; // resolves well under 600ms
+  let end = 0;
   const tick = (now: number) => {
     const p = dead ? 1 : Math.min(1, (now - t0) / D);
     nodes.forEach((n, i) => {
@@ -82,6 +83,7 @@ document.addEventListener('pointerover', (e) => {
       n.data = s.slice(0, k) + s.slice(k).replace(/\S/g, () => G[(Math.random() * G.length) | 0]);
     });
     if (p < 1) return void requestAnimationFrame(tick);
+    clearTimeout(end);
     nodes.forEach((n, i) => (n.data = orig[i]));
     el.style.width = w0;
     if (label == null) el.removeAttribute('aria-label');
@@ -89,6 +91,7 @@ document.addEventListener('pointerover', (e) => {
     busy.delete(el);
   };
   requestAnimationFrame(tick);
+  end = window.setTimeout(() => tick(t0 + D), D + 150); // frames stop in a background tab: never leave noise behind
 }, opt);
 
 // Runtime reduced-motion / coarse pointer: leave nothing behind (sheet, listeners, tilt vars; a running scramble restores on its next frame).
