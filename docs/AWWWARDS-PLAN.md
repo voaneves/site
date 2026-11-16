@@ -125,7 +125,8 @@ Read these once; each spec refers to them by number (R1 to R14).
       on "CLS <= 0.01 while scrolling" (footer 56 -> 124 px tall at the page end, `.vn-contact-l1` 716 -> 764 px wide,
       #numeros 685 -> 713 px as it enters; late font swaps and Windows-measured `--ci` seeds are suspects; treat as a
       real shift), and a flaky choreography check at 1366 (award cards not settled in time on the 2-core runner).
-- [ ] A10 Owner-reported, from the live site (2026-11-16 screenshots):
+- [x] A10 Owner-reported, from the live site (2026-11-16 screenshots) (`e287cb8`, `4b4355a`, `626402a`; watch the
+      timing-based "eyebrow scramble resolves under 600 ms" test on CI):
       (1) Hero to About: while the hero sinks, its lower content (CTA row, portrait hint) is sliced by a hard
       horizontal edge at the hero box's bottom, with an empty cream band before the About wedge; the hand-off must
       never cut content mid-element.
@@ -143,7 +144,7 @@ Read these once; each spec refers to them by number (R1 to R14).
 
 - [x] B1 Line reveal as theirs: lines rise from 80%, scale .96, fade, masked, expo-out, 0.85 s, base delay 0.15 s,
       per-line stagger `(0.135 + 0.03 N) / (N - 1)` s.
-- [ ] B2a Cursor label pill follows with a 0.45 s expo-out lag (no spring overshoot).
+- [x] B2a Cursor label pill follows with a 0.45 s expo-out lag (no spring overshoot).
 - [ ] B2b Fluid trail distorts the images it passes over (project thumbnails, case hero), reusing the solver's
       velocity field. The ink trail remains everywhere else and as the fallback.
 - [ ] B3 Page transition: 0.65 s cover, 0.25 s hold with a 0 to 100 counter, 0.65 s reveal; the thumbnail still morphs
