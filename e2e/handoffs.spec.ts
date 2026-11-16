@@ -1,6 +1,10 @@
 import { inflateSync } from 'node:zlib';
 import { test, expect, type Page } from '@playwright/test';
 
+// N animation frames: scroll-driven styles are current after a frame, no wall-clock sleep.
+const frames = (page: Page, n = 2) =>
+  page.evaluate((k) => new Promise<void>((res) => { const f = (i: number) => (i ? requestAnimationFrame(() => f(i - 1)) : res()); f(k); }), n);
+
 // U7c: the nine section hand-offs (src/styles/fx/handoff.css). Progress is set by scrolling so the element sits at a known view() position.
 type Kind = 'entry' | 'exit';
 
@@ -24,9 +28,9 @@ async function at(page: Page, sel: string, kind: Kind, p: number, prop: string, 
       [sel, kind, p] as const,
     );
   await place();
-  await page.waitForTimeout(120);
+  await frames(page);
   await place(); // content-visibility sections settle to their real height after the first jump
-  await page.waitForTimeout(120);
+  await frames(page);
   return page.evaluate(
     ([s, pr, ps]) => (getComputedStyle(document.querySelector(s as string)!, (ps as string) || null) as unknown as Record<string, string>)[pr as string],
     [readSel, prop, pseudo ?? ''] as const,
@@ -55,7 +59,7 @@ test.describe('handoffs, timelines', () => {
     await ready(page);
     const y = async (f: number) => {
       await page.evaluate((v) => scrollTo({ top: v, behavior: 'instant' }), f * 900);
-      await page.waitForTimeout(150);
+      await frames(page);
       return page.evaluate(() => [getComputedStyle(document.querySelector('.vn-hero__inner')!).translate, getComputedStyle(document.querySelector('.vn-hero')!, '::after').opacity]);
     };
     const [t0] = await y(0);
@@ -141,7 +145,7 @@ test.describe('handoffs, timelines', () => {
   test('7 Wedge lift + drift: #perguntas wedge scales up', async ({ page }) => {
     await ready(page);
     await at(page, '#perguntas', 'entry', 0.5, 'scale', '::before'); // lazy faq styles load near the viewport
-    await page.waitForTimeout(400);
+    await expect.poll(() => at(page, '#perguntas', 'entry', 0.5, 'scale', '::before')).not.toBe('none'); // the lazy styles have applied
     const a = await at(page, '#perguntas', 'entry', 0.02, 'scale', '::before');
     const b = await at(page, '#perguntas', 'entry', 0.3, 'scale', '::before');
     const last = (v: string) => num(v, v.trim().split(/\s+/).length - 1);
@@ -226,8 +230,7 @@ test.describe('handoffs, wiring', () => {
     const sels = ['.vn-hero__inner', '.vn-arch', '#jornada', '#servicos', '#contato', '.vn-stats-hero-grid', '.vn-site-footer__inner', '#numeros > .vn-container', '#jornada > .vn-container:first-of-type', '#contato > .vn-container'];
     for (const q of sels) {
       await page.evaluate((s) => document.querySelector(s)!.scrollIntoView({ block: 'center' }), q);
-      await page.waitForTimeout(100);
-      expect(await page.evaluate((s) => getComputedStyle(document.querySelector(s)!).animationName, q), q).toMatch(/^u-/);
+      await expect.poll(() => page.evaluate((s) => getComputedStyle(document.querySelector(s)!).animationName, q), { message: q }).toMatch(/^u-/);
     }
     const kinds = await page.evaluate(() => document.getAnimations().map((a) => a.timeline?.constructor.name));
     expect(kinds).toContain('ViewTimeline');
@@ -248,7 +251,8 @@ test.describe('handoffs, no timelines', () => {
     const ctx = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1440, height: 900 } });
     const page = await ctx.newPage();
     await page.goto('/');
-    await page.waitForTimeout(1500);
+    await page.waitForFunction(() => 'late' in document.documentElement.dataset); // idle work has run
+    await frames(page);
     expect(await page.evaluate(() => document.documentElement.dataset.scrollFx ?? null)).toBeNull();
     ident(await probe(page));
     await ctx.close();

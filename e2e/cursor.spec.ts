@@ -4,6 +4,24 @@ import { test, expect, type Page } from '@playwright/test';
 const CHUNK = /\/_astro\/cursor(-trail)?\./;
 const CURSOR = /\/_astro\/cursor\./;
 
+// N animation frames: a frame-based wait for "nothing happens" checks, no wall-clock sleep.
+const frames = (page: Page, n = 20) =>
+  page.evaluate((k) => new Promise<void>((res) => { const f = (i: number) => (i ? requestAnimationFrame(() => f(i - 1)) : res()); f(k); }), n);
+
+/** Resolves once `prop` of the element has not changed for 12 consecutive frames (the spring is at rest). */
+const stable = (page: Page, sel: string, prop: 'translate' | 'rotate' = 'translate') =>
+  page.waitForFunction(
+    ([s, p]) => {
+      const w = window as unknown as { __st?: { v: string; n: number } };
+      const v = (document.querySelector(s as string) as HTMLElement).style[p as 'translate' | 'rotate'];
+      if (!w.__st || w.__st.v !== v) w.__st = { v, n: 0 };
+      else w.__st.n++;
+      return w.__st.n >= 12;
+    },
+    [sel, prop] as const,
+    { polling: 'raf', timeout: 10_000 },
+  );
+
 const cursor = (page: Page) => page.locator('.vn-cursor');
 
 /** The first pointermove only triggers the lazy import; wait for it, then keep moving. */
@@ -73,7 +91,7 @@ test.describe('cursor: gating', () => {
     await page.waitForLoadState('networkidle');
     await page.mouse.move(400, 300);
     await page.mouse.move(420, 320);
-    await page.waitForTimeout(400);
+    await frames(page);
     expect(hits).toEqual([]);
     await expect(cursor(page)).toHaveCount(0);
     await ctx.close();
@@ -88,7 +106,7 @@ test.describe('cursor: gating', () => {
     await page.waitForLoadState('networkidle');
     await page.mouse.move(100, 100);
     await page.mouse.move(120, 120);
-    await page.waitForTimeout(400);
+    await frames(page);
     expect(hits).toEqual([]);
     await expect(cursor(page)).toHaveCount(0);
     await ctx.close();
@@ -105,7 +123,7 @@ test.describe('cursor: gating', () => {
     const motionSheets = await page.evaluate(() =>
       document.adoptedStyleSheets.filter((s) => {
         const css = [...s.cssRules].map((r) => r.cssText).join('');
-        return !css.includes('.vn-navbar__link:hover') && /vn-cursor|animation-timeline|data-fx/.test(css);
+        return !css.includes('--vn-late') && /vn-cursor|animation-timeline|data-fx/.test(css);
       }).length,
     );
     expect(motionSheets).toBe(0);
@@ -159,7 +177,7 @@ test.describe('cursor: state machine', () => {
     });
     await page.mouse.move(310, 400);
     await page.mouse.move(320, 400);
-    await page.waitForTimeout(700); // settle
+    await stable(page, '.vn-cursor__pill'); // settle
     const xs = await page.evaluate(async () => {
       const pill = document.querySelector<HTMLElement>('.vn-cursor__pill')!;
       const out: number[] = [];
@@ -216,7 +234,7 @@ test.describe('cursor: state machine', () => {
     await page.mouse.move(340, 440, { steps: 3 });
     await page.mouse.move(360, 450, { steps: 2 });
     await expect(cursor(page)).toHaveAttribute('data-state', 'link');
-    await page.waitForTimeout(1200);
+    await stable(page, '.vn-cursor i');
     const [x, y] = await page.locator('.vn-cursor i').evaluate((e) => (e as HTMLElement).style.translate.split(' ').map(parseFloat));
     // the dot sits much closer to the magnet centre than the pointer does, but still follows the pointer a little
     expect(Math.hypot(x - 300, y - 430)).toBeLessThan(Math.hypot(360 - 300, 450 - 430) * 0.5);
@@ -306,10 +324,10 @@ test.describe('cursor: state machine', () => {
     await page.goto('/');
     await wake(page);
     await page.mouse.move(800, 500, { steps: 6 });
-    await page.waitForTimeout(1500);
+    await stable(page, '.vn-cursor__pill');
     const read = () => page.evaluate(() => (document.querySelector('.vn-cursor__pill') as HTMLElement).style.translate);
     const a = await read();
-    await page.waitForTimeout(200);
+    await frames(page, 30);
     expect(await read()).toBe(a);
     expect(a).toBe('800px 500px');
     // the spring tilt and the dot stretch are fully released at rest
@@ -356,7 +374,8 @@ test.describe('cursor: label pill stays inside the viewport', () => {
     await hoverCentre(page, cta);
     await expect(cursor(page)).toHaveAttribute('data-state', 'label');
     await expect(page.locator('.vn-cursor__pill span')).toHaveText(/CONVERSAR|TALK/);
-    await page.waitForTimeout(900); // lag and decode done
+    await expect(page.locator('.vn-cursor__pill span')).toHaveText(/^(CONVERSAR|TALK)$/); // decode done
+    await stable(page, '.vn-cursor__pill'); // lag done
     const b = (await cta.boundingBox())!;
     const r = await inside(page);
     expect(r.t).toBeGreaterThanOrEqual(0);
@@ -389,7 +408,8 @@ test.describe('cursor: label pill stays inside the viewport', () => {
       await page.mouse.move(x === 4 ? 40 : x - 40, y === 4 ? 40 : y - 40);
       await page.mouse.move(x, y, { steps: 3 });
       await expect(cursor(page)).toHaveAttribute('data-state', 'label');
-      await page.waitForTimeout(900);
+      await expect(page.locator('.vn-cursor__pill span')).toHaveText('ESTE ROTULO E LONGO'); // decode done
+      await stable(page, '.vn-cursor__pill'); // lag done
       const r = await inside(page);
       expect(r.t, 'top').toBeGreaterThanOrEqual(0);
       expect(r.l, 'left').toBeGreaterThanOrEqual(0);
@@ -417,9 +437,25 @@ test.describe('cursor: labels never rest on noise', () => {
       }
     });
     const boxes = await page.locator('.vn-test-label').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().x + 100));
+    const last = (await page.locator('.vn-test-label').last().getAttribute('data-cursor-label'))!;
+    // Timing is measured in the page (the runner's wall clock flakes on slow machines): from the last pointer
+    // move to the first frame whose label text equals the final label.
+    await page.evaluate((want) => {
+      const w = window as unknown as { __dec: { move: number; done: number | null } };
+      w.__dec = { move: 0, done: null };
+      addEventListener('pointermove', () => { w.__dec.move = performance.now(); w.__dec.done = null; }, { capture: true, passive: true });
+      const span = document.querySelector('.vn-cursor__pill span')!;
+      const f = () => {
+        if (w.__dec.move && w.__dec.done === null && span.textContent === want) w.__dec.done = performance.now();
+        requestAnimationFrame(f);
+      };
+      requestAnimationFrame(f);
+    }, last);
     for (let k = 0; k < 3; k++) for (const x of boxes) await page.mouse.move(x, 530, { steps: 2 });
-    const last = await page.locator('.vn-test-label').last().getAttribute('data-cursor-label');
-    await expect(page.locator('.vn-cursor__pill span')).toHaveText(last!, { timeout: 600 });
+    await expect(page.locator('.vn-cursor__pill span')).toHaveText(last);
+    await page.waitForFunction(() => (window as unknown as { __dec: { done: number | null } }).__dec.done !== null);
+    const dec = await page.evaluate(() => { const d = (window as unknown as { __dec: { move: number; done: number } }).__dec; return d.done - d.move; });
+    expect(dec).toBeLessThanOrEqual(600);
   });
 
   test('the eyebrow scramble resolves under 600 ms and restores the exact text', async ({ page }) => {
@@ -429,14 +465,25 @@ test.describe('cursor: labels never rest on noise', () => {
     await page.mouse.move(500, 300);
     const eyebrow = page.locator('[data-fx=scramble]').first();
     await eyebrow.scrollIntoViewIfNeeded();
-    const want = await eyebrow.textContent();
-    await expect.poll(async () => {
-      const b = (await eyebrow.boundingBox())!;
-      await page.mouse.move(b.x + 2, b.y + 2);
-      await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
-      return true;
-    }).toBe(true);
-    await page.waitForTimeout(600);
+    const want = (await eyebrow.textContent())!;
+    // Observer and clock live in the page: t0 = the pointer entering the eyebrow, t1 = the mutation that
+    // restores the exact text after the noise was seen.
+    await eyebrow.evaluate((el, text) => {
+      const w = window as unknown as { __scr: { t0: number; t1: number; noisy: boolean } };
+      w.__scr = { t0: 0, t1: 0, noisy: false };
+      document.addEventListener('pointerover', (e) => { if (!w.__scr.t0 && el.contains(e.target as Node)) w.__scr.t0 = performance.now(); }, true);
+      new MutationObserver(() => {
+        if (!w.__scr.t0 || w.__scr.t1) return;
+        if (el.textContent !== text) w.__scr.noisy = true;
+        else if (w.__scr.noisy) w.__scr.t1 = performance.now();
+      }).observe(el, { characterData: true, childList: true, subtree: true });
+    }, want);
+    const b = (await eyebrow.boundingBox())!;
+    await page.mouse.move(b.x + 2, b.y + 2);
+    await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
+    await page.waitForFunction(() => (window as unknown as { __scr: { t1: number } }).__scr.t1 > 0);
+    const scr = await page.evaluate(() => (window as unknown as { __scr: { t0: number; t1: number } }).__scr);
+    expect(scr.t1 - scr.t0).toBeLessThanOrEqual(600);
     expect(await eyebrow.textContent()).toBe(want);
   });
 });

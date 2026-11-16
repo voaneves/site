@@ -54,10 +54,19 @@ function notSettled(sel: string) {
       const scrolled = e.getAnimations().some((a) => a.timeline && !(a.timeline instanceof DocumentTimeline));
       if (scrolled) return cs.opacity !== '1';
       // hover-fx.ts (loaded on idle or the first pointer move) gives [data-fx=tilt] cards a permanent resting
-      // `transform: perspective(800px) ...` that owns the hover tilt; it is not an entrance offset, and whether it is
-      // present depends on timing. The entrance itself runs on opacity, translate and scale, which are still checked.
+      // `transform: perspective(800px) rotateX(0) rotateY(0)...` that owns the hover tilt; its matrix3d is the identity
+      // apart from the perspective term (m34). Only that resting matrix is tolerated: any rotation, translation or
+      // scale in it still counts as an unfinished entrance. The entrance itself runs on opacity, translate and scale.
+      const resting = (t: string) => {
+        if (t === 'none') return true;
+        const m = t.match(/^matrix3d\((.+)\)$/);
+        if (!m) return false;
+        const v = m[1].split(',').map(parseFloat);
+        const id = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+        return v.length === 16 && v.every((n, i) => (i === 11 ? n <= 0 && n > -0.01 : Math.abs(n - id[i]) < 1e-6));
+      };
       const tilt = e.matches('[data-fx=tilt]');
-      return cs.opacity !== '1' || !zero(cs.translate) || !['none', '1'].includes(cs.scale) || (!tilt && cs.transform !== 'none');
+      return cs.opacity !== '1' || !zero(cs.translate) || !['none', '1'].includes(cs.scale) || !(tilt ? resting(cs.transform) : cs.transform === 'none');
     })
     .map((e) => `${e.tagName.toLowerCase()}.${String(e.className).split(/\s+/)[0]}[${e.getAttribute('data-enter')}]`);
 }

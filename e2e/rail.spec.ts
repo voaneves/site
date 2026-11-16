@@ -27,12 +27,13 @@ test.describe('scroll rail', () => {
       expect(line).toBeLessThan(0.55);
       // gone before the red band reaches the rail
       await page.evaluate(async () => {
-        const r = document.querySelector('#contato')!.getBoundingClientRect();
-        scrollTo({ top: scrollY + r.top - innerHeight / 2, behavior: 'instant' });
-        await new Promise((res) => setTimeout(res, 200));
-        const r2 = document.querySelector('#contato')!.getBoundingClientRect();
-        scrollTo({ top: scrollY + r2.top - innerHeight / 2, behavior: 'instant' });
-        await new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res)));
+        // content-visibility sections settle to their real height after a jump: re-aim until #contato sits mid-screen
+        for (let i = 0; i < 20; i++) {
+          const r = document.querySelector('#contato')!.getBoundingClientRect();
+          if (i && Math.abs(r.top - innerHeight / 2) < 1) break;
+          scrollTo({ top: scrollY + r.top - innerHeight / 2, behavior: 'instant' });
+          await new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res)));
+        }
       });
       expect(Number(await rail.evaluate((e) => getComputedStyle(e).opacity))).toBeLessThanOrEqual(0.05);
       expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);

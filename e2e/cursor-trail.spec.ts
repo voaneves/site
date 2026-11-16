@@ -21,6 +21,20 @@ async function ready(page: Page, url = '/') {
   await page.waitForLoadState('networkidle');
 }
 
+// N animation frames: a frame-based wait for "nothing happens" checks, no wall-clock sleep.
+const frames = (page: Page, n = 10) =>
+  page.evaluate((k) => new Promise<void>((res) => { const f = (i: number) => (i ? requestAnimationFrame(() => f(i - 1)) : res()); f(k); }), n);
+
+// Resolves once no scroll event has fired for 200 ms (the trail ignores warps while the page moves, 140 ms).
+async function scrollQuiet(page: Page) {
+  await page.evaluate(() => {
+    const w = window as unknown as { __scrollAt?: number };
+    if (w.__scrollAt === undefined) addEventListener('scroll', () => { w.__scrollAt = performance.now(); }, { passive: true });
+    w.__scrollAt = performance.now();
+  });
+  await page.waitForFunction(() => performance.now() - (window as unknown as { __scrollAt: number }).__scrollAt > 200);
+}
+
 const trail = (page: Page) => page.locator('canvas.vn-cursor-trail');
 
 test.describe('trail: loading', () => {
@@ -63,7 +77,7 @@ test.describe('trail: loading', () => {
     const hits = trackTrailRequests(page);
     await ready(page);
     await wiggle(page);
-    await page.evaluate(() => new Promise((r) => setTimeout(r, 300)));
+    await frames(page, 20);
     expect(hits).toEqual([]);
     await expect(trail(page)).toHaveCount(0);
   });
@@ -75,7 +89,7 @@ test.describe('trail: touch', () => {
     const hits = trackTrailRequests(page);
     await ready(page);
     await wiggle(page);
-    await page.evaluate(() => new Promise((r) => setTimeout(r, 300)));
+    await frames(page, 20);
     expect(hits).toEqual([]);
     await expect(trail(page)).toHaveCount(0);
   });
@@ -120,10 +134,13 @@ test.describe('trail: runtime', () => {
     await wiggle(page, 5);
     await expect(trail(page)).toHaveCount(1);
     const size = await trail(page).evaluate((c: HTMLCanvasElement) => [c.width, c.height]);
-    expect(size[0]).toBeGreaterThan(0);
-    expect(size[1]).toBeGreaterThan(0);
-    // the canvas is drawn at one canvas pixel per CSS px (it redraws images), capped at 1920 across
-    expect(size[0]).toBeLessThanOrEqual(1920);
+    // exact size, as the code computes it: WebGL draws one canvas pixel per CSS px capped at 1920 across;
+    // the 2D fallback draws one per 2 CSS px
+    const mode = await page.evaluate(() => (window as unknown as { __vnTrailMode?: string }).__vnTrailMode);
+    const [iw, ih] = await page.evaluate(() => [innerWidth, innerHeight]);
+    const cell = mode === 'webgl' ? Math.max(1, iw / 1920) : Math.max(2, iw / 1e4);
+    expect(size).toEqual([Math.max(2, Math.ceil(iw / cell)), Math.max(2, Math.ceil(ih / cell))]);
+    if (mode === 'webgl') expect(size[0]).toBe(Math.min(iw, 1920));
     expect(errors).toEqual([]);
   });
 
@@ -245,6 +262,12 @@ test.describe('trail: runtime', () => {
 test.describe('trail: image distortion', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
   const wv = (page: Page, k: string) => page.evaluate((key) => (window as unknown as Record<string, unknown>)[key], k);
+  // Explicit skip: CI runners may lack WebGL; the reason (and the mode actually in use) shows in the report.
+  const requireWebgl = async (page: Page) => {
+    const mode = await wv(page, '__vnTrailMode');
+    if (mode !== 'webgl') test.info().annotations.push({ type: 'skipped', description: `no WebGL on this runner (trail mode: ${String(mode)}); the 2D ink fallback has no image pass` });
+    test.skip(mode !== 'webgl', `no WebGL on this runner (trail mode: ${String(mode)}): the 2D ink fallback has no image pass`);
+  };
   const sweep = async (page: Page, sel: string) => {
     const box = (await page.locator(sel).first().boundingBox())!;
     const y = box.y + box.height / 2;
@@ -255,11 +278,11 @@ test.describe('trail: image distortion', () => {
     await page.goto('/?vn-debug');
     await page.mouse.move(300, 300);
     await expect(page.locator('canvas.vn-cursor-trail')).toHaveCount(1);
-    test.skip((await wv(page, '__vnTrailMode')) !== 'webgl', 'no WebGL on this machine: the ink fallback has no image pass');
+    await requireWebgl(page);
     const media = page.locator('.vn-project-row__media').first();
     await media.evaluate((e) => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
     await expect(media).toHaveClass(/is-done/, { timeout: 8000 });
-    await page.waitForTimeout(300); // let the scroll guard (140 ms) pass
+    await scrollQuiet(page); // the scroll guard (140 ms) must have passed
     await sweep(page, '.vn-project-row__media');
     await expect.poll(async () => { await sweep(page, '.vn-project-row__media'); return wv(page, '__vnTrailWarp'); }, { timeout: 6000 }).toBeGreaterThanOrEqual(1);
     // away from any image: no image pass
@@ -274,15 +297,16 @@ test.describe('trail: image distortion', () => {
     await page.goto('/projetos/caato/?vn-debug');
     await page.mouse.move(300, 300);
     await expect(page.locator('canvas.vn-cursor-trail')).toHaveCount(1);
-    test.skip((await wv(page, '__vnTrailMode')) !== 'webgl', 'no WebGL on this machine');
+    await requireWebgl(page);
     await page.locator('.vn-case-media').evaluate((e) => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
-    await page.waitForTimeout(300);
+    await scrollQuiet(page);
     await expect.poll(async () => { await sweep(page, '.vn-case-media'); return wv(page, '__vnTrailWarp'); }, { timeout: 6000 }).toBeGreaterThanOrEqual(1);
     await page.goto('/?vn-debug');
     await page.mouse.move(300, 300);
     await expect(page.locator('canvas.vn-cursor-trail')).toHaveCount(1);
     await sweep(page, '.vn-hero-portrait');
-    await page.waitForTimeout(300);
+    await expect.poll(() => wv(page, '__vnTrailRunning')).toBe(true); // the trail is live, and still draws no image pass
+    await frames(page, 20);
     expect(await wv(page, '__vnTrailWarp')).toBe(0);
   });
 
@@ -294,8 +318,9 @@ test.describe('trail: image distortion', () => {
     await expect(page.locator('canvas.vn-cursor-trail')).toHaveCount(1);
     const media = page.locator('.vn-project-row__media').first();
     await media.evaluate((e) => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
-    await page.waitForTimeout(300);
+    await scrollQuiet(page);
     await sweep(page, '.vn-project-row__media');
+    await frames(page, 20);
     expect(await wv(page, '__vnTrailWarp')).toBeFalsy();
     expect(errors).toEqual([]);
   });
