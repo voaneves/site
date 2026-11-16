@@ -8,6 +8,10 @@
       --j-side: calc(max(0px, (100vw - var(--vn-layout-container-max)) / 2) + clamp(var(--vn-layout-pad-x-min), 5vw, var(--vn-layout-pad-x-max)));
       --j-travel: calc(var(--j-n, 8) * 376px - 16px + 2 * var(--j-side) - 100vw);
       --ci: calc(450px + 100svh + 1.25 * var(--j-travel));
+      /* Pinned, the section's height is CSS-defined; skipping its render only swaps in the seeded estimate, whose
+         450px part was measured with Windows fonts. On CI's Linux fonts the real height differed by ~68 px, so a fast
+         scroll past it corrected the estimate while the footer was on screen (CLS 0.03). Always lay it out here. */
+      content-visibility: visible;
     }
     /* the run starts one header height early: the pin's own top padding then closes the entry gap to the head */
     .vn-journey-run { margin-block-start: calc(-1 * var(--nav-h, 73px)); height: calc(100svh + 1.25 * var(--j-travel)); view-timeline: --jr block; view-timeline-inset: 0; } /* inset 0: the page's scroll-padding-top (header) must not shorten the range */
