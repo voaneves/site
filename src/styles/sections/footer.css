@@ -21,6 +21,16 @@
     gap: var(--vn-space-5);
   }
 
+  /* Five links wrapped 4 + 1 on phones: three columns give 3 + 2. */
+  @media (max-width: 480px) {
+    .vn-site-footer__links {
+      display: grid;
+      grid-template-columns: repeat(3, auto);
+      justify-content: start;
+      row-gap: var(--vn-space-2);
+    }
+  }
+
   .vn-site-footer a {
     display: inline-flex;
     align-items: center;

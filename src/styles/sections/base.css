@@ -38,6 +38,11 @@
     margin-block-end: var(--vn-space-3);
   }
 
+  /* Line-height 1 on an italic display face: the descenders need room above the lede (collapses with its margin). */
+  .vn-split-title:not(:last-child) {
+    margin-block-end: 0.4em;
+  }
+
   .vn-sec-sub {
     margin-block-start: var(--vn-space-2);
   }

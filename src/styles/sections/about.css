@@ -8,7 +8,7 @@
   }
 
   .vn-about-statement {
-    margin-block-end: var(--vn-space-5);
+    margin-block-end: max(var(--vn-space-5), 0.5em);
   }
 
   .vn-about-statement em {

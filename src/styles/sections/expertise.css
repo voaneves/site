@@ -57,6 +57,16 @@
 
   .vn-pillar-card:focus-within .vn-chip { border-color: var(--vn-signal-ink) }
 
+  /* Tighter tracking keeps the longest labels on one line in a four-up card; where a card is narrower still,
+     the chip grows into a rounded box instead of spilling two lines out of a fixed-height pill. */
+  .vn-pillar-card .vn-chip {
+    height: auto;
+    min-height: var(--vn-chip-height);
+    padding-block: 4px;
+    border-radius: 16px;
+    letter-spacing: 0.08em;
+  }
+
   .vn-chip-list {
     display: flex;
     flex-wrap: wrap;
