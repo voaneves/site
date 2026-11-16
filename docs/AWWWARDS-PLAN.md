@@ -145,7 +145,7 @@ Read these once; each spec refers to them by number (R1 to R14).
 - [x] B1 Line reveal as theirs: lines rise from 80%, scale .96, fade, masked, expo-out, 0.85 s, base delay 0.15 s,
       per-line stagger `(0.135 + 0.03 N) / (N - 1)` s.
 - [x] B2a Cursor label pill follows with a 0.45 s expo-out lag (no spring overshoot).
-- [ ] B2b Fluid trail distorts the images it passes over (project thumbnails, case hero), reusing the solver's
+- [x] B2b Fluid trail distorts the images it passes over (project thumbnails, case hero), reusing the solver's
       velocity field. The ink trail remains everywhere else and as the fallback.
 - [x] B3 Page transition: 0.65 s cover, 0.25 s hold with a 0 to 100 counter, 0.65 s reveal; the thumbnail still morphs
       into the case hero above the cover. Typed, so the theme toggle's reveal is untouched.
