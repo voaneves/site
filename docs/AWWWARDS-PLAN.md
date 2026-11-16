@@ -118,6 +118,26 @@ Read these once; each spec refers to them by number (R1 to R14).
 - [x] A4 Projects subtitle is pointer-only copy; the cursor image preview duplicates the row thumbnail. `b431edd`
 - [x] A5 Late sheet: interaction-only CSS leaves the inline sheet and the first-load script (new lazy chunk `late`).
 - [x] A6 Case-study CSS is inlined only on case pages (freed 363 B gz of home inline CSS, 332 B of home HTML).
+- [ ] A8 Case pages fail mobile LCP (caato 1267 to 1377 ms vs 1200): the hero image sits after about 78 KB of inline CSS and was a 1600 px file for a 369 px slot; add a head preload with `imagesrcset` and an 800 px variant (`srcset`/`sizes`) on every case page.
+
+- [ ] A9 CI green: `7561b36` still fails shard 1 on the button-fill test (hover reached, then lost, most likely
+      when the after-LCP font swap reflows the hero under a still pointer; `fonts.ready` resolves before that swap),
+      on "CLS <= 0.01 while scrolling" (footer 56 -> 124 px tall at the page end, `.vn-contact-l1` 716 -> 764 px wide,
+      #numeros 685 -> 713 px as it enters; late font swaps and Windows-measured `--ci` seeds are suspects; treat as a
+      real shift), and a flaky choreography check at 1366 (award cards not settled in time on the 2-core runner).
+- [ ] A10 Owner-reported, from the live site (2026-11-16 screenshots):
+      (1) Hero to About: while the hero sinks, its lower content (CTA row, portrait hint) is sliced by a hard
+      horizontal edge at the hero box's bottom, with an empty cream band before the About wedge; the hand-off must
+      never cut content mid-element.
+      (2) Cursor label pill leaves the viewport near the top edge (hovering "Conversar" in the header): flip it below
+      the pointer near the top and clamp it inside the viewport on every edge.
+      (3) Números to Expertise: a cream gap (~20 px) between the ink Números section and Expertise's ink wedge.
+      (4) Check that scrambled labels resolve quickly and never rest on garbage glyphs.
+
+- [ ] A11 Mobile LCP margin: case pages sit at 1060-1380 ms (CI) against the 1200 cap; A8 showed the image is not the
+      cost (hiding it gives the same LCP). The floor is first-paint weight: about 70 KB raw (13.5 KB gz) of inline site
+      CSS on every page plus the case CSS. Cut what a first paint does not need (move more rules to the late or fx
+      sheets, drop dead rules), measured with Lighthouse mobile on CI.
 
 ### Phase B: from lamalama
 
@@ -273,6 +293,7 @@ and 5, about 170 B); (3) drop the two words of the preloader, keeping the hairli
 | C6 | 31246 | 13148 | 4865 | 17693 | About statement stage with scroll inking (before: html 31153, inlineCss 13061, first-load 4865, lazy 17494); home +93 B html, +87 B inline CSS, +199 B lazy total (scroll-fx 2320 B gz, cap raised 2304 to 3584 in budget.json and the Budgets table); en html 30670 (before 30582); render-cost seeds for quem-sou updated (1900, 2096, 2107, 2082, 2227; 390 px seed 2374 unchanged and green) |
 | C8 | 31246 | 13148 | 4864 | 17866 | Edge-fill hover on outline buttons (before: html 31246, inlineCss 13148, first-load 4865, lazy 17693); late chunk +173 B gz, nothing inline; en html unchanged; no cap changed |
 | C5 | 31281 | 13148 | 4865 | 18428 | Scroll rail with live percentage on wide screens (before: html 31246, inlineCss 13148, first-load 4866, lazy 17912 measured on a clean build); home +35 B html, nothing inline, +516 B lazy total (late chunk 1594 B gz, cap 1792 unchanged); en html 30706 (before 30670); cue text is generated content (axe cannot model the blend colour); no cap changed |
+| A8 | 31281 | 13148 | 4865 | 18428 | Case hero preload plus 800 px webp variants (before: case caato html 21820, inlineCss 13566); home unchanged; case page caato html 21978 (+158 B gz), inlineCss 13566 unchanged; seven new static files public/assets/img/port/*-800.webp (6.9 to 13.7 KB) |
 
 ## Brand deviations
 

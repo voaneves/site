@@ -3,6 +3,7 @@ import Icon from './Icon.astro';
 import { UI, type Locale } from '../i18n/ui';
 import { PORTFOLIO, type ProjectCase } from '../data/portfolio';
 import Words from './Words.astro';
+import { CASE_IMAGE_SIZES, caseImageSrcset } from '../data/case-image';
 import '../styles/sections/case.css';
 
 export interface Props {
@@ -40,6 +41,8 @@ const caseBase = locale === 'en' ? '/en/projects' : '/projetos';
       <div class="vn-case-media" data-vt={project.slug}>
         <img
           src={project.image}
+          srcset={caseImageSrcset(project.image)}
+          sizes={CASE_IMAGE_SIZES}
           alt={project.imageAlt}
           width="1600"
           height="800"

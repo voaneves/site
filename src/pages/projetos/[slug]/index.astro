@@ -1,5 +1,6 @@
 ---
 import Base from '../../../layouts/Base.astro';
+import { CASE_IMAGE_SIZES, caseImageSrcset } from '../../../data/case-image';
 import CaseStudyPage from '../../../components/CaseStudyPage.astro';
 import { PORTFOLIO, type ProjectCase } from '../../../data/portfolio';
 
@@ -28,6 +29,9 @@ const { project, prevProject, nextProject } = Astro.props;
   locale="pt-br"
   title={`${project.title} — Victor Neves`}
   description={project.summary}
+  preloadHeroImage={project.image}
+  preloadHeroSrcset={caseImageSrcset(project.image)}
+  preloadHeroSizes={CASE_IMAGE_SIZES}
 >
   <CaseStudyPage
     locale="pt-br"

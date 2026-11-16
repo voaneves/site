@@ -14,6 +14,8 @@ export interface Props {
   description?: string;
   schemaJson?: object[];
   preloadHeroImage?: string;
+  preloadHeroSrcset?: string;
+  preloadHeroSizes?: string;
 }
 
 const {
@@ -22,6 +24,8 @@ const {
   description,
   schemaJson = [],
   preloadHeroImage,
+  preloadHeroSrcset,
+  preloadHeroSizes,
 } = Astro.props;
 
 const t = UI[locale];
@@ -141,7 +145,7 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   {/* The manifest link is added by src/scripts/after-lcp.ts: fetched in the head it (and its icon) lands inside the LCP window. */}
   {preloadHeroImage && (
-    <link rel="preload" as="image" type="image/webp" href={preloadHeroImage} fetchpriority="high" />
+    <link rel="preload" as="image" type="image/webp" href={preloadHeroImage} imagesrcset={preloadHeroSrcset} imagesizes={preloadHeroSizes} fetchpriority="high" />
   )}
   {graphs.map((entry) => (
     <script type="application/ld+json" set:html={JSON.stringify(entry)} />
