@@ -86,4 +86,6 @@ afterLcp();
   onFirstPointer(() => motionOK() && import('./hover-fx'));
   // W14: magnetic buttons, lazy, first fine-pointer move only.
   onFirstPointer(() => motionOK() && matchMedia('(pointer: fine)').matches && import('./magnetic'));
+  // B4: smooth mouse wheel, loaded by the first wheel event on fine pointers (that first notch stays native).
+  if (motionOK()) addEventListener('wheel', () => motionOK() && void import('./smooth'), { once: true, passive: true });
 }
