@@ -102,7 +102,7 @@
   }
 
   .vn-journey-card__logo {
-    width: auto;
+    width: calc((34px - 8px) * 330 / 180 + 16px); /* the 330x180 ratio, same box as width:auto gave */
     height: 34px;
     object-fit: contain;
     background: var(--vn-ref-white);
