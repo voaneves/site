@@ -63,10 +63,42 @@ jobs:
         continue-on-error: true
         run: npx --yes @lhci/cli@0.16.1 autorun --config=lighthouserc.prod.cjs
 
-      - name: Abrir ou atualizar issue se houver falha
+      - name: Relatórios do Lighthouse de produção
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: lighthouse-prod
+          path: .lighthouseci-prod/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Abrir ou comentar issue se houver falha
         if: steps.drift.outcome == 'failure' || steps.deps.outcome == 'failure' || steps.lh.outcome == 'failure'
+        env:
+          DRIFT: ${{ steps.drift.outcome }}
+          DEPS: ${{ steps.deps.outcome }}
+          LH: ${{ steps.lh.outcome }}
         run: |
           gh label create audit --color 0E8A16 2>/dev/null || true
-          gh issue create --label audit --title "🔎 Auditoria semanal" \
-            --body "Execução: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-          exit 1
+          run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          body="$(printf '%s\n' \
+            "Execução: $run_url" \
+            "" \
+            "| Auditoria | Resultado |" \
+            "|---|---|" \
+            "| Deriva Cloudflare | $DRIFT |" \
+            "| Dependências | $DEPS |" \
+            "| Lighthouse em produção | $LH |" \
+            "" \
+            'Detalhes nos logs da execução; relatórios do Lighthouse no artefato `lighthouse-prod`.')"
+          existing="$(gh issue list --label audit --state open --limit 1 --json number --jq '.[0].number // empty')"
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --label audit --title "🔎 Auditoria semanal" --body "$body"
+          fi
+
+      - name: Falhar o job se alguma auditoria falhou
+        if: steps.drift.outcome == 'failure' || steps.deps.outcome == 'failure' || steps.lh.outcome == 'failure'
+        run: exit 1
