@@ -8,7 +8,7 @@ for (const [route, label, caseBase] of [
   ['/', 'Ver case →', '/projetos'],
   ['/en/', 'View case →', '/en/projects'],
 ] as const) {
-  test(`project rows on ${route}: sized thumbnails, unique data-vt, cursor hooks`, async ({ page }) => {
+  test(`project rows on ${route}: sized thumbnails, unique data-vt, cursor label (no media preview)`, async ({ page }) => {
     await page.goto(route);
     const rows = page.locator('.vn-project-row');
     await expect(rows).toHaveCount(SLUGS.length);
@@ -26,7 +26,7 @@ for (const [route, label, caseBase] of [
       await expect(img).toHaveAttribute('decoding', 'async');
       await expect(row.locator('[data-enter=clip][data-vt]').first()).toHaveAttribute('data-vt', SLUGS[i]);
       await expect(row).toHaveAttribute('data-cursor-label', label);
-      await expect(row).toHaveAttribute('data-cursor-media', /\/assets\/img\/port\/.+\.webp$/);
+      expect(await row.getAttribute('data-cursor-media')).toBeNull();
       await expect(row).toHaveAttribute('href', `${caseBase}/${SLUGS[i]}/`);
       await expect(row.locator('.vn-project-row__cta')).toHaveText(label);
     }
@@ -124,3 +124,14 @@ test('row click starts a cross-document view transition that pairs the shared el
   await page.waitForURL('**/projetos/caato/');
   expect(await page.evaluate(() => sessionStorage.getItem('vt'))).toBe('1');
 });
+
+for (const [route, subtitle] of [
+  ['/', 'Seis projetos com contexto, arquitetura e resultado.'],
+  ['/en/', 'Six projects with context, architecture and outcome.'],
+] as const) {
+  test(`projects subtitle on ${route} states the real count and is not pointer-only`, async ({ page }) => {
+    await page.goto(route);
+    await expect(page.locator('#projetos')).toContainText(subtitle);
+    await expect(page.locator('#projetos .vn-project-row')).toHaveCount(6);
+  });
+}

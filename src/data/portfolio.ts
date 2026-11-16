@@ -453,7 +453,7 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
       num: '05',
       tag: '05 · PROJETOS & ESTUDOS DE CASO',
       title: 'Seleção de projetos em produção.',
-      subtitle: 'Passe o cursor sobre um projeto para pré-visualizar ou abra o estudo de caso completo.',
+      subtitle: 'Seis projetos com contexto, arquitetura e resultado. Abra qualquer um para o estudo de caso completo.',
       viewCaseLabel: 'Abrir estudo',
       cursorPreviewPrefix: 'ABRIR',
       items: [
@@ -1010,7 +1010,7 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
       num: '05',
       tag: '05 · SELECTED WORK & CASE STUDIES',
       title: 'Production work with measurable outcomes.',
-      subtitle: 'Hover any project row for a visual preview or open the complete case study.',
+      subtitle: 'Six projects with context, architecture and outcome. Open any of them for the full case study.',
       viewCaseLabel: 'Read case',
       cursorPreviewPrefix: 'VIEW',
       items: [

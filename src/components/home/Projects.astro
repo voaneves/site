@@ -35,7 +35,6 @@ const L = { 'pt-br': { cta: 'Ver case' }, en: { cta: 'View case' } }[locale];
         <a
           class="vn-work-row vn-project-row"
           href={`${projectBase}/${proj.slug}/`}
-          data-cursor-media={proj.image}
           data-cursor-label={`${L.cta} →`}
         >
           <div class="vn-project-row__left" data-enter={idx % 2 ? 'right' : 'left'}>
