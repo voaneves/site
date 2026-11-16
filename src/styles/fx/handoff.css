@@ -21,7 +21,7 @@
     :is(#numeros, #contato) > .vn-container:focus-within, #jornada > .vn-container:first-of-type:focus-within { animation: none; }
     .vn-stats-hero-grid { --r: 6rem; animation-name: u-rise; animation-range: entry 20% entry 100%; }
     .vn-site-footer__inner { --r: 4rem; animation-name: u-rise; animation-timeline: --h; }
-    :is(#quem-sou, #expertise, #perguntas)::before { transform-origin: 0 100%; animation-name: u-wedge; animation-timeline: --h; animation-range: entry 0% entry 60%; }
+    :is(#quem-sou, #expertise, #perguntas)::before { transform-origin: 0 0; animation-name: u-wedge; animation-timeline: --h; animation-range: entry 0% entry 60%; }
     /* Sink & lift (hero -> about): the inner lags, a decorative scrim darkens the ground. */
     .vn-hero__inner, .vn-hero::after { animation-timing-function: linear; animation-fill-mode: both; animation-timeline: scroll(root); animation-range: 0 100svh; }
     .vn-hero__inner { animation-name: u-sink; }
@@ -33,7 +33,7 @@
     #numeros > .vn-container { --u: -8vh; }
     #jornada > .vn-container:first-of-type { --u: -4vh; --us: .96; }
     #contato > .vn-container { --u: -10vh; animation-range: exit 0% exit 10%; } /* the footer is short, so the last exit never reaches 100% */
-    @keyframes u-sink { to { translate: 0 14vh; } }
+    @keyframes u-sink { 12% { opacity: 1; } 32% { opacity: 0; } to { translate: 0 14vh; opacity: 0; } } /* gone before it can reach the hero's bottom edge (>= 3rem of padding): never sliced */
     @keyframes u-scrim { 45% { opacity: 0; } to { opacity: .55; } }
     @keyframes u-wedge { from { scale: 1 0; } }
     @keyframes u-arch { from { scale: 1 2.2; } }

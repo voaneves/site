@@ -1,3 +1,4 @@
+import { inflateSync } from 'node:zlib';
 import { test, expect, type Page } from '@playwright/test';
 
 // U7c: the nine section hand-offs (src/styles/fx/handoff.css). Progress is set by scrolling so the element sits at a known view() position.
@@ -262,4 +263,82 @@ test.describe('handoffs, no timelines', () => {
     ident(await probe(page));
     await ctx.close();
   });
+});
+
+/** Colour of one screen pixel, read from a 1x1 PNG screenshot (no image dependency). */
+async function pixel(page: Page, x: number, y: number): Promise<[number, number, number]> {
+  const png = await page.screenshot({ clip: { x, y, width: 1, height: 1 } });
+  let o = 8;
+  const idat: Buffer[] = [];
+  while (o < png.length) {
+    const len = png.readUInt32BE(o);
+    if (png.toString('latin1', o + 4, o + 8) === 'IDAT') idat.push(png.subarray(o + 8, o + 8 + len));
+    o += 12 + len;
+  }
+  const raw = inflateSync(Buffer.concat(idat)); // 1 filter byte (none for a single pixel), then R, G, B (A)
+  return [raw[1], raw[2], raw[3]];
+}
+const near = (a: number[], b: number[], d = 3) => a.every((v, i) => Math.abs(v - b[i]) <= d);
+
+test.describe('hero hand-off and chapter seams (owner screenshots)', () => {
+  test.use({ reducedMotion: 'no-preference' });
+
+  for (const [w, h] of [[1440, 900], [1866, 1030], [1480, 822], [390, 844]] as const) {
+    test(`the hero's content is never sliced by its own bottom edge while it hands off to About (${w}x${h})`, async ({ page }) => {
+      await page.setViewportSize({ width: w, height: h });
+      await ready(page);
+      const hero = await page.evaluate(() => document.querySelector('.vn-hero')!.getBoundingClientRect().height);
+      const bad: string[] = [];
+      for (let y = 0; y <= hero + 60; y += 60) {
+        await page.evaluate((v) => scrollTo({ top: v, behavior: 'instant' }), y);
+        await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+        const r = await page.evaluate(() => {
+          const box = document.querySelector('.vn-hero')!.getBoundingClientRect();
+          const op = parseFloat(getComputedStyle(document.querySelector('.vn-hero__inner')!).opacity);
+          const els = [...document.querySelectorAll<HTMLElement>('.vn-hero__actions > *, .vn-hero-portrait, .vn-hero-portrait__hint, .vn-hero-chip, .vn-hero__sub')];
+          return { op, over: els.filter((e) => e.getBoundingClientRect().bottom > box.bottom + 0.5).map((e) => e.className) };
+        });
+        // cut by the hero box while still visible = a slice; once the inner has faded to nothing there is nothing to cut
+        if (r.over.length && r.op > 0.02) bad.push(`scrollY ${y}: opacity ${r.op}, past the hero bottom: ${r.over.join(', ')}`);
+      }
+      expect(bad).toEqual([]);
+    });
+  }
+
+  test('at rest the hero meets the About wedge cleanly: no sand stripe under the hero (1866x1030)', async ({ page }) => {
+    await page.setViewportSize({ width: 1866, height: 1030 });
+    await ready(page);
+    const edge = await page.evaluate(() => {
+      const wedge = getComputedStyle(document.querySelector('#quem-sou')!, '::before');
+      return { origin: wedge.transformOrigin, hero: document.querySelector('.vn-hero')!.getBoundingClientRect().bottom, about: document.querySelector('#quem-sou')!.getBoundingClientRect().top };
+    });
+    expect(edge.origin).toBe('0px 0px'); // the wedge grows from the seam, not from its bottom
+    expect(Math.abs(edge.hero - edge.about)).toBeLessThan(1);
+    expect(edge.hero).toBeLessThan(1030 - 20); // the seam is on screen
+    const hero = await pixel(page, 3, Math.floor(edge.hero) - 6);
+    for (const dy of [1, 3, 8]) {
+      expect(near(await pixel(page, 3, Math.ceil(edge.hero) + dy), hero), `row +${dy} below the hero is the hero's ground`).toBe(true);
+    }
+  });
+
+  for (const theme of ['light', 'dark'] as const) {
+    test(`Numbers meets Expertise with no gap at three scroll positions (${theme})`, async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.addInitScript((t) => localStorage.setItem('vn-theme', t), theme);
+      await ready(page);
+      await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+      for (const p of [0.12, 0.35, 0.8]) {
+        await at(page, '#expertise', 'entry', p, 'scale', '::before');
+        const g = await page.evaluate(() => {
+          const n = document.querySelector('#numeros')!.getBoundingClientRect().bottom;
+          return { n, e: document.querySelector('#expertise')!.getBoundingClientRect().top };
+        });
+        expect(Math.abs(g.n - g.e), `layout gap at ${p}`).toBeLessThan(1);
+        const above = await pixel(page, 3, Math.floor(g.n) - 4);
+        for (const dy of [1, 3, 6]) {
+          expect(near(await pixel(page, 3, Math.ceil(g.n) + dy), above), `${theme} ${p}: row +${dy} under Numbers has Numbers' ground`).toBe(true);
+        }
+      }
+    });
+  }
 });
