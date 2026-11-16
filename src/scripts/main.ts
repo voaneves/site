@@ -23,7 +23,7 @@ afterLcp();
   // sheet for everyone. Adopted on the first interaction (or ~9 s of reading): adopting it restyles the whole document, which
   // an idle, non-interacting load (Lighthouse) must not pay for. The chunk is only fetched on idle so the first move is instant.
   const late = new Promise<typeof import('./late')>((res) => onIdle(() => void import('./late').then(res)));
-  onEngage(() => void late.then((m) => m.init()));
+  onIdle(() => void late.then((m) => m.init())); // DIAG: back to idle, as before A12
   // faq: the details open/close transition (no inline CSS cost) is adopted once #perguntas is within one viewport
   onIdle(() => {
     const sec = document.getElementById('perguntas');
@@ -76,7 +76,7 @@ afterLcp();
   // first interaction or scroll (or ~9 s of reading); the chunk is fetched on idle. Nothing in the first viewport needs it.
   if (matchMedia('(prefers-reduced-motion: no-preference)').matches) {
     const fx = new Promise<typeof import('./scroll-fx')>((res) => onIdle(() => void import('./scroll-fx').then(res)));
-    onEngage(() => void fx.then((m) => m.init()));
+    onIdle(() => void fx.then((m) => m.init())); // DIAG: back to idle, as before A12
   }
   // W16: fluid cursor trail, only after the first real pointer move (Lighthouse never pays for it).
   onFirstPointer(() => motionOK() && import('./cursor-trail'));
