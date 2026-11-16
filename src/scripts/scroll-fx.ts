@@ -4,6 +4,7 @@ import text from '../styles/fx/text.css?inline';
 import moments from '../styles/fx/moments.css?inline';
 import cases from '../styles/fx/case.css?inline';
 import open from '../styles/fx/open.css?inline';
+import journeyPin from '../styles/fx/journey-pin.css?inline';
 
 // U7a: scroll choreography engine. Loaded on idle under prefers-reduced-motion: no-preference (all pointers).
 // One constructable sheet in @layer site, assembled from src/styles/fx/*.css. BASE is every top-level rule;
@@ -11,7 +12,7 @@ import open from '../styles/fx/open.css?inline';
 export function init(): void {
   const tl = CSS.supports('animation-timeline: view()');
   const S = new CSSStyleSheet();
-  S.replaceSync(`@layer site{${handoff}${parallax}${text}${moments}${cases}${open}}`);
+  S.replaceSync(`@layer site{${handoff}${parallax}${text}${moments}${cases}${open}${journeyPin}}`);
   if (!tl) {
     const rules = (S.cssRules[0] as CSSLayerBlockRule).cssRules;
     for (let i = rules.length; i--; ) {
@@ -20,6 +21,8 @@ export function init(): void {
   }
   document.adoptedStyleSheets = [...document.adoptedStyleSheets, S];
   document.documentElement.dataset.scrollFx = tl ? 'tl' : 'base';
+  // C3: adopting the sheet makes #jornada taller; a page opened on a later #hash is put back on its target
+  if (tl && location.hash.length > 1) document.getElementById(location.hash.slice(1))?.scrollIntoView();
   // C6: index the words of the About statement for the scroll inking (fx/text.css). 26% of the stage's
   // cover range is shared between the words, so the last one is full ink while the statement is still on screen.
   const st = document.querySelector<HTMLElement>('.vn-about-statement');

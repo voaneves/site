@@ -14,8 +14,9 @@ async function settle(page: Page, track: Locator) {
   }).toBe(true);
 }
 
+// 1024 wide: the swipe carousel. The pinned desktop mode is covered by journey-pinned.spec.ts.
 test.describe('journey gallery', () => {
-  test.use({ viewport: { width: 1366, height: 900 } });
+  test.use({ viewport: { width: 1024, height: 900 } });
 
   test('next button and ArrowRight advance the live counter', async ({ page }) => {
     await page.goto('/');
@@ -96,10 +97,10 @@ test.describe('journey gallery', () => {
     await expect(track).toHaveAttribute('data-ready', '');
     const box = (await track.boundingBox())!;
     const y = box.y + 80;
-    await page.mouse.move(box.x + 900, y);
+    await page.mouse.move(box.x + 800, y);
     await page.mouse.down();
-    await page.mouse.move(box.x + 700, y, { steps: 6 });
-    await page.mouse.move(box.x + 500, y, { steps: 6 });
+    await page.mouse.move(box.x + 600, y, { steps: 6 });
+    await page.mouse.move(box.x + 400, y, { steps: 6 });
     await expect.poll(() => track.evaluate((el) => el.scrollLeft)).toBeGreaterThan(100);
     await page.mouse.up();
     // Settles exactly on a card: scrollLeft equals one of the card offsets.

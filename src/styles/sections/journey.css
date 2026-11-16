@@ -3,7 +3,9 @@
   .vn-journey-controls {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: var(--vn-space-2);
+    margin-block-end: var(--vn-space-4);
   }
 
   /* Full-bleed card carousel: cards start on the content column and run off the right edge. */

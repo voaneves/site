@@ -67,7 +67,7 @@ test.describe('moments, no-preference', () => {
   });
 
   test('journey cards scale by inline position on the track', async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.setViewportSize({ width: 1024, height: 900 });
     await page.goto('/');
     await ready(page);
     const track = page.locator('[data-vn-journey]');

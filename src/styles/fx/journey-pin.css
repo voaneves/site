@@ -1,0 +1,42 @@
+/* C3: fx/journey-pin.css, adopted by src/scripts/scroll-fx.ts into @layer site (do not wrap it in @layer yourself).
+   Pinned horizontal Jornada. Everything is inside one top-level @supports block, so it is dropped where scroll
+   timelines are missing, and inside one media query, so touch, small or short windows and reduced motion keep the
+   swipe carousel. Longhand animation properties only, no duration (see R4 in docs/AWWWARDS-PLAN.md). */
+@supports (animation-timeline: view()) {
+  @media screen and (min-width: 1081px) and (min-height: 720px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    #jornada {
+      --j-side: calc(max(0px, (100vw - var(--vn-layout-container-max)) / 2) + clamp(var(--vn-layout-pad-x-min), 5vw, var(--vn-layout-pad-x-max)));
+      --j-travel: calc(var(--j-n, 8) * 376px - 16px + 2 * var(--j-side) - 100vw);
+      --ci: calc(760px + 100svh + 1.25 * var(--j-travel));
+    }
+    .vn-journey-run { height: calc(100svh + 1.25 * var(--j-travel)); view-timeline: --jr block; view-timeline-inset: 0; } /* inset 0: the page's scroll-padding-top (header) must not shorten the range */
+    .vn-journey-pin {
+      position: sticky; top: 0; height: 100svh; overflow: clip;
+      display: flex; flex-direction: column; justify-content: center;
+      padding-block-start: var(--nav-h, 73px);
+    }
+    .vn-journey-pin > * { position: relative; z-index: 1; }
+    #jornada .vn-journey-track {
+      overflow-x: visible; width: max-content; min-width: 100%; scroll-snap-type: none;
+      padding-block: var(--vn-space-2) var(--vn-space-5); margin-block-end: 0;
+      animation-name: vn-jpin; animation-timing-function: linear; animation-fill-mode: both;
+      animation-timeline: --jr; animation-range: contain 0% contain 100%;
+    }
+    html.js #jornada .vn-journey-card { animation-name: none; }
+    #jornada .vn-journey-progress > span {
+      animation-name: vn-jbar; animation-timing-function: linear; animation-fill-mode: both;
+      animation-timeline: --jr; animation-range: contain 0% contain 100%;
+    }
+    #jornada .vn-journey-ghost {
+      display: block; position: absolute; z-index: 0; left: 0; bottom: 4svh; margin: 0;
+      font: italic 900 clamp(12rem, 30vw, 30rem) / .8 var(--vn-font-display);
+      font-variation-settings: "opsz" 144, "WONK" 1; letter-spacing: -.045em; text-transform: lowercase; white-space: nowrap;
+      color: color-mix(in srgb, currentColor 8%, transparent); pointer-events: none;
+      animation-name: vn-jghost; animation-timing-function: linear; animation-fill-mode: both;
+      animation-timeline: --jr; animation-range: cover 0% cover 100%;
+    }
+    @keyframes vn-jpin { to { translate: calc(100vw - 100%) 0; } }
+    @keyframes vn-jbar { from { transform: scaleX(.125); } to { transform: scaleX(1); } }
+    @keyframes vn-jghost { from { translate: 10vw 0; } to { translate: -24vw 0; } }
+  }
+}

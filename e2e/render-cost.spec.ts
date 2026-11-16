@@ -19,6 +19,7 @@ for (const width of WIDTHS) {
     const rows: { id: string; seed: number; real: number }[] = [];
     for (const path of ['/', '/en/']) {
       await page.goto(path);
+      await page.waitForFunction(() => document.documentElement.dataset.scrollFx !== undefined);
       const r = await page.evaluate(async (ids) => {
         const seeds = ids.map((id) => parseFloat(getComputedStyle(document.getElementById(id)!).getPropertyValue('--ci')));
         document.documentElement.classList.add('vn-cv-off');

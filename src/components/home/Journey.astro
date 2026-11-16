@@ -34,67 +34,77 @@ const pad = (n: number) => String(n).padStart(2, '0');
         <h2 class="vn-type-h2 vn-split-title" data-enter="mask"><Words text={titlePre} /><em><Words text={titleEm} /></em></h2>
         <p class="vn-type-body vn-muted vn-sec-sub" data-enter="lines">{c.journey.subtitle}</p>
       </div>
-      <div class="vn-journey-controls" data-enter>
-        <span class="vn-type-micro vn-muted vn-journey-hint">{c.journey.dragHint}</span>
-        <span class="vn-journey-count vn-type-micro" data-journey-count>01 / {pad(total)}</span>
-        <button
-          type="button"
-          class="vn-icon-btn"
-          data-journey-prev
-          aria-label={c.journey.prevLabel}
-        >
-          ←
-        </button>
-        <button
-          type="button"
-          class="vn-icon-btn"
-          data-journey-next
-          aria-label={c.journey.nextLabel}
-        >
-          →
-        </button>
+    </div>
+  </div>
+
+  <div class="vn-journey-run">
+    <div class="vn-journey-pin">
+      <p class="vn-journey-ghost" aria-hidden="true" hidden>{eyebrowTag}</p>
+      <div class="vn-container">
+          <div class="vn-journey-controls" data-enter>
+            <span class="vn-type-micro vn-muted vn-journey-hint">{c.journey.dragHint}</span>
+            <span class="vn-journey-count vn-type-micro" data-journey-count>01 / {pad(total)}</span>
+            <button
+              type="button"
+              class="vn-icon-btn"
+              data-journey-prev
+              aria-label={c.journey.prevLabel}
+            >
+              ←
+            </button>
+            <button
+              type="button"
+              class="vn-icon-btn"
+              data-journey-next
+              aria-label={c.journey.nextLabel}
+            >
+              →
+            </button>
+          </div>
+      </div>
+
+      <div
+        class="vn-journey-track"
+        data-vn-journey
+        data-cursor-label={L[locale].drag}
+        tabindex="0"
+        role="region"
+        aria-label={L[locale].region}
+      >
+        {c.journey.items.map((item, idx) => (
+          <article class={`vn-journey-card ${item.current ? 'vn-journey-card--current' : ''}`}>
+            <div class="vn-journey-card__top">
+              <img
+                src={item.logo}
+                alt={item.logoAlt}
+                width="330"
+                height="180"
+                loading="lazy"
+                decoding="async"
+                class="vn-journey-card__logo"
+              />
+              <span class="vn-type-micro vn-journey-card__idx">{pad(idx + 1)}</span>
+            </div>
+            <p class="vn-type-label vn-journey-card__period">{item.period} · {item.location}</p>
+            <h3 class="vn-type-h4">{item.role}</h3>
+            <p class="vn-type-body-strong vn-journey-card__company">{item.company}</p>
+            <p class="vn-type-body-sm vn-muted">{item.summary}</p>
+            <ul class="vn-journey-card__bullets">
+              {item.highlights.map((h) => (
+                <li class="vn-type-caption">{h}</li>
+              ))}
+            </ul>
+          </article>
+        ))}
+      </div>
+
+      <div class="vn-container">
+        <div class="vn-journey-progress" aria-hidden="true"><span data-journey-bar></span></div>
       </div>
     </div>
   </div>
 
-    <div
-      class="vn-journey-track"
-      data-vn-journey
-      data-cursor-label={L[locale].drag}
-      tabindex="0"
-      role="region"
-      aria-label={L[locale].region}
-    >
-      {c.journey.items.map((item, idx) => (
-        <article class={`vn-journey-card ${item.current ? 'vn-journey-card--current' : ''}`}>
-          <div class="vn-journey-card__top">
-            <img
-              src={item.logo}
-              alt={item.logoAlt}
-              width="330"
-              height="180"
-              loading="lazy"
-              decoding="async"
-              class="vn-journey-card__logo"
-            />
-            <span class="vn-type-micro vn-journey-card__idx">{pad(idx + 1)}</span>
-          </div>
-          <p class="vn-type-label vn-journey-card__period">{item.period} · {item.location}</p>
-          <h3 class="vn-type-h4">{item.role}</h3>
-          <p class="vn-type-body-strong vn-journey-card__company">{item.company}</p>
-          <p class="vn-type-body-sm vn-muted">{item.summary}</p>
-          <ul class="vn-journey-card__bullets">
-            {item.highlights.map((h) => (
-              <li class="vn-type-caption">{h}</li>
-            ))}
-          </ul>
-        </article>
-      ))}
-    </div>
-
   <div class="vn-container">
-    <div class="vn-journey-progress" aria-hidden="true"><span data-journey-bar></span></div>
-
     <details class="vn-archive-details" data-enter>
       <summary class="vn-archive-summary">
         <span class="vn-type-body-strong">{c.journey.archiveSummary}</span>
