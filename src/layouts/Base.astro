@@ -166,6 +166,13 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
 </head>
 <body>
   <a class="vn-skip-link" href="#main">{t.skipToContent}</a>
+  {isHome && (
+    <div class="vn-rail" aria-hidden="true" hidden>
+      <span class="vn-rail__n"></span>
+      <span class="vn-rail__line"><i></i></span>
+      <span class="vn-rail__cue"></span>
+    </div>
+  )}
   <div class="vn-scroll-progress" id="vn-scroll-progress" aria-hidden="true"></div>
 
   <header class="vn-navbar">

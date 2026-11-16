@@ -145,7 +145,7 @@ Read these once; each spec refers to them by number (R1 to R14).
       word that drifts slower. Touch, small screens and browsers without scroll timelines keep the swipe carousel.
 - [x] C4 Números rises over About as a large arch (replaces the diagonal wedge), with its label set on the curve.
       For E2: a faint 1 px horizontal hairline shows at the arch's top edge on desktop (light y1831, dark y1631 frames).
-- [ ] C5 Scroll rail on the left edge with a live percentage and a scroll cue (desktop); the top bar stays on small
+- [x] C5 Scroll rail on the left edge with a live percentage and a scroll cue (desktop); the top bar stays on small
       screens and as the fallback.
 - [x] C6 About manifesto as a tall centred statement that inks in word by word with scroll; small caption below.
       For E2: while inking, italic tips outside each word's veil (inset -.1em -.02em) show at full ink. A wider veil
@@ -272,6 +272,7 @@ and 5, about 170 B); (3) drop the two words of the preloader, keeping the hairli
 | C4 | 31153 | 13061 | 4865 | 17494 | Números arch replaces the wedge (before: html 30946, inlineCss 12979, first-load 4866, lazy 17483); home +207 B html, +82 B inline CSS, +11 B lazy total; en html 30582 (before 30386); no cap changed; render-cost spec green without new values |
 | C6 | 31246 | 13148 | 4865 | 17693 | About statement stage with scroll inking (before: html 31153, inlineCss 13061, first-load 4865, lazy 17494); home +93 B html, +87 B inline CSS, +199 B lazy total (scroll-fx 2320 B gz, cap raised 2304 to 3584 in budget.json and the Budgets table); en html 30670 (before 30582); render-cost seeds for quem-sou updated (1900, 2096, 2107, 2082, 2227; 390 px seed 2374 unchanged and green) |
 | C8 | 31246 | 13148 | 4864 | 17866 | Edge-fill hover on outline buttons (before: html 31246, inlineCss 13148, first-load 4865, lazy 17693); late chunk +173 B gz, nothing inline; en html unchanged; no cap changed |
+| C5 | 31281 | 13148 | 4865 | 18428 | Scroll rail with live percentage on wide screens (before: html 31246, inlineCss 13148, first-load 4866, lazy 17912 measured on a clean build); home +35 B html, nothing inline, +516 B lazy total (late chunk 1594 B gz, cap 1792 unchanged); en html 30706 (before 30670); cue text is generated content (axe cannot model the blend colour); no cap changed |
 
 ## Brand deviations
 
