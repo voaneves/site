@@ -54,7 +54,7 @@
     gap: 6px;
     padding: var(--vn-space-5);
     border-radius: var(--vn-radius-md);
-    background: radial-gradient(180px circle at var(--mx, -999px) var(--my, -999px), color-mix(in srgb, var(--vn-signal, #ff4d00) 16%, transparent), transparent 70%), var(--vn-ref-ink-925);
+    background: var(--vn-ref-ink-925);
     border: 1px solid var(--vn-line-on-dark);
   }
 

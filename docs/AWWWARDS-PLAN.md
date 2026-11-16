@@ -116,7 +116,7 @@ Read these once; each spec refers to them by number (R1 to R14).
 - [x] A2 Section headings collide with the lede below; expertise chips wrap inside the pill; footer link orphan on mobile. `64d5bea`
 - [x] A3 Header nav unreadable (brown on red, 1.6:1) when it sits over the contact band. `64d904d`
 - [x] A4 Projects subtitle is pointer-only copy; the cursor image preview duplicates the row thumbnail. `b431edd`
-- [ ] A5 Late sheet: interaction-only CSS leaves the inline sheet and the first-load script (new lazy chunk `late`).
+- [x] A5 Late sheet: interaction-only CSS leaves the inline sheet and the first-load script (new lazy chunk `late`).
 - [x] A6 Case-study CSS is inlined only on case pages (freed 363 B gz of home inline CSS, 332 B of home HTML).
 
 ### Phase B: from lamalama
@@ -216,7 +216,7 @@ re-measures (R14).
 | Inline CSS, home | 13177 | 12300 | 12700 | 13450 | 13500 | 13500 | 14336 | 14336 (unchanged) |
 | HTML, home | 31117 | 30250 | 30700 | 31950 | 32200 | 32200 | 32768 | 32768 (unchanged) |
 | First-load JS (max) | 5159 | 4800 | 4850 | 4850 | 4950 | 5020 | 8192 | 8192 (unchanged) |
-| Lazy `late` (new) | 0 | 520 | 520 | 1050 | 1450 | 1450 | none | 1792 |
+| Lazy `late` (new) | 0 | 520 | 520 | 1050 | 1450 | 1450 | 1792 (A5) | 1792 |
 | Lazy `scroll-fx` | 2093 | 2093 | 2150 | 2900 | 3250 | 3250 | 2304 | 3584 |
 | Lazy `journey` | 1158 | 1158 | 1158 | 1500 | 1500 | 1500 | none | 1792 |
 | Lazy `count` | 475 | 475 | 475 | 475 | 800 | 800 | none | 1024 |
@@ -227,7 +227,7 @@ re-measures (R14).
 | Lazy `hover-fx` | 1429 | 1429 | 1429 | 1429 | 1429 | 1429 | 1408 | 1536 |
 | Lazy `magnetic` | 575 | 575 | 575 | 575 | 575 | 575 | 614 | 614 (unchanged) |
 | Lazy `smooth` (new) | 0 | 0 | 0 | 0 | 0 | 620 | none | 768 |
-| **Lazy total** | 16760 | 17280 | 17300 | 18930 | 20050 | 21780 | 17408 | **23040** |
+| **Lazy total** | 16760 | 17280 | 17300 | 18930 | 20050 | 21780 | 23040 (A5) | **23040** |
 
 Why the lazy caps move, per task: `late` is new code that leaves first load (A5) plus the rail (C5), the edge fill
 (C8) and the footer (D1). `scroll-fx` carries the CSS of C4, C6, C3, C9, D4 and D1 (about 1150 B). `journey` gains the
@@ -254,6 +254,7 @@ and 5, about 170 B); (3) drop the two words of the preloader, keeping the hairli
 |---|---|---|---|---|---|
 | baseline | 31240 | 13307 | 5170 | 16616 | measured by A6 before its change; case page caato: html 21468, inlineCss 13307 |
 | A6 | 30908 | 12944 | 5170 | 16616 | case.css only on case pages; case page caato: html 21610, inlineCss 13357; home -363 B inline CSS, -332 B html |
+| A5 | 30753 | 12790 | 4827 | 17450 | late chunk 859 B gz (hover css, case rows, nav hover, thumbnail zoom, impact spotlight, marquee hover pause); home -154 B inline CSS, -155 B html, -343 B first-load; case page caato: html 21450, inlineCss 13198 |
 
 ## Brand deviations
 

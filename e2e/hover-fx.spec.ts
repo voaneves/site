@@ -42,7 +42,7 @@ async function wake(page: Page, x: number, y: number) {
   let i = 0;
   await expect(async () => {
     await page.mouse.move(x + (i++ % 2), y, { steps: 2 });
-    expect(await page.evaluate(() => document.adoptedStyleSheets.some((s) => [...s.cssRules].some((r) => r.cssText.includes('data-fx'))))).toBe(true);
+    expect(await page.evaluate(() => document.adoptedStyleSheets.some((s) => [...s.cssRules].some((r) => r.cssText.includes('data-fx="tilt"'))))).toBe(true);
   }).toPass({ timeout: 8000 });
 }
 

@@ -100,9 +100,13 @@ test.describe('cursor: gating', () => {
     await expect(cursor(page)).toHaveAttribute('data-state', 'idle');
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await expect(cursor(page)).toHaveCount(0);
-    // The pointer-only button hover colours (main.ts, not motion) legitimately stay; every motion sheet must go.
+    // The late sheet (hover colours, nav hover; its motion sits behind its own media queries) legitimately stays;
+    // every motion sheet must go.
     const motionSheets = await page.evaluate(() =>
-      document.adoptedStyleSheets.filter((s) => /vn-cursor|animation-timeline|data-fx/.test([...s.cssRules].map((r) => r.cssText).join(''))).length,
+      document.adoptedStyleSheets.filter((s) => {
+        const css = [...s.cssRules].map((r) => r.cssText).join('');
+        return !css.includes('.vn-navbar__link:hover') && /vn-cursor|animation-timeline|data-fx/.test(css);
+      }).length,
     );
     expect(motionSheets).toBe(0);
   });

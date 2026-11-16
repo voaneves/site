@@ -1,6 +1,23 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('chrome fx', () => {
+  test('late sheet: lazy for everyone, carries the hover rules, none of them inline', async ({ page }) => {
+    const hits: string[] = [];
+    page.on('request', (r) => /\/_astro\/late\./.test(r.url()) && hits.push(r.url()));
+    await page.emulateMedia({ reducedMotion: 'reduce' }); // it must load under reduced motion too
+    await page.setViewportSize({ width: 1366, height: 800 });
+    await page.goto('/');
+    await page.waitForFunction(() => 'late' in document.documentElement.dataset);
+    expect(hits.length).toBe(1);
+    const inline = await page.evaluate(() => [...document.querySelectorAll('style')].map((s) => s.textContent).join(''));
+    expect(inline).not.toContain('.vn-navbar__link:hover');
+    expect(inline).not.toContain('vn-project-row__media img{transition');
+    const link = page.locator('.vn-navbar__link').first();
+    const before = await link.evaluate((e) => getComputedStyle(e).color);
+    await link.hover();
+    await expect.poll(() => link.evaluate((e) => getComputedStyle(e).color)).not.toBe(before);
+  });
+
   test('header CTA is magnetic and follows the pointer', async ({ page }) => {
     await page.setViewportSize({ width: 1366, height: 900 });
     await page.goto('/');

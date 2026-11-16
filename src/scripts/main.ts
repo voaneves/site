@@ -19,33 +19,8 @@ afterLcp();
 
 // --- module registrations ---
 {
-  // button hover colours (pointer-only), kept out of the inline critical CSS
-  onIdle(() => {
-    const sh = new CSSStyleSheet();
-    sh.replaceSync(
-      '@layer site{.vn-hero-btn-ghost:hover:not(:disabled){background-color:var(--hero-btn-fg);border-color:var(--hero-btn-fg);color:var(--g-bg)}' +
-      '.vn-hero-btn-cv:hover:not(:disabled){background-color:color-mix(in srgb,var(--hero-btn-fg) 12%,transparent);color:var(--hero-btn-fg)}' +
-      '[data-surface="signal"] .vn-btn--primary:hover:not(:disabled){background-color:var(--vn-cream);color:var(--vn-ink);box-shadow:var(--vn-shadow-lift)}' +
-      '.vn-contact-secondary:hover:not(:disabled){background-color:var(--vn-ink);border-color:var(--vn-ink);color:var(--vn-cream)}}'
-    );
-    document.adoptedStyleSheets = [...document.adoptedStyleSheets, sh];
-  });
-  // case pages: spec-row wipe and pager lift (interaction-only), kept out of the inline critical CSS
-  onIdle(() => {
-    if (!document.querySelector('.vn-case')) return;
-    const e = 'cubic-bezier(.25,1,.5,1)';
-    const sh = new CSSStyleSheet();
-    sh.replaceSync(
-      '@layer site{.vn-case .vn-spec-list__row{position:relative}' +
-      `.vn-case .vn-spec-list__row::after{content:"";position:absolute;inset:auto 0 -1px;height:1px;background:var(--vn-signal-ink);transform:scaleX(0);transform-origin:left}` +
-      '.vn-case .vn-spec-list__row:hover::after,.vn-case .vn-spec-list__row:focus-within::after{transform:scaleX(1)}' +
-      '.vn-case .vn-spec-list__row:hover dt,.vn-case .vn-spec-list__row:focus-within dt{transform:translateX(8px)}' +
-      '.vn-case-pager__link:hover,.vn-case-pager__link:focus-visible{transform:translateY(-3px)}' +
-      '@media(prefers-reduced-motion:no-preference){' +
-      `.vn-case .vn-spec-list__row::after{transition:transform .8s ${e}}.vn-case .vn-spec-list__row dt,.vn-case-pager__link{transition:transform .4s ${e}}}}`
-    );
-    document.adoptedStyleSheets = [...document.adoptedStyleSheets, sh];
-  });
+  // A5: interaction-only CSS (hover colours, case rows, nav hover, thumbnail zoom), one lazy sheet for everyone.
+  onIdle(() => void import('./late').then((m) => m.init()));
   // faq: the details open/close transition (no inline CSS cost) is adopted once #perguntas is within one viewport
   onIdle(() => {
     const sec = document.getElementById('perguntas');

@@ -1,0 +1,38 @@
+/* late/hover.css: adopted on idle by src/scripts/late.ts into @layer site (do not wrap it in @layer yourself).
+   Interaction-only rules: nothing here is needed at first paint or without a pointer. */
+
+/* Button hover colours (were a string in main.ts). */
+.vn-hero-btn-ghost:hover:not(:disabled) { background-color: var(--hero-btn-fg); border-color: var(--hero-btn-fg); color: var(--g-bg); }
+.vn-hero-btn-cv:hover:not(:disabled) { background-color: color-mix(in srgb, var(--hero-btn-fg) 12%, transparent); color: var(--hero-btn-fg); }
+[data-surface="signal"] .vn-btn--primary:hover:not(:disabled) { background-color: var(--vn-cream); color: var(--vn-ink); box-shadow: var(--vn-shadow-lift); }
+.vn-contact-secondary:hover:not(:disabled) { background-color: var(--vn-ink); border-color: var(--vn-ink); color: var(--vn-cream); }
+
+/* Case pages: spec-row wipe and pager lift (were a string in main.ts). */
+.vn-case .vn-spec-list__row { position: relative; }
+.vn-case .vn-spec-list__row::after { content: ""; position: absolute; inset: auto 0 -1px; height: 1px; background: var(--vn-signal-ink); transform: scaleX(0); transform-origin: left; }
+.vn-case .vn-spec-list__row:hover::after, .vn-case .vn-spec-list__row:focus-within::after { transform: scaleX(1); }
+.vn-case .vn-spec-list__row:hover dt, .vn-case .vn-spec-list__row:focus-within dt { transform: translateX(8px); }
+.vn-case-pager__link:hover, .vn-case-pager__link:focus-visible { transform: translateY(-3px); }
+@media (prefers-reduced-motion: no-preference) {
+  .vn-case .vn-spec-list__row::after { transition: transform .8s cubic-bezier(.25, 1, .5, 1); }
+  .vn-case .vn-spec-list__row dt, .vn-case-pager__link { transition: transform .4s cubic-bezier(.25, 1, .5, 1); }
+}
+
+/* Header nav hover (the active and focus states stay inline in chrome.css). */
+.vn-navbar__link:hover { color: var(--vn-text); }
+.vn-navbar__link:hover::after { transform: scaleX(1); }
+@media (prefers-reduced-motion: no-preference) {
+  [data-fx="roll"]:hover > span > span { transform: translateY(-100%); }
+}
+
+/* Project thumbnails: hover zoom. transform, so it composes with the clip unveil, which owns `scale`. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  html .vn-work-row.vn-project-row .vn-project-row__media img { transition: transform 600ms var(--vn-ease-out), scale 1.8s cubic-bezier(.16, 1, .3, 1); }
+  html .vn-work-row.vn-project-row:is(:hover, :focus-visible) .vn-project-row__media img { transform: scale(1.06); }
+}
+
+/* Numbers: pointer spotlight layer of the impact cards (--mx/--my are written by hover-fx.ts). */
+.vn-impact-card { background: radial-gradient(180px circle at var(--mx, -999px) var(--my, -999px), color-mix(in srgb, var(--vn-signal, #ff4d00) 16%, transparent), transparent 70%), var(--vn-ref-ink-925); }
+
+/* Marquee: pause under the pointer (the .is-paused toggle stays inline in expertise.css). */
+.vn-marquee-stack:hover .vn-marquee__track { animation-play-state: paused; }

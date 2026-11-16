@@ -44,7 +44,6 @@
     color: var(--vn-text-muted);
   }
 
-  .vn-navbar__link:hover,
   .vn-navbar__link.is-active {
     color: var(--vn-text);
   }
@@ -67,7 +66,6 @@
     background: currentColor;
   }
 
-  .vn-navbar__link:hover::after,
   .vn-navbar__link.is-active::after {
     transform: scaleX(1);
   }
@@ -86,7 +84,6 @@
       transition: transform var(--vn-dur-hover) var(--vn-ease-out);
     }
 
-    [data-fx="roll"]:hover > span > span,
     [data-fx="roll"]:focus-visible > span > span {
       transform: translateY(-100%);
     }
