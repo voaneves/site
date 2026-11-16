@@ -182,7 +182,7 @@ Read these once; each spec refers to them by number (R1 to R14).
 - [ ] D2 Contact band: larger mobile title; the signal field drifts on its own when the pointer is idle.
 - [ ] D3 Hero portrait colour blooms once on touch devices, on the visitor's first scroll or touch.
 - [x] D4 Service cards open like a frame on mobile; the marquee speeds up with scroll velocity.
-- [ ] D5 Numbers: digits roll like a counter, including the decimal impact metrics; stat labels ruled.
+- [x] D5 Numbers: digits roll like a counter, including the decimal impact metrics; stat labels ruled.
 
 ### Phase E: review and release
 
