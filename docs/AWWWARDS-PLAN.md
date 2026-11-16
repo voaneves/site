@@ -181,7 +181,7 @@ Read these once; each spec refers to them by number (R1 to R14).
 ### Phase D: polish
 
 - [x] D1 Footer closing moment: full-width "voaneves." wordmark rising through a mask, Palmas local time.
-- [ ] D2 Contact band: larger mobile title; the signal field drifts on its own when the pointer is idle.
+- [x] D2 Contact band: larger mobile title; the signal field drifts on its own when the pointer is idle.
 - [x] D3 Hero portrait colour blooms once on touch devices, on the visitor's first scroll or touch.
 - [x] D4 Service cards open like a frame on mobile; the marquee speeds up with scroll velocity.
 - [x] D5 Numbers: digits roll like a counter, including the decimal impact metrics; stat labels ruled.
