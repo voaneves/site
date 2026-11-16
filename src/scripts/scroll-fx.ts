@@ -13,7 +13,8 @@ import { engagedBy } from './lazy';
 export function init(): void {
   const tl = CSS.supports('animation-timeline: view()');
   const S = new CSSStyleSheet();
-  S.replaceSync(`@layer site{${handoff}${parallax}${text}${moments}${cases}${open}${journeyPin}}`);
+  void journeyPin; // DIAG: pinned Jornada left out
+  S.replaceSync(`@layer site{${handoff}${parallax}${text}${moments}${cases}${open}}`);
   if (!tl) {
     const rules = (S.cssRules[0] as CSSLayerBlockRule).cssRules;
     for (let i = rules.length; i--; ) {
