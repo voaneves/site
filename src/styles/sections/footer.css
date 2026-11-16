@@ -36,4 +36,9 @@
     align-items: center;
     min-block-size: 24px;
   }
+
+  /* The clock swaps "UTC−3" for the time when the late script runs: a fixed 5-character box with tabular digits from
+     the first paint means the swap can never change the footer row's width (on CI's Linux fonts the row sat at its
+     wrap threshold and re-wrapped by 68 px). */
+  .vn-foot-time [data-vn-clock] { display: inline-block; inline-size: 5ch; text-align: center; font-variant-numeric: tabular-nums; }
 }

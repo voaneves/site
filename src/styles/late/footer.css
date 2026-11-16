@@ -9,10 +9,11 @@
   text-align: center;
   white-space: nowrap;
   font: italic 900 clamp(4rem, 23.9vw, 40rem) / .8 var(--vn-font-display);
+  box-sizing: border-box;
+  block-size: 1em; /* .8 line + .2em padding: the box never depends on the face's metrics or a late font swap */
   font-variation-settings: "opsz" 144, "WONK" 1;
   letter-spacing: -.045em;
   color: var(--vn-text);
 }
 .vn-foot-mark span { display: inline-block; }
 .vn-foot-mark i { font-style: inherit; color: var(--vn-signal-ink); }
-.vn-foot-time [data-vn-clock] { font-variant-numeric: tabular-nums; }
