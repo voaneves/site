@@ -113,6 +113,44 @@ test.describe('moments, no-preference', () => {
       expect(ok).toBe(true);
     }
   });
+
+  test('mobile: a service card opens from an inset frame as it enters', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await ready(page);
+    const card = page.locator('.vn-service-card').nth(1);
+    const clip = (p: number) =>
+      page.evaluate(async (q) => {
+        const el = document.querySelectorAll('.vn-service-card')[1];
+        const place = () => { const r = el.getBoundingClientRect(); scrollTo({ top: scrollY + r.top - innerHeight + q * Math.min(r.height, innerHeight), behavior: 'instant' }); };
+        place();
+        await new Promise((r) => setTimeout(r, 150));
+        place();
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+        return getComputedStyle(el).clipPath;
+      }, p);
+    expect(await clip(0.05)).toMatch(/^inset\(/);
+    expect(await clip(0.95)).toBe('none');
+    await card.locator('a').focus();
+    await expect.poll(() => card.evaluate((e) => getComputedStyle(e).animationName)).toBe('none');
+  });
+
+  test('the marquee speeds up while scrolling and eases back to 1', async ({ page }) => {
+    await page.setViewportSize({ width: 1366, height: 900 });
+    await page.goto('/');
+    await ready(page);
+    await page.locator('.vn-marquee-stack').scrollIntoViewIfNeeded();
+    const rate = () => page.evaluate(() => Math.max(...[...document.querySelectorAll('.vn-marquee-stack .vn-marquee__track')].flatMap((e) => e.getAnimations().map((a) => a.playbackRate))));
+    await expect.poll(rate).toBe(1);
+    await page.evaluate(async () => {
+      for (let i = 0; i < 6; i++) {
+        scrollBy({ top: i % 2 ? -160 : 200, behavior: 'instant' });
+        await new Promise((r) => requestAnimationFrame(r));
+      }
+    });
+    expect(await rate()).toBeGreaterThan(1.5);
+    await expect.poll(rate, { timeout: 4000 }).toBe(1);
+  });
 });
 
 test.describe('moments, reduced motion', () => {

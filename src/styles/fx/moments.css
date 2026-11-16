@@ -20,5 +20,12 @@
       animation-timeline: view(inline), view(inline);
       animation-range: entry 0% entry 100%, exit 0% exit 100%;
     }
+    /* D4: below the sticky-stack breakpoint each service card opens like a frame while it enters.
+       No card has an animation at these widths (services.css only animates from 900px up). */
+    @media (max-width: 899px) {
+      @keyframes vn-frame { from { clip-path: inset(12% 9% round var(--vn-radius-2xl)); } }
+      .vn-service-card { animation-name: vn-frame; animation-timing-function: cubic-bezier(.25, 1, .5, 1); animation-fill-mode: backwards; animation-timeline: view(); animation-range: entry 0% entry 80%; }
+      .vn-service-card:focus-within { animation: none; }
+    }
   }
 }

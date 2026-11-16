@@ -61,4 +61,29 @@ export function init(): void {
       n.replaceWith(f);
     }
   });
+  // D4: the marquee rows speed up with the page's scroll speed and ease back. playbackRate only: no layout, and a
+  // paused row (button or hover) stays paused. The boost is ignored while the marquee is off screen.
+  const stack = document.querySelector('.vn-marquee-stack');
+  if (stack) {
+    let ly = scrollY, lt = performance.now(), boost = 1, mraf = 0, seen = false;
+    const rate = (r: number) => stack.querySelectorAll('.vn-marquee__track').forEach((el) => el.getAnimations().forEach((a) => { a.playbackRate = r; }));
+    const ease = () => {
+      boost += (1 - boost) * 0.08;
+      const done = Math.abs(boost - 1) < 0.02 || !seen;
+      if (done) boost = 1;
+      rate(boost);
+      mraf = done ? 0 : requestAnimationFrame(ease);
+    };
+    new IntersectionObserver((e) => { seen = e[e.length - 1].isIntersecting; if (!seen && boost !== 1) { boost = 1; rate(1); } }).observe(stack);
+    addEventListener('scroll', () => {
+      const now = performance.now();
+      const v = Math.abs(scrollY - ly) / Math.max(16, now - lt); // px per ms
+      ly = scrollY;
+      lt = now;
+      if (!seen || mq.matches) return;
+      boost = Math.min(5, Math.max(boost, 1 + v * 1.6));
+      if (!mraf) mraf = requestAnimationFrame(ease);
+    }, { passive: true });
+    mq.addEventListener('change', () => mq.matches && rate(1));
+  }
 }
