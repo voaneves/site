@@ -1,14 +1,13 @@
 // Cursor layer B: Sinal dot + label pill + media preview (B8 state machine, WOW-PLAN §2a).
 // Lazy chunk (onFirstPointer + motionOK in main.ts). It owns the `.vn-cursor` DOM and its CSS: the
 // stylesheet is adopted from here (CSSOM, CSP-safe), so the cursor costs 0 inline bytes.
-// Motion: the dot chases the pointer and stretches with its speed; the pill and the media card hang on a
-// damped spring above it (they lag, overshoot and tilt), grow out of the dot, and decode their label from noise.
+// Motion: the dot chases the pointer and stretches with its speed; the pill and the media card follow it with an
+// exponential lag (they trail and tilt, never overshoot), grow out of the dot, and decode their label from noise.
 // The pill sits above the pointer, flips below it near the top edge and is clamped inside the viewport.
 
 const TAU_DOT_MS = 30;
-const SPRING_K = 420; // pill/media spring stiffness (1/s^2)
-const SPRING_C = 25; // damping (1/s): a little overshoot, no wobble
-const TILT = 0.011; // deg per px/s of spring velocity
+const TAU_PILL_MS = 65; // pill/media follow: the time constant of a 0.45s expo-out (lamalama's quickTo)
+const TILT = 0.011; // deg per px/s of follow velocity
 const DECODE_MS = 300; // every label is real text well inside 600ms
 const GAP = 18; // pill to pointer (the CSS offset below)
 const EDGE = 8; // viewport margin the pill keeps
@@ -91,13 +90,14 @@ function init(): void {
     const ey = dy;
     dx += (tx - dx) * a;
     dy += (ty - dy) * a;
-    // pill: damped spring, integrated in two half steps for stability on long frames
-    for (let i = 0, h = ms / 2000; i < 2; i++) {
-      vx += (SPRING_K * (tx - px) - SPRING_C * vx) * h;
-      vy += (SPRING_K * (ty - py) - SPRING_C * vy) * h;
-      px += vx * h;
-      py += vy * h;
-    }
+    // pill: exponential follow (lags, never overshoots); vx/vy are kept for the tilt and the settle test
+    const b = 1 - Math.exp(-ms / TAU_PILL_MS);
+    const qx = px;
+    const qy = py;
+    px += (tx - px) * b;
+    py += (ty - py) * b;
+    vx = ms ? ((px - qx) / ms) * 1000 : 0;
+    vy = ms ? ((py - qy) / ms) * 1000 : 0;
     // dot stretch along its own velocity (liquid drop)
     const sp = ms ? Math.hypot(dx - ex, dy - ey) / ms : 0;
     sx += (Math.min(sp * 0.14, 0.8) - sx) * 0.35;

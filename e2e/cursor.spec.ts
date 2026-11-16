@@ -144,6 +144,41 @@ test.describe('cursor: state machine', () => {
     await expect(page.locator('.vn-cursor i')).toHaveCSS('scale', '0');
   });
 
+  test('the pill trails the pointer and arrives without overshoot', async ({ page }) => {
+    await page.setViewportSize({ width: 1366, height: 800 });
+    await page.goto('/');
+    await page.mouse.move(300, 400);
+    await page.mouse.move(320, 400);
+    await expect(page.locator('.vn-cursor')).toBeAttached();
+    await page.evaluate(() => {
+      const a = document.createElement('a');
+      a.href = '#x';
+      a.setAttribute('data-cursor-label', 'BORA?');
+      a.style.cssText = 'position:fixed;inset:0;z-index:9000;background:transparent';
+      document.body.append(a);
+    });
+    await page.mouse.move(310, 400);
+    await page.mouse.move(320, 400);
+    await page.waitForTimeout(700); // settle
+    const xs = await page.evaluate(async () => {
+      const pill = document.querySelector<HTMLElement>('.vn-cursor__pill')!;
+      const out: number[] = [];
+      const x0 = parseFloat(pill.style.translate);
+      // one jump, dispatched on an element (the handler calls closest() on the event target, so not on document)
+      document.body.dispatchEvent(new PointerEvent('pointermove', { clientX: 720, clientY: 400, bubbles: true, pointerType: 'mouse' }));
+      const t0 = performance.now();
+      while (performance.now() - t0 < 900) {
+        await new Promise((r) => requestAnimationFrame(r));
+        out.push(parseFloat(pill.style.translate));
+      }
+      return { x0, out };
+    });
+    const { x0, out } = xs;
+    expect(out.some((x) => x > x0 && x < 700)).toBe(true); // it lags: a frame in the middle of the way exists
+    expect(Math.max(...out)).toBeLessThanOrEqual(720.5); // never past the target
+    expect(out.at(-1)!).toBeGreaterThan(719); // and it arrives
+  });
+
   test('the label decodes from noise into its text', async ({ page }) => {
     await page.goto('/');
     await wake(page);
