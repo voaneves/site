@@ -8,21 +8,23 @@
      --ci is the section's full measured height; the property sizes the content box, so the section's own
      padding-block is subtracted (otherwise every unrendered section is ~2 paddings too tall and anchor jumps
      overshoot while the page shrinks under a smooth scroll). */
+  /* #contato is not deferred: it is the last section, so jumping to the page end shows it and the footer in the same
+     frame, and correcting its seeded height then moves the footer on screen (CI's Linux fonts made it 876 px against
+     a 944 px seed: a 0.03 CLS). Laying it out always costs little and removes that estimate from the page end. */
   #quem-sou,
   #numeros,
   #expertise,
   #jornada,
   #projetos,
   #servicos,
-  #perguntas,
-  #contato {
+  #perguntas {
     content-visibility: auto;
     contain-intrinsic-block-size: auto
       calc(var(--ci) - 2 * clamp(var(--vn-layout-pad-y-min), 10vw, var(--vn-layout-pad-y-max)));
   }
 
   /* nav.ts adds this before an in-page jump so the target is computed against real heights, not seeds. */
-  .vn-cv-off :is(#quem-sou, #numeros, #expertise, #jornada, #projetos, #servicos, #perguntas, #contato) {
+  .vn-cv-off :is(#quem-sou, #numeros, #expertise, #jornada, #projetos, #servicos, #perguntas) {
     content-visibility: visible;
   }
 
