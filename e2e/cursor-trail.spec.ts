@@ -122,8 +122,8 @@ test.describe('trail: runtime', () => {
     const size = await trail(page).evaluate((c: HTMLCanvasElement) => [c.width, c.height]);
     expect(size[0]).toBeGreaterThan(0);
     expect(size[1]).toBeGreaterThan(0);
-    // the canvas is drawn at half the CSS resolution and upscaled by the compositor (the fluid itself is coarser)
-    expect(size[0]).toBeLessThanOrEqual(640);
+    // the canvas is drawn at one canvas pixel per CSS px (it redraws images), capped at 1920 across
+    expect(size[0]).toBeLessThanOrEqual(1920);
     expect(errors).toEqual([]);
   });
 
@@ -239,5 +239,64 @@ test.describe('trail: runtime', () => {
     await expect(trail(page)).toHaveCount(1);
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await expect(trail(page)).toHaveCount(0);
+  });
+});
+
+test.describe('trail: image distortion', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+  const wv = (page: Page, k: string) => page.evaluate((key) => (window as unknown as Record<string, unknown>)[key], k);
+  const sweep = async (page: Page, sel: string) => {
+    const box = (await page.locator(sel).first().boundingBox())!;
+    const y = box.y + box.height / 2;
+    for (let i = 0; i <= 12; i++) await page.mouse.move(box.x + 10 + ((box.width - 20) * i) / 12, y + (i % 2 ? 6 : -6));
+  };
+
+  test('a project thumbnail is redrawn through the flow while the pointer crosses it, and released after', async ({ page }) => {
+    await page.goto('/?vn-debug');
+    await page.mouse.move(300, 300);
+    await expect(page.locator('canvas.vn-cursor-trail')).toHaveCount(1);
+    test.skip((await wv(page, '__vnTrailMode')) !== 'webgl', 'no WebGL on this machine: the ink fallback has no image pass');
+    const media = page.locator('.vn-project-row__media').first();
+    await media.evaluate((e) => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await expect(media).toHaveClass(/is-done/, { timeout: 8000 });
+    await page.waitForTimeout(300); // let the scroll guard (140 ms) pass
+    await sweep(page, '.vn-project-row__media');
+    await expect.poll(async () => { await sweep(page, '.vn-project-row__media'); return wv(page, '__vnTrailWarp'); }, { timeout: 6000 }).toBeGreaterThanOrEqual(1);
+    // away from any image: no image pass
+    await page.mouse.move(40, 500);
+    await page.mouse.move(60, 520);
+    await expect.poll(() => wv(page, '__vnTrailWarp')).toBe(0);
+    // and the loop still settles
+    await expect.poll(() => wv(page, '__vnTrailRunning'), { timeout: 6000 }).toBe(false);
+  });
+
+  test('the case hero image takes part; the hero portrait never does', async ({ page }) => {
+    await page.goto('/projetos/caato/?vn-debug');
+    await page.mouse.move(300, 300);
+    await expect(page.locator('canvas.vn-cursor-trail')).toHaveCount(1);
+    test.skip((await wv(page, '__vnTrailMode')) !== 'webgl', 'no WebGL on this machine');
+    await page.locator('.vn-case-media').evaluate((e) => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    await expect.poll(async () => { await sweep(page, '.vn-case-media'); return wv(page, '__vnTrailWarp'); }, { timeout: 6000 }).toBeGreaterThanOrEqual(1);
+    await page.goto('/?vn-debug');
+    await page.mouse.move(300, 300);
+    await expect(page.locator('canvas.vn-cursor-trail')).toHaveCount(1);
+    await sweep(page, '.vn-hero-portrait');
+    await page.waitForTimeout(300);
+    expect(await wv(page, '__vnTrailWarp')).toBe(0);
+  });
+
+  test('Canvas2D fallback: ink only, no image pass, no errors', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await page.goto('/?vn-debug&vn-trail=2d');
+    await page.mouse.move(300, 300);
+    await expect(page.locator('canvas.vn-cursor-trail')).toHaveCount(1);
+    const media = page.locator('.vn-project-row__media').first();
+    await media.evaluate((e) => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    await sweep(page, '.vn-project-row__media');
+    expect(await wv(page, '__vnTrailWarp')).toBeFalsy();
+    expect(errors).toEqual([]);
   });
 });

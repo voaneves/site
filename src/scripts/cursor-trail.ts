@@ -10,7 +10,10 @@ const STOP_MS = 1700; // keep simulating after the last move so the ink can sett
 const SIM_PX = 9; // CSS px per velocity cell (capped at SIM_MAX cells across)
 const SIM_MAX = 176;
 const DYE_PX = 3; // CSS px per dye texel
-const OUT_PX = 2; // CSS px per canvas pixel (the canvas is upscaled by the compositor)
+const OUT_PX = 1; // CSS px per canvas pixel: the canvas now also redraws images, which must not look soft
+const OUT_MAX = 1920; // ...capped across, so very wide windows do not pay for it
+const WARP_T = 0.07; // seconds of flow an image is displaced by
+const WARP_SEL = '.vn-project-row__media.is-done img, .vn-case-media img';
 const ITER = 16; // Jacobi pressure iterations
 const SWIRL = 48; // vorticity confinement
 const VEL_DECAY = 2.4; // per second, e^(-k t)
@@ -25,9 +28,15 @@ const RED_HOT = [1, 0.2, 0.17];
 const INK = [0.04, 0.035, 0.035];
 
 type GL = WebGLRenderingContext & WebGL2RenderingContext;
+interface WarpItem {
+  img: HTMLImageElement;
+  box: DOMRect; // the clipping frame (the image's parent)
+  rect: DOMRect; // the image itself, transforms included
+}
 interface Renderer {
   resize(): void;
   frame(x0: number, y0: number, x1: number, y1: number, dt: number, ink: number[]): void;
+  warp?(items: WarpItem[], top: number): number; // WebGL only: redraw images through the flow; returns how many
   clear(): void;
   destroy(): void;
 }
@@ -85,6 +94,10 @@ vec2 f=vec2(U-D,L-R);f*=k*C/(length(f)+1e-5);gl_FragColor=vec4(texture2D(A,v).xy
   o: `${H}uniform vec2 S;void main(){vec4 c=texture2D(A,v);float e=c.a,x=texture2D(A,v+vec2(S.x,0)).a-texture2D(A,v-vec2(S.x,0)).a,y=texture2D(A,v+vec2(0,S.y)).a-texture2D(A,v-vec2(0,S.y)).a;
 vec3 n=c.rgb/max(e,1e-4);n*=mix(1.,.72,smoothstep(.45,1.,e))*(1.+clamp(1.6*(y-x),-.18,.22));
 float o=.88*(1.-exp(-4.4*e));o=max(o+(fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5)-.5)/180.,0.);gl_FragColor=vec4(n*o,o);}`,
+  // image through the flow: A = velocity, B = the image; I = image rect in screen uv (x, y, w, h; y up),
+  // S = 1 / sim size, k = seconds. Alpha follows the flow, so still water leaves the real image showing.
+  x: `${H}uniform vec4 I;uniform vec2 S;uniform float k;void main(){vec2 f=texture2D(A,v).xy*S*k;float a=smoothstep(.003,.02,length(f));
+vec2 p=(v-f-I.xy)/I.zw;vec4 c=texture2D(B,clamp(p,0.,1.));a*=c.a*step(.0,min(min(p.x,p.y),1.-max(p.x,p.y)));gl_FragColor=vec4(c.rgb*a,a);}`,
 };
 
 interface Tgt {
@@ -122,6 +135,7 @@ function webgl(canvas: HTMLCanvasElement): Renderer | null {
   };
   const free = () => {
     dropAll();
+    texAll.forEach((t) => gl.deleteTexture(t));
     progs.forEach((p) => gl.deleteProgram(p));
     gl.deleteBuffer(buf);
     gl.getExtension('WEBGL_lose_context')?.loseContext(); // release the context slot (also on failed init)
@@ -210,6 +224,65 @@ function webgl(canvas: HTMLCanvasElement): Renderer | null {
   };
   const swap = (x: Tgt[]) => x.reverse();
 
+  // B2b: one texture per participating image, uploaded lazily (at most one upload per frame)
+  const tex = new WeakMap<HTMLImageElement, WebGLTexture>();
+  const texAll: WebGLTexture[] = [];
+  let uploaded = false;
+  const texOf = (img: HTMLImageElement): WebGLTexture | null => {
+    const have = tex.get(img);
+    if (have) return have;
+    if (uploaded || !img.complete || !img.naturalWidth) return null;
+    uploaded = true;
+    const t = gl.createTexture()!;
+    gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+    try {
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+    } catch {
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
+      gl.deleteTexture(t);
+      return null; // a tainted or undecodable image never takes part
+    }
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    tex.set(img, t);
+    texAll.push(t);
+    return t;
+  };
+  const warp = (items: WarpItem[], top: number): number => {
+    uploaded = false;
+    let n = 0;
+    // layout viewport without the scrollbar: the canvas is exactly this wide
+    const vw = document.documentElement.clientWidth;
+    const vh = innerHeight;
+    const kx = canvas.width / vw;
+    const ky = canvas.height / vh;
+    gl.enable(gl.SCISSOR_TEST);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); // premultiplied output over the ink
+    for (const it of items) {
+      const x0 = Math.max(it.box.left, 0);
+      const x1 = Math.min(it.box.right, vw);
+      const y0 = Math.max(it.box.top, top); // never over the sticky header
+      const y1 = Math.min(it.box.bottom, vh);
+      if (x1 <= x0 || y1 <= y0) continue;
+      const t = texOf(it.img);
+      if (!t) continue;
+      gl.scissor(Math.floor(x0 * kx), Math.floor((vh - y1) * ky), Math.ceil((x1 - x0) * kx), Math.ceil((y1 - y0) * ky));
+      run('x', null, vel[0], { t } as Tgt, {
+        I: [it.rect.left / vw, 1 - it.rect.bottom / vh, it.rect.width / vw, it.rect.height / vh],
+        S: [1 / vel[0].w, 1 / vel[0].h],
+        k: [WARP_T],
+      });
+      n++;
+    }
+    gl.disable(gl.SCISSOR_TEST);
+    gl.disable(gl.BLEND);
+    return n;
+  };
   const wipe = () => {
     for (const x of all) {
       gl.bindFramebuffer(gl.FRAMEBUFFER, x.f);
@@ -224,7 +297,7 @@ function webgl(canvas: HTMLCanvasElement): Renderer | null {
   const resize = () => {
     const [w, h] = grid(SIM_PX, SIM_MAX);
     const [dw, dh] = grid(DYE_PX);
-    const [cw, ch] = grid(OUT_PX);
+    const [cw, ch] = grid(OUT_PX, OUT_MAX);
     SW = cw;
     SH = ch;
     canvas.width = cw;
@@ -250,6 +323,7 @@ function webgl(canvas: HTMLCanvasElement): Renderer | null {
 
   return {
     resize,
+    warp,
     frame(x0, y0, x1, y1, dt, ink) {
       const t = dt / 1000;
       const w = innerWidth;
@@ -356,7 +430,30 @@ let gx = 0;
 let gy = 0;
 let gn = 0;
 let resizeRaf = 0;
-const mql = matchMedia('(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference)');
+let warpImgs: HTMLImageElement[] = [];
+let warpN = 0;
+let navBottom = 0;
+let lastScroll = 0;
+const onScroll = () => {
+  lastScroll = performance.now();
+};
+
+// Images near the pointer, with their frame and their own rect (transforms included), at most three.
+function warpItems(now: number): WarpItem[] {
+  if (now - lastScroll < 140) return []; // the page is moving and the canvas is a frame behind it
+  if (warpN++ % 30 === 0) {
+    warpImgs = [...document.querySelectorAll<HTMLImageElement>(WARP_SEL)];
+    navBottom = document.querySelector('.vn-navbar')?.getBoundingClientRect().bottom ?? 0;
+  }
+  const out: WarpItem[] = [];
+  for (const img of warpImgs) {
+    const box = img.parentElement!.getBoundingClientRect();
+    if (px < box.left - 160 || px > box.right + 160 || py < box.top - 160 || py > box.bottom + 160) continue;
+    out.push({ img, box, rect: img.getBoundingClientRect() });
+    if (out.length === 3) break;
+  }
+  return out;
+}const mql = matchMedia('(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference)');
 
 // Luminance of the first opaque background up the tree; falls back to the theme.
 function groundDark(el: Element | null, fallback: boolean): boolean {
@@ -374,6 +471,7 @@ function stop() {
   fade = 0;
   r?.clear();
   flag('__vnTrailRunning', false);
+  flag('__vnTrailWarp', 0);
 }
 
 function tick(now: number) {
@@ -405,6 +503,7 @@ function tick(now: number) {
     qy = py;
   }
   r.frame(qx, qy, px, py, dt, ink);
+  if (r.warp) flag('__vnTrailWarp', nodye ? 0 : r.warp(warpItems(now), navBottom));
   qx = px;
   qy = py;
   raf = requestAnimationFrame(tick);
@@ -443,6 +542,7 @@ function onMove(e: PointerEvent) {
     qy = py;
     lastT = lastMove;
     gn = 0;
+    warpN = 0;
     flag('__vnTrailRunning', true);
     raf = requestAnimationFrame(tick);
   }
@@ -470,6 +570,7 @@ function off() {
   removeEventListener('blur', stop);
   removeEventListener('pagehide', off);
   removeEventListener('resize', onResize);
+  removeEventListener('scroll', onScroll);
   document.removeEventListener('visibilitychange', onHidden);
   mql.removeEventListener('change', onMq);
   r?.destroy();
@@ -494,6 +595,7 @@ function start() {
   addEventListener('blur', stop);
   addEventListener('pagehide', off);
   addEventListener('resize', onResize, { passive: true });
+  addEventListener('scroll', onScroll, { passive: true });
   document.addEventListener('visibilitychange', onHidden);
   mql.addEventListener('change', onMq);
 }

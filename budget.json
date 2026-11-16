@@ -6,7 +6,7 @@
   "lazyJsGzMaxBytes": 23040,
   "lazyChunks": {
     "cursor": 3150,
-    "cursor-trail": 9216,
+    "cursor-trail": 6144,
     "magnetic": 614,
     "hover-fx": 1450,
     "signal-field": 2560,
