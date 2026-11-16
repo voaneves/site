@@ -309,3 +309,22 @@ test('touch: tapping the portrait blooms colour, with a tap caption', async ({ b
   expect(await revealed(page)).toBeGreaterThan(0.02);
   await ctx.close();
 });
+
+test('touch: the colour blooms by itself after the first scroll, not on load', async ({ browser }) => {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, baseURL: test.info().project.use.baseURL });
+  const page = await ctx.newPage();
+  const fx: string[] = [];
+  page.on('request', (rq) => /\/_astro\/hero-fx\./.test(rq.url()) && fx.push(rq.url()));
+  await page.goto('/?vn-debug');
+  await page.waitForLoadState('load');
+  await page.waitForTimeout(1500);
+  expect(fx).toEqual([]); // nothing on load
+  await expect(page.locator('.vn-hero-portrait__canvas')).toBeHidden();
+  await page.locator('[data-vn-portrait-wrap]').evaluate((e) => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+  await expect(page.locator('.vn-hero-portrait__canvas')).toBeVisible({ timeout: 5000 });
+  await settled(page);
+  expect(await revealed(page)).toBeGreaterThan(0.2);
+  // the image itself is untouched
+  await expect(page.locator('.vn-hero-portrait__img')).toHaveCSS('opacity', '1');
+  await ctx.close();
+});

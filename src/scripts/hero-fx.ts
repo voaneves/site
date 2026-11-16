@@ -285,7 +285,8 @@ export function fine(
 
 // Touch and other coarse pointers: tap blooms colour where the finger lands, a sideways drag paints a
 // stroke (vertical swipes still scroll). `first` is the pointerdown that loaded this chunk, replayed as a tap.
-export function touch(wrap: HTMLElement, canvas: HTMLCanvasElement, img: HTMLImageElement, first?: PointerEvent) {
+// With `auto` it blooms by itself once (D3).
+export function touch(wrap: HTMLElement, canvas: HTMLCanvasElement, img: HTMLImageElement, first?: PointerEvent, auto = false) {
   let paint: Painter | null = null;
   let blooms: { x: number; y: number; t: number }[] = [];
   let down = false;
@@ -338,4 +339,13 @@ export function touch(wrap: HTMLElement, canvas: HTMLCanvasElement, img: HTMLIma
   );
   for (const type of ['pointerup', 'pointercancel', 'pointerleave']) wrap.addEventListener(type, () => (down = false));
   if (first) onDown(first, false);
+  else if (auto) {
+    // D3: three blooms down the portrait, 180 ms apart, so most of it turns to colour once
+    [0.3, 0.55, 0.8].forEach((fy, i) =>
+      setTimeout(() => {
+        const r = wrap.getBoundingClientRect();
+        onDown({ clientX: r.left + r.width * (i === 1 ? 0.42 : 0.58), clientY: r.top + r.height * fy } as PointerEvent, false);
+      }, i * 180),
+    );
+  }
 }
