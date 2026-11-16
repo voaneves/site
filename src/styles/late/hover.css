@@ -36,3 +36,30 @@
 
 /* Marquee: pause under the pointer (the .is-paused toggle stays inline in expertise.css). */
 .vn-marquee-stack:hover .vn-marquee__track { animation-play-state: paused; }
+
+/* C8 edge fill (Era): outline buttons fill from the left edge, the label flips colour, the fill leaves to the
+   right. --fill / --fill-fg default to the section ground pair (themes.css redefines --vn-text-on-inverse as the
+   ground text, so the brand inverse pair is only the fallback outside sections). Must stay after the hover-colour rules above:
+   same specificity, later wins. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .vn-btn--secondary { position: relative; isolation: isolate; overflow: clip; --fill: var(--g-fg, var(--vn-surface-inverse)); --fill-fg: var(--g-bg, var(--vn-text-on-inverse)); }
+  /* The label flips when the fill crosses its centre (0.4 s of the symmetric 0.8 s in-out), both ways; flipping at
+     hover start left it on the unfilled part at 1:1 for 0.3 s. */
+  .vn-btn--secondary { transition: color .12s linear .34s, border-color .12s linear .34s, background-color .12s linear .34s, transform var(--vn-dur-press) var(--vn-ease-spring); }
+  .vn-btn--secondary::before {
+    content: ""; position: absolute; inset: -1px; z-index: -1;
+    background: var(--fill, var(--vn-surface-inverse));
+    transform: scaleX(0); transform-origin: 100% 50%;
+    transition: transform .8s var(--vn-ease-in-out);
+  }
+  .vn-btn--secondary:is(:hover, :focus-visible):not(:disabled)::before { transform: scaleX(1); transform-origin: 0 50%; }
+  .vn-btn--secondary:is(:hover, :focus-visible):not(:disabled) {
+    background-color: transparent;
+    border-color: var(--fill, var(--vn-surface-inverse));
+    color: var(--fill-fg, var(--vn-text-on-inverse));
+  }
+  .vn-hero-btn-ghost { --fill: var(--hero-btn-fg); --fill-fg: var(--g-bg); }
+  /* Contact band (red): the label stays ink and the fill is cream, so the label keeps 4.6:1 on red and 16:1 on cream
+     at every frame (cream on red is only 3.6:1 while the flipped label is still over the unfilled part). */
+  .vn-contact-secondary { --fill: var(--vn-cream); --fill-fg: var(--vn-ink); }
+}

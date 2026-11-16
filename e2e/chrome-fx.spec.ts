@@ -80,4 +80,38 @@ test.describe('chrome fx', () => {
       expect(top).toBe(true);
     }
   });
+
+  test('outline buttons fill from the edge on hover and on keyboard focus', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await page.waitForFunction(() => 'late' in document.documentElement.dataset);
+    const btn = page.locator('.vn-hero-btn-ghost');
+    const fill = () => btn.evaluate((e) => new DOMMatrix(getComputedStyle(e, '::before').transform).a);
+    const color = () => btn.evaluate((e) => getComputedStyle(e).color);
+    expect(await fill()).toBe(0);
+    const rest = await color();
+    await btn.hover();
+    await expect.poll(fill, { timeout: 3000 }).toBe(1);
+    await expect(btn).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    await expect.poll(color).not.toBe(rest);
+    await page.mouse.move(5, 5);
+    await expect.poll(fill, { timeout: 3000 }).toBe(0);
+    // keyboard parity
+    for (let i = 0; i < 20; i++) {
+      await page.keyboard.press('Tab');
+      if (await page.evaluate(() => document.activeElement?.classList.contains('vn-hero-btn-ghost'))) break;
+    }
+    await expect.poll(fill, { timeout: 3000 }).toBe(1);
+  });
+
+  test('outline buttons keep the instant colour swap under reduced motion', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.setViewportSize({ width: 1366, height: 800 });
+    await page.goto('/');
+    await page.waitForFunction(() => 'late' in document.documentElement.dataset);
+    const btn = page.locator('.vn-hero-btn-ghost');
+    expect(await btn.evaluate((e) => getComputedStyle(e, '::before').content)).toBe('none');
+    await btn.hover();
+    await expect.poll(() => btn.evaluate((e) => getComputedStyle(e).backgroundColor)).not.toBe('rgba(0, 0, 0, 0)');
+  });
 });

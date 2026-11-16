@@ -153,7 +153,7 @@ Read these once; each spec refers to them by number (R1 to R14).
       inking per line rather than per word, or animating the words' own colour; decide in E2.
 - [x] C7 Era's easings and hover duration as site-wide token overrides. (Image parallax in clipped frames and drawn
       hairlines already shipped in WOW-PLAN U7: `fx/parallax.css`, `fx/text.css`.)
-- [ ] C8 Edge-fill hover on outline buttons (0.8 s in-out, text colour flips). (The nav text roll already shipped.)
+- [x] C8 Edge-fill hover on outline buttons (0.8 s in-out, text colour flips). (The nav text roll already shipped.)
 - [ ] C9 Hero badge rotation tied to scroll, on top of its slow spin.
 
 ### Phase D: polish
@@ -271,6 +271,7 @@ and 5, about 170 B); (3) drop the two words of the preloader, keeping the hairli
 | A7 | 30946 | 12979 | 4866 | 17483 | No-JS theme: ground presets default to light and follow the OS through a dark media block; home +108 B inline CSS, +109 B html (before: html 30837, inlineCss 12871); en html 30386; case page caato: html 21648, inlineCss 13398 (before 21537 / 13283) |
 | C4 | 31153 | 13061 | 4865 | 17494 | Números arch replaces the wedge (before: html 30946, inlineCss 12979, first-load 4866, lazy 17483); home +207 B html, +82 B inline CSS, +11 B lazy total; en html 30582 (before 30386); no cap changed; render-cost spec green without new values |
 | C6 | 31246 | 13148 | 4865 | 17693 | About statement stage with scroll inking (before: html 31153, inlineCss 13061, first-load 4865, lazy 17494); home +93 B html, +87 B inline CSS, +199 B lazy total (scroll-fx 2320 B gz, cap raised 2304 to 3584 in budget.json and the Budgets table); en html 30670 (before 30582); render-cost seeds for quem-sou updated (1900, 2096, 2107, 2082, 2227; 390 px seed 2374 unchanged and green) |
+| C8 | 31246 | 13148 | 4864 | 17866 | Edge-fill hover on outline buttons (before: html 31246, inlineCss 13148, first-load 4865, lazy 17693); late chunk +173 B gz, nothing inline; en html unchanged; no cap changed |
 
 ## Brand deviations
 
