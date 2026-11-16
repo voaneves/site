@@ -61,6 +61,29 @@ test('S/M/L ladder: .8 s opacity, 1.2 s translate/scale/clip, Out ease', async (
   expect(t[1]).toContain('cubic-bezier(0.25, 1, 0.5, 1)');
 });
 
+test('mask headline words use the lamalama line timing and settle at identity', async ({ page }) => {
+  await ready(page); // 1366x900, '/', waits for the fx sheet
+  const h = page.locator('#servicos h2[data-enter=mask]');
+  const w = h.locator('.vn-w').first();
+  // deferred sections keep stale computed styles until rendered (R8): render them all, the heading stays far below
+  await page.evaluate(() => document.documentElement.classList.add('vn-cv-off'));
+  // hidden pose, read while the heading is still below the fold
+  const hid = await w.evaluate((e) => { const c = getComputedStyle(e); return [c.opacity, c.scale, c.transitionDuration, c.transitionTimingFunction]; });
+  expect(hid[0]).toBe('0');
+  expect(parseFloat(hid[1])).toBeCloseTo(0.96, 2);
+  expect(hid[2].split(', ').every((d) => d === '0.85s')).toBe(true);
+  expect(hid[3]).toContain('cubic-bezier(0.16, 1, 0.3, 1)');
+  await h.scrollIntoViewIfNeeded();
+  await expect(h.locator('xpath=..')).toHaveClass(/is-in/);
+  const { ls, n } = await h.evaluate((e) => ({
+    ls: (e as HTMLElement).style.getPropertyValue('--ls'),
+    n: Math.max(...[...e.querySelectorAll<HTMLElement>('.vn-w')].map((x) => Number(x.style.getPropertyValue('--l')))) + 1,
+  }));
+  expect(ls).toBe(n > 1 ? `${Math.round((135 + 30 * n) / (n - 1))}ms` : '0ms');
+  await expect.poll(() => w.evaluate((e) => getComputedStyle(e).opacity), { timeout: 4000 }).toBe('1');
+  await expect.poll(() => w.evaluate((e) => parseFloat(getComputedStyle(e).scale))).toBe(1);
+});
+
 test('Proof-board chart panel is sticky on large screens only', async ({ page }) => {
   await ready(page);
   await expect(page.locator('.vn-chart-panel')).toHaveCSS('position', 'sticky');

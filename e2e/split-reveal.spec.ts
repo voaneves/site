@@ -31,11 +31,13 @@ test('lines words ride the M ladder with a per-line delay', async ({ page }) => 
   const ws = await p.locator('.vn-w').evaluateAll((els) => {
     const last = els.at(-1) as HTMLElement;
     const c = getComputedStyle(last);
-    return [c.transitionDuration, c.transitionTimingFunction, c.transitionDelay, last.style.getPropertyValue('--l')];
+    const block = last.closest('[data-enter=lines]') as HTMLElement;
+    return [c.transitionDuration, c.transitionTimingFunction, c.transitionDelay, last.style.getPropertyValue('--l'), block.style.getPropertyValue('--ls')];
   });
-  expect(ws[0]).toBe('0.8s, 0.8s');
-  expect(ws[1]).toContain('cubic-bezier(0.25, 1, 0.5, 1)');
-  expect(parseFloat(ws[2])).toBeCloseTo(Number(ws[3]) * 0.1, 2);
+  // B1: lamalama timing, .85 s expo-out, .15 s base delay plus the block's per-line step --ls
+  expect(ws[0]).toBe('0.85s, 0.85s, 0.85s');
+  expect(ws[1]).toContain('cubic-bezier(0.16, 1, 0.3, 1)');
+  expect(parseFloat(ws[2])).toBeCloseTo(0.15 + Number(ws[3]) * (parseFloat(ws[4]) / 1000), 2);
 });
 
 test('lines blocks take the same space with and without the motion layout', async ({ browser }) => {

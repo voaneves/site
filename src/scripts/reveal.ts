@@ -9,6 +9,9 @@ function lines(el: Element): void {
     }
     w.style.setProperty('--l', String(l));
   });
+  // lamalama's stagger: a block of N lines spreads over (135 + 30 N) ms, so the step shrinks as N grows.
+  const n = l + 1;
+  (el as HTMLElement).style.setProperty('--ls', n > 1 ? `${Math.round((135 + 30 * n) / (n - 1))}ms` : '0ms');
 }
 
 export function init(): void {

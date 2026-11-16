@@ -121,7 +121,7 @@ Read these once; each spec refers to them by number (R1 to R14).
 
 ### Phase B: from lamalama
 
-- [ ] B1 Line reveal as theirs: lines rise from 80%, scale .96, fade, masked, expo-out, 0.85 s, base delay 0.15 s,
+- [x] B1 Line reveal as theirs: lines rise from 80%, scale .96, fade, masked, expo-out, 0.85 s, base delay 0.15 s,
       per-line stagger `(0.135 + 0.03 N) / (N - 1)` s.
 - [ ] B2a Cursor label pill follows with a 0.45 s expo-out lag (no spring overshoot).
 - [ ] B2b Fluid trail distorts the images it passes over (project thumbnails, case hero), reusing the solver's
@@ -256,6 +256,7 @@ and 5, about 170 B); (3) drop the two words of the preloader, keeping the hairli
 | A6 | 30908 | 12944 | 5170 | 16616 | case.css only on case pages; case page caato: html 21610, inlineCss 13357; home -363 B inline CSS, -332 B html |
 | A5 | 30753 | 12790 | 4827 | 17450 | late chunk 859 B gz (hover css, case rows, nav hover, thumbnail zoom, impact spotlight, marquee hover pause); home -154 B inline CSS, -155 B html, -343 B first-load; case page caato: html 21450, inlineCss 13198 |
 | C7 | 30785 | 12821 | 4827 | 17450 | Era easing and hover tokens in base.css; home +31 B inline CSS, +32 B html |
+| B1 | 30837 | 12871 | 4866 | 17483 | lamalama line reveal; home +50 B inline CSS, +52 B html, +39 B first-load (reveal.ts), +33 B lazy total (scroll-fx) |
 
 ## Brand deviations
 
