@@ -95,6 +95,40 @@ test.describe('header ground · behaviours', () => {
       expect(s.scheme).toBe('light');
       expect(s.color).toBe(s.fg);
     });
+
+    test(`signal ground: links pass 4.5:1, underline is ink, red dot stays red, toggles legible (${theme})`, async ({ page }) => {
+      await open(page, theme);
+      await probe(page, '#contato');
+      await settled(page, '#contato');
+      const r = await page.evaluate(() => {
+        const nav = document.querySelector<HTMLElement>('.vn-navbar')!;
+        const rgb = (c: string) => (c.match(/[\d.]+/g) ?? []).map(Number);
+        const lin = (v: number) => { const x = v / 255; return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; };
+        const lum = (c: number[]) => 0.2126 * lin(c[0]) + 0.7152 * lin(c[1]) + 0.0722 * lin(c[2]);
+        const ratio = (a: string, b: string) => { const la = lum(rgb(a)), lb = lum(rgb(b)); return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05); };
+        const bg = nav.style.getPropertyValue('--vn-surface'); // the navbar paints it at 0.88 alpha over the band
+        const links = [...nav.querySelectorAll<HTMLElement>('.vn-navbar__link')];
+        const after = (l: HTMLElement) => getComputedStyle(l, '::after').backgroundColor;
+        const dot = nav.querySelector('.vn-navbar__cta .vn-btn__dot')!;
+        const ctl = [nav.querySelector('#vn-theme-toggle'), ...nav.querySelectorAll('.vn-navbar__actions a:not(.vn-navbar__cta), .vn-navbar__actions button')].filter(Boolean) as HTMLElement[];
+        return {
+          ground: nav.dataset.ground, bg,
+          linkRatios: links.map((l) => ratio(getComputedStyle(l).color, bg)),
+          underlines: links.map((l) => [after(l), getComputedStyle(l).color]),
+          dot: getComputedStyle(dot).backgroundColor,
+          ctlRatios: ctl.map((c) => ratio(getComputedStyle(c).color, bg)),
+        };
+      });
+      expect(r.ground).toBe('signal');
+      expect(r.linkRatios.length).toBeGreaterThan(3);
+      for (const x of r.linkRatios) expect(x).toBeGreaterThanOrEqual(4.5);
+      for (const [u, c] of r.underlines) { expect(u).toBe(c); expect(u).not.toBe('rgb(245, 0, 0)'); }
+      const [dr, dg, db] = r.dot.match(/\d+/g)!.map(Number);
+      expect(dr).toBeGreaterThan(200);
+      expect(dg).toBeLessThan(80);
+      expect(db).toBeLessThan(80);
+      for (const x of r.ctlRatios) expect(x).toBeGreaterThanOrEqual(4.5);
+    });
   }
 
   test('theme-color follows the ground: hero at top, Numbers mid-page', async ({ page }) => {

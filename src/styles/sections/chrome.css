@@ -62,6 +62,11 @@
     transition: transform var(--vn-dur-hover) var(--vn-ease-out);
   }
 
+  /* Over the signal band the red underline would vanish: draw it in the label's ink. */
+  .vn-navbar[data-ground="signal"] .vn-navbar__link::after {
+    background: currentColor;
+  }
+
   .vn-navbar__link:hover::after,
   .vn-navbar__link.is-active::after {
     transform: scaleX(1);

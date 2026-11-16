@@ -4,6 +4,10 @@
     position: relative;
     background-color: var(--vn-ref-red-600); /* #f50000 in both themes (B9.3) */
     color: var(--vn-ink);
+    /* The header copies these from the ground under it (nav.ts): on red, only ink reads. */
+    --vn-text: var(--vn-ink);
+    --vn-text-muted: var(--vn-ink);
+    --vn-line: rgb(10 10 10 / 0.4);
   }
 
   .vn-contact-band > .vn-container {

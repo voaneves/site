@@ -61,6 +61,7 @@ function groundFlip(): void {
     for (const p of ['--vn-text', '--vn-text-muted', '--vn-line']) s.setProperty(p, c.getPropertyValue(p));
     s.setProperty('--vn-surface', bg);
     s.color = c.color;
+    nav.dataset.ground = (cur as HTMLElement).dataset.ground || '';
     s.colorScheme = ch(c.color).reduce((a, n) => a + n) < 382 ? 'light' : 'dark';
     const hex = '#' + ch(bg).map((n) => (n + 256).toString(16).slice(1)).join('');
     document.querySelectorAll('meta[name=theme-color]').forEach((m) => m.setAttribute('content', hex));
