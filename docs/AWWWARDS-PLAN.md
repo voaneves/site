@@ -182,13 +182,14 @@ Read these once; each spec refers to them by number (R1 to R14).
 
 - [x] D1 Footer closing moment: full-width "voaneves." wordmark rising through a mask, Palmas local time.
 - [ ] D2 Contact band: larger mobile title; the signal field drifts on its own when the pointer is idle.
-- [ ] D3 Hero portrait colour blooms once on touch devices, on the visitor's first scroll or touch.
+- [x] D3 Hero portrait colour blooms once on touch devices, on the visitor's first scroll or touch.
 - [x] D4 Service cards open like a frame on mobile; the marquee speeds up with scroll velocity.
 - [x] D5 Numbers: digits roll like a counter, including the decimal impact metrics; stat labels ruled.
 
 ### Phase E: review and release
 
-- [ ] E1 Code review of logic, security and infrastructure changes.
+- [x] E1 Code review of logic, security and infrastructure changes (no critical/high; fixes `12481bb`, `db81c20`,
+      `9968da8`, `68e30c2`).
 - [ ] E2 Second UX/UI review from fresh captures (desktop 1440, mobile 390), both locales, light and dark,
       reduced motion, JavaScript off.
 - [ ] E3 Full gate, full Playwright suite, Lighthouse with `lighthouserc.cjs` (mobile and desktop).
