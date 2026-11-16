@@ -1,0 +1,18 @@
+/* late/footer.css: adopted on idle by late.ts into @layer site. D1 footer wordmark (shown only once this sheet
+   is in: the element carries the hidden attribute). It sits after the footer row so its arrival only extends the
+   page downwards and moves nothing already on screen. */
+.vn-foot-mark {
+  display: block;
+  margin: var(--vn-space-7) 0 0;
+  padding-block: .06em .14em; /* room for the italic's ascenders and descenders inside the clip */
+  overflow: clip;
+  text-align: center;
+  white-space: nowrap;
+  font: italic 900 clamp(4rem, 23.9vw, 40rem) / .8 var(--vn-font-display);
+  font-variation-settings: "opsz" 144, "WONK" 1;
+  letter-spacing: -.045em;
+  color: var(--vn-text);
+}
+.vn-foot-mark span { display: inline-block; }
+.vn-foot-mark i { font-style: inherit; color: var(--vn-signal-ink); }
+.vn-foot-time [data-vn-clock] { font-variant-numeric: tabular-nums; }

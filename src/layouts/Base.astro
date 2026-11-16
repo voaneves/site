@@ -266,6 +266,7 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
   <footer class="vn-site-footer" data-cursor-zone="read">
     <div class="vn-container vn-site-footer__inner">
       <div data-enter="left"><Credit variant="inline" lang={locale === 'en' ? 'en' : 'pt-BR'} utmSource="voaneves-site" /></div>
+      <p class="vn-type-micro vn-foot-time" data-enter><span>Palmas, TO</span> · <span data-vn-clock>UTC−3</span></p>
       <div class="vn-site-footer__links" data-enter="right">
         <a class="vn-type-micro" href={privacyHref} data-fx="roll"><span><span>{t.footerPrivacy}</span></span></a>
         <a class="vn-type-micro" href={c.contact.cvUrl} download data-fx="roll"><span><span>{locale === 'en' ? 'CV PDF (PT)' : 'CV PDF'}</span></span></a>
@@ -274,6 +275,7 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
         <a class="vn-type-micro" href="https://www.youtube.com/@voaneves" rel="noopener noreferrer" target="_blank" data-fx="roll"><span><span>YouTube</span></span></a>
       </div>
     </div>
+    <p class="vn-foot-mark" aria-hidden="true" hidden><span>voaneves<i>.</i></span></p>
   </footer>
 
   <script>import '../scripts/main.ts';</script>
