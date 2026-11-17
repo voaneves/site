@@ -5,6 +5,7 @@ import moments from '../styles/fx/moments.css?inline';
 import cases from '../styles/fx/case.css?inline';
 import open from '../styles/fx/open.css?inline';
 import journeyPin from '../styles/fx/journey-pin.css?inline';
+import about from '../styles/fx/about.css?inline';
 import { engagedBy } from './lazy';
 
 // U7a: scroll choreography engine. Loaded on idle under prefers-reduced-motion: no-preference (all pointers).
@@ -13,7 +14,7 @@ import { engagedBy } from './lazy';
 export function init(): void {
   const tl = CSS.supports('animation-timeline: view()');
   const S = new CSSStyleSheet();
-  S.replaceSync(`@layer site{${handoff}${parallax}${text}${moments}${cases}${open}${journeyPin}}`);
+  S.replaceSync(`@layer site{${handoff}${parallax}${text}${moments}${cases}${open}${journeyPin}${about}}`);
   if (!tl) {
     const rules = (S.cssRules[0] as CSSLayerBlockRule).cssRules;
     for (let i = rules.length; i--; ) {
