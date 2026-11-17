@@ -2,6 +2,7 @@
 import type { Locale } from '../../i18n/ui';
 import { PORTFOLIO } from '../../data/portfolio';
 import Words from '../Words.astro';
+import { aboutTimeline } from '../../data/about-timeline';
 
 export interface Props {
   locale: Locale;
@@ -15,6 +16,9 @@ const L = {
   'pt-br': { drag: 'Arraste', prev: 'Conquista anterior', next: 'Próxima conquista' },
   en: { drag: 'Drag', prev: 'Previous award', next: 'Next award' },
 }[locale];
+const [, ...tlRest] = c.journey.tag.split(' · ');
+const tlTitle = tlRest.join(' · ');
+const timeline = aboutTimeline(c);
 const total = String(c.about.awards.length).padStart(2, '0');
 ---
 
@@ -33,18 +37,30 @@ const total = String(c.about.awards.length).padStart(2, '0');
     </div>
 
     <div class="vn-about-grid">
-      <div class="vn-about-prose" data-stagger>
-        <p class="vn-type-lead" data-enter="lines">{c.about.p1}</p>
+      <div class="vn-about-portrait" aria-hidden="true">
+        <img src="/assets/img/main_2.webp" alt="" width="333" height="500" loading="lazy" decoding="async" class="vn-about-portrait__base" />
+        <img src="/assets/img/main_2.webp" alt="" width="333" height="500" loading="lazy" decoding="async" class="vn-about-portrait__ink" />
       </div>
-
-      <dl class="vn-spec-list" data-stagger>
-        {c.about.specs.map((spec) => (
-          <div class="vn-spec-list__row" data-enter="right">
-            <dt class="vn-type-label vn-muted">{spec.k}</dt>
-            <dd class="vn-type-body-strong">{spec.v}</dd>
-          </div>
-        ))}
-      </dl>
+      <div class="vn-about-col">
+        <div class="vn-about-prose" data-stagger>
+          <p class="vn-type-lead" data-enter="lines">{c.about.p1}</p>
+        </div>
+        <div class="vn-about-tl" data-stagger>
+          <h3 class="vn-type-label vn-muted" data-enter>{tlTitle}</h3>
+          <ol class="vn-about-tl__list" data-stagger>
+            {timeline.map((item) => (
+              <li class="vn-timeline-item" data-enter data-current={item.current ? '' : undefined}>
+                <p class="vn-type-label vn-about-tl__period">{item.period}</p>
+                <h4 class="vn-type-h4">{item.org}</h4>
+                {item.role && <p class="vn-type-body-strong">{item.role}</p>}
+                <ul class="vn-about-tl__sub">
+                  {item.sub.map((s) => <li class="vn-type-caption">{s}</li>)}
+                </ul>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
     </div>
 
     <div class="vn-awards-wrap">
