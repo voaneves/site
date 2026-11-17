@@ -187,11 +187,20 @@ eachPage('head has no duplicate meta names/properties', (p) => {
 });
 
 eachPage('head has no placeholder leakage (undefined / [object / NaN / lorem)', (p) => {
-  const head = p.html
-    .slice(0, p.html.indexOf('</head>'))
-    .replace(/<style[\s\S]*?<\/style>/g, '')
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/g, '');
-  assert.doesNotMatch(head, /undefined|\[object|\bNaN\b|lorem ipsum/i);
+  // Visible head content: text nodes + attribute values, skipping <script>/<style> subtrees.
+  const headContent = (node) => {
+    let out = '';
+    for (const c of node.children ?? []) {
+      if (c.text !== undefined) {
+        out += `${c.text}\n`;
+        continue;
+      }
+      if (c.tag === 'script' || c.tag === 'style') continue;
+      out += `${Object.values(c.attrs).join('\n')}\n${headContent(c)}`;
+    }
+    return out;
+  };
+  assert.doesNotMatch(headContent(p.head), /undefined|\[object|\bNaN\b|lorem ipsum/i);
 });
 
 distTest('every canonical across the site is unique', () => {

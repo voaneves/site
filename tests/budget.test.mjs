@@ -44,6 +44,16 @@ test('entryScripts: .mjs src', () => {
   assert.deepEqual(r.srcs, ['/_astro/e.mjs']);
 });
 
+test('entryScripts: closing tag with trailing space', () => {
+  const r = entryScripts('<script type="module" src="/_astro/x.js"></script >');
+  assert.deepEqual(r.srcs, ['/_astro/x.js']);
+});
+
+test('entryScripts: uppercase tags', () => {
+  const r = entryScripts('<SCRIPT type="module" src="/_astro/x.js"></SCRIPT>');
+  assert.deepEqual(r.srcs, ['/_astro/x.js']);
+});
+
 test('staticImports: ignores non-js and member access', () => {
   assert.deepEqual(staticImports('import{a}from"./x.css";foo.import"./q.js"'), []);
 });

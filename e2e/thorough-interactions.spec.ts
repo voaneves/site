@@ -2,6 +2,8 @@
 import { test, expect, type Page } from '@playwright/test';
 import { ALL_PAGES, NAV_HASHES, NOT_FOUND, PAGES, isEn, otherLocale } from './lib/site';
 
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
+
 // Focus may legitimately leave to the browser UI (activeElement becomes <body>); it must never land on page content.
 const outsideDialog = (page: Page) =>
   page.evaluate(() => {
@@ -59,7 +61,7 @@ test.describe('language switcher goes to the equivalent page', () => {
       const sw = page.locator('header .vn-navbar__actions a[aria-label]').first();
       await expect(sw).toHaveText(isEn(route) ? 'PT' : 'EN');
       await sw.click();
-      await expect(page).toHaveURL(new RegExp(`${otherLocale(route).replace(/\//g, '\\/')}$`));
+      await expect(page).toHaveURL(new RegExp(`${escapeRe(otherLocale(route))}$`));
       await expect(page.locator('html')).toHaveAttribute('lang', isEn(route) ? 'pt-BR' : 'en');
       await expect(page.locator('h1')).toHaveCount(1);
       await expect(page.locator('h1')).toBeVisible();
@@ -82,7 +84,7 @@ test.describe('language switcher in the mobile drawer (390px)', () => {
       await page.goto(route);
       await page.locator('#vn-menu-btn').click();
       await page.locator('#vn-mobile-drawer a[aria-label]').last().click();
-      await expect(page).toHaveURL(new RegExp(`${otherLocale(route).replace(/\//g, '\\/')}$`));
+      await expect(page).toHaveURL(new RegExp(`${escapeRe(otherLocale(route))}$`));
     });
   }
 });
