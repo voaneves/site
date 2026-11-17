@@ -1,7 +1,7 @@
 export const UI = {
   'pt-br': {
-    metaTitleHome: 'Victor Neves — Engenharia, Dados, Design & Código',
-    metaDescHome: 'Engenheiro pela UNICAMP, Gestor de Processos, Web Developer e cientista de dados (1º lugar Santander Bootcamp). Sites, apps, BI e transformação digital.',
+    metaTitleHome: 'Victor Neves — Desenvolvedor Full Stack e Webdesigner',
+    metaDescHome: 'Victor Neves: desenvolvedor full stack e webdesigner. Java, Laravel, PHP, Angular, Jamstack, serverless, GitOps, BI e IA. Engenheiro mecânico.',
     metaTitlePrivacy: 'Privacidade — Victor Neves',
     metaDescPrivacy: 'Aviso de privacidade e política sem cookies de rastreamento para voaneves.com.',
     skipToContent: 'Pular para o conteúdo',
@@ -36,8 +36,8 @@ export const UI = {
     notFoundLead: 'Que tal voltar pro início?',
   },
   en: {
-    metaTitleHome: 'Victor Neves — Engineering, Data, Design & Code',
-    metaDescHome: 'UNICAMP engineer, Process Office Manager, Web Developer, and 2x 1st-place Santander Bootcamp winner. High-craft websites, apps, BI and digital transformation.',
+    metaTitleHome: 'Victor Neves — Full Stack Developer & Web Designer',
+    metaDescHome: 'Victor Neves: full stack developer and web designer. Java, Laravel, PHP, Angular, Jamstack, serverless, GitOps, BI and AI. Mechanical engineer.',
     metaTitlePrivacy: 'Privacy — Victor Neves',
     metaDescPrivacy: 'Privacy notice and cookie-free analytics commitment for voaneves.com.',
     skipToContent: 'Skip to content',

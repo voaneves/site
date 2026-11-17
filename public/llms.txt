@@ -1,0 +1,22 @@
+# Victor Neves
+
+> Victor Otávio Andrade das Neves (voaneves): desenvolvedor full stack e webdesigner, Analista Webdesigner na ALETO desde março de 2026. Engenheiro mecânico pela UNICAMP. Atende no Brasil e no exterior, remoto ou híbrido.
+> Full stack developer and web designer (Java, PHP and Laravel, Angular, Astro, Jamstack, serverless, GitOps), plus BI, AI and process consulting.
+
+## Páginas
+
+- [Início (PT)](https://voaneves.com/): perfil, números, jornada, projetos, serviços com preço inicial e perguntas frequentes.
+- [Home (EN)](https://voaneves.com/en/): same content in English.
+- [Projeto MTE](https://voaneves.com/projetos/mte/): marca e plataforma web, +236% de alcance.
+- [Projeto Dashboards e BI](https://voaneves.com/projetos/dashboards/): mais de 40 painéis em Power BI e Qlik Sense.
+- [Projeto CAATO](https://voaneves.com/projetos/caato/): Lighthouse de 43 para 92.
+- [Projeto Mota & Godinho](https://voaneves.com/projetos/mota-godinho/): Lighthouse de 62 para 91.
+- [Projeto Boas Obras](https://voaneves.com/projetos/boas-obras/)
+- [Projeto Midflow](https://voaneves.com/projetos/midflow/)
+
+## Perfis
+
+- [GitHub](https://github.com/voaneves)
+- [LinkedIn](https://www.linkedin.com/in/voaneves/)
+- [YouTube](https://www.youtube.com/@voaneves)
+- [Stack Overflow](https://stackoverflow.com/users/10596901/voaneves)
