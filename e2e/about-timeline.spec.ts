@@ -49,22 +49,26 @@ for (const L of LOCALES) {
       await expect(items.nth(2)).not.toHaveAttribute('data-current');
     });
 
-    test('retrato: duas imagens decorativas com o mesmo src, dimensoes e lazy', async ({ page }) => {
+    test('retrato: duas imagens decorativas com o mesmo arquivo, sem pedir a imagem antes de chegar perto', async ({ page }) => {
       await page.goto(L.url);
       const box = page.locator('#quem-sou .vn-about-portrait');
       await expect(box).toHaveAttribute('aria-hidden', 'true');
-      const imgs = box.locator('img');
+      const imgs = box.locator('img[data-src]');
       await expect(imgs).toHaveCount(2);
-      const attrs = await imgs.evaluateAll((els) =>
-        els.map((e) => ({ src: e.getAttribute('src'), alt: e.getAttribute('alt'), w: e.getAttribute('width'), h: e.getAttribute('height'), l: e.getAttribute('loading') })),
-      );
-      expect(attrs[0].src).toBe(attrs[1].src);
-      for (const a of attrs) {
-        expect(a.src).toBeTruthy();
+      const read = () =>
+        imgs.evaluateAll((els) =>
+          els.map((e) => ({ file: e.getAttribute('data-src'), src: e.getAttribute('src'), alt: e.getAttribute('alt'), w: e.getAttribute('width'), h: e.getAttribute('height') })),
+        );
+      // not part of the first load (it would compete with the hero image): no src until the portrait is within one viewport
+      const before = await read();
+      for (const a of before) expect(a.src).toBeNull();
+      expect(before[0].file).toBe(before[1].file);
+      await settle(page, box);
+      await expect.poll(async () => (await read()).every((a) => a.src === a.file)).toBe(true);
+      for (const a of await read()) {
         expect(a.alt).toBe('');
         expect(Number(a.w)).toBeGreaterThan(0);
         expect(Number(a.h)).toBeGreaterThan(0);
-        expect(a.l).toBe('lazy');
       }
     });
   });

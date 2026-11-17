@@ -72,6 +72,8 @@ afterLcp();
     const strip = document.querySelector<HTMLElement>('[data-vn-car]');
     if (strip) whenNear(strip, () => void import('./journey').then((m) => m.init(strip)));
   });
+  // images with data-src: requested only once within one viewport of the screen (loading=lazy still fetches ~1250 px ahead)
+  onIdle(() => document.querySelectorAll<HTMLImageElement>('img[data-src]').forEach((i) => whenNear(i, () => { i.src = i.dataset.src!; })));
   // B4: smooth mouse wheel, loaded by the first wheel event on fine pointers (that first notch stays native).
   if (motionOK()) addEventListener('wheel', () => motionOK() && void import('./smooth'), { once: true, passive: true });
 }
