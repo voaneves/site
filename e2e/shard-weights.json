@@ -20,6 +20,7 @@
   "e2e/thorough-pages-3.spec.ts": 27.1,
   "e2e/signal-field.spec.ts": 27,
   "e2e/thorough-pages-4.spec.ts": 26.1,
+  "e2e/about-timeline.spec.ts": 25,
   "e2e/smooth-wheel.spec.ts": 22.2,
   "e2e/split-reveal.spec.ts": 21.4,
   "e2e/themes-rhythm.spec.ts": 18.5,
