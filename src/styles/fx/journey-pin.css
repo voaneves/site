@@ -6,7 +6,7 @@
   @media screen and (min-width: 1081px) and (min-height: 740px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
     #jornada {
       --j-side: calc(max(0px, (100vw - var(--vn-layout-container-max)) / 2) + clamp(var(--vn-layout-pad-x-min), 5vw, var(--vn-layout-pad-x-max)));
-      --j-travel: calc(var(--j-n, 8) * 376px - 16px + 2 * var(--j-side) - 100vw);
+      --j-travel: calc(var(--j-n, 9) * 376px - 16px + 2 * var(--j-side) - 100vw);
       --ci: calc(450px + 100svh + 1.25 * var(--j-travel));
       /* Pinned, the section's height is CSS-defined; skipping its render only swaps in the seeded estimate, whose
          450px part was measured with Windows fonts. On CI's Linux fonts the real height differed by ~68 px, so a fast

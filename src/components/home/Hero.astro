@@ -47,7 +47,7 @@ const idle = [c.hero.essence.replace(/[.,]/g, '').replace(' ', '·').toUpperCase
       <h1 class="vn-hero__title">
         <span class="vn-hero__line">{nameCase(c.hero.firstName)}</span>
         <span class="vn-hero__line vn-hero__line--accent">{nameCase(c.hero.lastName)}<span class="vn-hero__dot" aria-hidden="true"></span></span>
-        <span class="vn-sr-only"> — {c.hero.role}</span>
+        <span class="vn-hero__role"> — {c.hero.role}</span>
       </h1>
 
       <p class="vn-hero__strap">{c.hero.essence}</p>
