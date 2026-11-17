@@ -1,11 +1,14 @@
 const pad = (n: number) => String(n).padStart(2, '0');
 
-export function init(): void {
-  const track = document.querySelector<HTMLElement>('[data-vn-journey]');
+// One carousel per track: the career journey (default) and the awards strip (passed in) share this code. Controls are
+// looked up inside the track's own section, so the two never touch each other.
+export function init(el?: HTMLElement | null): void {
+  const track = el ?? document.querySelector<HTMLElement>('[data-vn-journey]');
   if (!track) return;
-  const cards = Array.from(track.querySelectorAll<HTMLElement>('.vn-journey-card'));
-  const count = document.querySelector<HTMLElement>('[data-journey-count]');
-  const bar = document.querySelector<HTMLElement>('[data-journey-bar]');
+  const sec: ParentNode = track.closest('section') ?? document;
+  const cards = Array.from(track.children) as HTMLElement[];
+  const count = sec.querySelector<HTMLElement>('[data-journey-count],[data-car-count]');
+  const bar = sec.querySelector<HTMLElement>('[data-journey-bar]');
   const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
   const behavior = (): ScrollBehavior => (reduced() ? 'auto' : 'smooth');
   if (!cards.length) return;
@@ -29,7 +32,7 @@ export function init(): void {
 
   let shown = -1;
   const update = () => {
-    document.documentElement.classList.toggle('vn-jpin', pin && scrollY > runTop() + 1 && scrollY < runTop() + span() - 1);
+    if (run) document.documentElement.classList.toggle('vn-jpin', pin && scrollY > runTop() + 1 && scrollY < runTop() + span() - 1);
     if (pin) {
       const idx = Math.round(pinP() * (cards.length - 1));
       if (count && idx !== shown) count.textContent = `${pad(idx + 1)} / ${pad(cards.length)}`;
@@ -70,8 +73,8 @@ export function init(): void {
     if (pin) scrollTo({ top: runTop() + (i / (cards.length - 1)) * span(), behavior: behavior() });
     else track.scrollTo({ left: snaps[i], behavior: behavior() });
   };
-  document.querySelector('[data-journey-prev]')?.addEventListener('click', () => go(-1));
-  document.querySelector('[data-journey-next]')?.addEventListener('click', () => go(1));
+  sec.querySelector('[data-journey-prev],[data-car-prev]')?.addEventListener('click', () => go(-1));
+  sec.querySelector('[data-journey-next],[data-car-next]')?.addEventListener('click', () => go(1));
   track.addEventListener('keydown', (e) => {
     if (e.target !== track || e.altKey || e.ctrlKey || e.metaKey) return;
     if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
