@@ -84,12 +84,12 @@ test.describe('journey pinned', () => {
     const count = page.locator('[data-journey-count]');
     const bar = () => page.locator('[data-journey-bar]').evaluate((e) => new DOMMatrix(getComputedStyle(e).transform).a);
     await at(page, 0);
-    await expect(count).toHaveText(/^01 \/ 08$/);
-    expect(await bar()).toBeCloseTo(0.125, 1);
+    await expect(count).toHaveText(/^01 \/ 09$/);
+    expect(await bar()).toBeCloseTo(1 / 9, 1);
     await at(page, 0.5);
-    await expect(count).toHaveText(/^0[45] \/ 08$/);
+    await expect(count).toHaveText(/^0[45] \/ 09$/);
     await at(page, 1);
-    await expect(count).toHaveText(/^08 \/ 08$/);
+    await expect(count).toHaveText(/^09 \/ 09$/);
     expect(await bar()).toBeCloseTo(1, 1);
   });
 
@@ -98,7 +98,7 @@ test.describe('journey pinned', () => {
     const g = await at(page, 0);
     await page.locator('[data-journey-next]').click();
     await expect(page.locator('[data-journey-count]')).toHaveText(/^02 \//, { timeout: 4000 });
-    await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(g.top + g.span / 7 - 6);
+    await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(g.top + g.span / 8 - 6);
     await page.locator('[data-vn-journey]').focus();
     await page.keyboard.press('ArrowRight');
     await expect(page.locator('[data-journey-count]')).toHaveText(/^03 \//, { timeout: 4000 });

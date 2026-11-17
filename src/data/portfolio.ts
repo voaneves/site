@@ -89,6 +89,7 @@ export interface PortfolioContent {
     kicker: string;
     essence: string;
     sub: string;
+    role: string;
     portraitAlt: string;
     portraitCaption: string;
     badgeText: string;
@@ -204,6 +205,7 @@ export interface PortfolioContent {
     nextProject: string;
     ctaHeading: string;
     ctaButton: string;
+    servicesLink: string;
   };
 }
 
@@ -214,8 +216,9 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
       lastName: 'NEVES',
       kicker: 'PALMAS, TO · ENGENHARIA, DADOS, DESIGN & CÓDIGO',
       essence: 'Sinal, não ruído.',
-      sub: 'Engenheiro mecânico pela UNICAMP, Gestor do Escritório de Processos no SEBRAE Tocantins e bicampeão em 1º lugar no Santander Bootcamp. Uno BPMN, BI, IA e desenvolvimento web em entregas mensuráveis.',
-      portraitAlt: 'Retrato editorial de Victor Neves em alto contraste',
+      sub: 'Desenvolvedor full stack e webdesigner na ALETO. Engenheiro mecânico pela UNICAMP, 1º lugar em quatro bootcamps. Java, Laravel, Angular, Astro, Jamstack, serverless e GitOps, do design ao deploy, com BI e IA.',
+      role: 'Desenvolvedor Full Stack e Webdesigner',
+      portraitAlt: 'Retrato de Victor Neves, desenvolvedor full stack e webdesigner, em alto contraste',
       portraitCaption: 'Passe o mouse para revelar em cor',
       badgeText: 'DISPONÍVEL · NOVOS PROJETOS · PALMAS · BRASIL · ',
       ctaPrimary: 'Agendar conversa',
@@ -223,11 +226,11 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
       ctaCv: 'Baixar CV (PDF)',
       chips: [
         { label: 'ENGENHEIRO · UNICAMP', depth: 18, pos: 'tl' },
-        { label: '1º SANTANDER ×2', depth: -16, pos: 'tr' },
-        { label: 'PROCESSOS · SEBRAE', depth: 14, pos: 'bl' },
+        { label: '4× 1º LUGAR · BOOTCAMPS', depth: -16, pos: 'tr' },
+        { label: 'FULL STACK · ALETO', depth: 14, pos: 'bl' },
         { label: 'DATA · IA · WEB', depth: -20, pos: 'br' },
       ],
-      bgMarquee: ['DATA SCIENCE', 'DIGITAL TRANSFORMATION', 'POWER BI & QLIK', 'ASTRO & CLOUDFLARE', 'BPMN 2.0'],
+      bgMarquee: ['FULL STACK', 'LARAVEL & GITOPS', 'DATA SCIENCE', 'POWER BI & QLIK', 'ASTRO & CLOUDFLARE'],
     },
     about: {
       num: '01',
@@ -237,21 +240,22 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
       statementMid: ' e produtos digitais com ',
       statementEm2: 'resultado auditável',
       statementPost: '.',
-      p1: 'Formado em Engenharia Mecânica pela UNICAMP, com intercâmbio industrial na Krones AG (Alemanha), passagens por Manutenção e Planejamento Estratégico na Coca-Cola FEMSA e duas pós-graduações em IA/BI/Big Data e Análise de Sistemas. Hoje lidero o Escritório de Processos no SEBRAE Tocantins e avalio projetos de IA e Big Data no Projeto Centelha.',
-      p2: 'Por meio da voaneves.com, atendo empresas e lideranças que precisam sair de planilhas desconexas e sites lentos para interfaces rápidas, painéis de decisão confiáveis e fluxos digitais enxutos.',
+      p1: 'Formado em Engenharia Mecânica pela UNICAMP, com intercâmbio industrial na Krones AG (Alemanha), passagens por Manutenção e Planejamento Estratégico na Coca-Cola FEMSA e duas pós-graduações em IA/BI/Big Data e Análise de Sistemas. Hoje sou Analista Webdesigner na ALETO (design system, full stack, GitOps e documentação como código) e avalio projetos de IA e Big Data no Projeto Centelha. Antes, no SEBRAE Tocantins, fui ALI, Analista Técnico e Gestor do Escritório de Processos.',
+      p2: 'Por meio da voaneves.com, atendo empresas e lideranças que precisam sair de planilhas desconexas e sites lentos para interfaces rápidas em Laravel, Angular ou Astro, painéis de decisão confiáveis e fluxos digitais enxutos.',
       specs: [
         { k: 'Base & Alcance', v: 'Palmas, TO · Atende Brasil e Global (remoto/híbrido)' },
         { k: 'Formação', v: 'UNICAMP · Pós IA, BI & Big Data · Pós Análise de Sistemas' },
-        { k: 'Idiomas', v: 'Português (nativo) · Inglês C2 (EF SET 84/100) · Espanhol · Coreano · Alemão' },
-        { k: 'Certificações', v: 'Lean Six Sigma Green Belt · Google PM & Data Analytics · Cambridge ESG' },
+        { k: 'Idiomas', v: 'Português (nativo) · Inglês C2 (EF SET 84/100) · Espanhol C1 · Coreano B1 · Alemão A2' },
+        { k: 'Certificações', v: 'Lean Six Sigma Green Belt · Google PM & Data Analytics · AWS (preparatório) · Cambridge ESG' },
       ],
       awardsTitle: 'Conquistas e reconhecimentos verificáveis',
       awards: [
         { place: '1º LUGAR', title: 'Santander Bootcamp 2025', detail: 'Back-End com Python, FastAPI & Docker', meta: 'Entre 11.434 inscritos · DIO' },
+        { place: '2º LUGAR', title: 'Santander Bootcamp 2025', detail: 'Ciência de Dados com Python', meta: 'Encerrado em 25/01/2026 · DIO' },
         { place: '1º LUGAR', title: 'Santander Bootcamp 2023', detail: 'Ciência de Dados com Python & ML', meta: 'Entre 17.600 inscritos · DIO' },
         { place: '1º LUGAR', title: 'Bootcamp Nexa 2024', detail: 'IA Generativa & Claude 3 / Bedrock', meta: 'Ranking geral nº 1 · DIO' },
-        { place: '1º LUGAR', title: 'Santander Bootcamp AWS 2024', detail: 'Arquitetura & Certificação Cloud', meta: 'Ranking geral nº 1 · DIO' },
-        { place: '1º LUGAR', title: 'Estratégia em Alto Mar', detail: 'Planejamento Estratégico Nacional', meta: 'SEBRAE Tocantins' },
+        { place: '1º LUGAR', title: 'Santander 2024: Preparatório Certificação AWS', detail: 'AWS Cloud Practitioner', meta: 'Ranking geral nº 1 · DIO' },
+        { place: '1º LUGAR', title: 'Estratégia em Alto Mar', detail: 'Planejamento Estratégico Nacional', meta: 'SEBRAE Tocantins · 2024' },
       ],
     },
     numbers: {
@@ -286,19 +290,19 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
     expertise: {
       num: '03',
       tag: '03 · EXPERTISE & STACK',
-      title: 'Da arquitetura de dados à interface final.',
+      title: 'Full stack, Jamstack e GitOps: da arquitetura de dados à interface final.',
       pauseLabel: 'Pausar letreiro',
       resumeLabel: 'Retomar letreiro',
       tracks: [
         ['DATA SCIENCE', 'BPM & PROCESSOS', 'DESIGN SYSTEMS', 'FULL-STACK WEB', 'TRANSFORMACAO DIGITAL'],
-        ['PYTHON · FASTAPI', 'POWER BI · QLIK SENSE', 'ASTRO · TYPESCRIPT', 'REACT · NEXT.JS · FLUTTER', 'SQL · NOSQL · DOCKER'],
-        ['AWS · CLOUDFLARE', 'LEAN SIX SIGMA', 'OKRS & ESTRATEGIA', 'IA GENERATIVA & LLMS', 'FIGMA · WCAG 2.2 AA'],
+        ['JAVA · PHP · LARAVEL', 'ANGULAR · REACT · NEXT.JS', 'ASTRO · JAMSTACK · TYPESCRIPT', 'PYTHON · FASTAPI', 'POWER BI · QLIK SENSE'],
+        ['GITOPS · SERVERLESS', 'AWS · CLOUDFLARE · DOCKER', 'LEAN SIX SIGMA', 'IA GENERATIVA & LLMS', 'FIGMA · WCAG 2.2 AA'],
       ],
       pillars: [
-        { title: 'Engenharia Web & Design', items: ['Astro', 'TypeScript', 'React', 'Next.js', 'Flutter', 'HTML/CSS', 'Figma', 'Tokens W3C', 'WCAG 2.2 AA', 'SEO Técnico'] },
+        { title: 'Engenharia Full Stack & Design', items: ['Java', 'PHP e Laravel', 'Angular', 'Astro', 'Jamstack', 'TypeScript', 'React', 'Next.js', 'Flutter', 'HTML/CSS', 'Figma', 'Tokens W3C', 'WCAG 2.2 AA', 'SEO Técnico'] },
         { title: 'Dados, BI & IA Aplicada', items: ['Python', 'Power BI', 'Qlik Sense', 'SQL / NoSQL', 'Pandas / NumPy', 'FastAPI', 'LLMs & Prompts', 'ETL & Modelagem'] },
         { title: 'Processos & Estratégia', items: ['BPMN 2.0', 'Lean Six Sigma Green Belt', 'DMAIC', 'OKRs', 'Scrum & Kanban', 'Automações Low-Code'] },
-        { title: 'Cloud & Confiabilidade', items: ['Cloudflare Pages & Workers', 'AWS', 'GCP', 'Docker', 'GitHub Actions', 'Lighthouse CI'] },
+        { title: 'Cloud, GitOps & Confiabilidade', items: ['GitOps', 'Serverless', 'Cloudflare Pages & Workers', 'AWS', 'GCP', 'Docker', 'GitHub Actions', 'Lighthouse CI'] },
       ],
     },
     journey: {
@@ -311,14 +315,28 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
       dragHint: 'Arraste ou clique nas setas',
       items: [
         {
+          id: 'aleto',
+          role: 'Analista Webdesigner',
+          company: 'ALETO',
+          period: 'Mar 2026 — Atual',
+          location: 'Brasil',
+          logo: '/assets/img/freelance.webp',
+          logoAlt: 'Identidade visual voaneves',
+          current: true,
+          summary: 'Design e desenvolvimento do design ao deploy: design system, full stack com Laravel, Astro e Vite, arquitetura serverless e GitOps.',
+          highlights: [
+            'Design system com tokens e componentes, em WCAG 2.2 AA.',
+            'Deploy versionado em repositório (GitOps), com CI/CD.',
+          ],
+        },
+        {
           id: 'sebrae-uge',
           role: 'Gestor do Escritório de Processos',
           company: 'SEBRAE Tocantins',
-          period: 'Out 2024 — Atual',
+          period: 'Out 2024 — Mar 2026',
           location: 'Palmas, TO',
           logo: '/assets/img/sebrae.webp',
           logoAlt: 'Logo SEBRAE',
-          current: true,
           summary: 'Governança de processos BPMN 2.0, automações e painéis executivos para a Unidade de Gestão Estratégica (UGE).',
           highlights: [
             'Refinou +50 processos corporativos (AS-IS/TO-BE) com versionamento central e redução de gargalos.',
@@ -344,7 +362,7 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
           id: 'sebrae-ali',
           role: 'Analista Técnico & ALI',
           company: 'SEBRAE Tocantins',
-          period: 'Ago 2022 — Out 2024',
+          period: 'Set 2022 — Out 2024',
           location: 'Gurupi & Dianópolis, TO',
           logo: '/assets/img/sebrae.webp',
           logoAlt: 'Logo SEBRAE',
@@ -428,6 +446,7 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
       archiveSummary: 'Ver formação acadêmica, certificações internacionais e idiomas completos',
       educationTitle: 'Formação Acadêmica',
       education: [
+        { title: 'Bacharelado em Sistemas de Informação', org: 'XP Educação', period: '2023 — 2027', detail: 'Em andamento' },
         { title: 'Pós-graduação em Análise de Sistemas', org: 'Faculdade Focus', period: 'Dez 2023 — Mai 2024', detail: 'Remoto' },
         { title: 'Pós-graduação em IA, BI e Big Data', org: 'Faculdade Focus', period: 'Jul 2023 — Nov 2023', detail: 'Remoto' },
         { title: 'Engenharia Mecânica (Bacharelado)', org: 'UNICAMP', period: '2012 — 2018', detail: 'Campinas, SP · 3.600h' },
@@ -440,12 +459,16 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
         { title: 'Lean Six Sigma Green Belt (DMAIC)', org: 'MI Domenech', period: 'Jan 2019' },
         { title: 'Data Visualization & Decision Making', org: 'PwC', period: '2023' },
         { title: 'Avaliador de Projetos (IA & Big Data)', org: 'Projeto Centelha', period: 'Ago 2023 — Atual' },
+        { title: 'DIO: Preparatório AWS Cloud Practitioner, Nexa IA Generativa e Claude 3, Data Science with Python', org: 'DIO · Santander · AWS', period: '2023 — 2024' },
+        { title: 'CNNs · Digital Skills: IA · Introdução à IA · Angular 7 Advanced', org: 'Great Learning · Accenture · Huawei', period: 'IA e Web' },
+        { title: 'Digital Marketing · Inbound Marketing (expirada em 2025) · Yellow Belt · Liderança Essencial', org: 'Accenture · HubSpot · Setec · SerTotal', period: '2015 — 2025' },
+        { title: 'Trilhas ALI, Transformar Juntos, LGPD, ChatGPT e IA em vendas', org: 'SEBRAE', period: '2022 — 2023' },
       ],
       languagesTitle: 'Idiomas',
       languages: [
         { title: 'Português', org: 'Nativo', period: 'PT-BR' },
         { title: 'Inglês', org: 'Fluente · EF SET 84/100', period: 'C2' },
-        { title: 'Espanhol', org: 'Avançado', period: 'C1' },
+        { title: 'Espanhol', org: 'Proficiência profissional plena', period: 'C1' },
         { title: 'Coreano & Alemão', org: 'Intermediário / Básico', period: 'B1 · A2' },
       ],
     },
@@ -763,6 +786,7 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
       nextProject: 'Próximo projeto',
       ctaHeading: 'Tem um desafio parecido em andamento?',
       ctaButton: 'Agendar conversa agora',
+      servicesLink: 'Ver serviços e preços',
     },
   },
   en: {
@@ -771,8 +795,9 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
       lastName: 'NEVES',
       kicker: 'PALMAS, BR · ENGINEERING, DATA, DESIGN & CODE',
       essence: 'Signal, not noise.',
-      sub: 'UNICAMP Mechanical Engineer, Process Office Manager at SEBRAE Tocantins, and 2x #1 Santander Bootcamp winner. I combine BPMN, BI, AI, and web engineering into measurable production outcomes.',
-      portraitAlt: 'High-contrast editorial portrait of Victor Neves',
+      sub: 'Full stack developer and web designer at ALETO. UNICAMP mechanical engineer, 1st place in four bootcamps. Java, Laravel, Angular, Astro, Jamstack, serverless and GitOps, from design to deploy, plus BI and AI.',
+      role: 'Full Stack Developer & Web Designer',
+      portraitAlt: 'High-contrast portrait of Victor Neves, full stack developer and web designer',
       portraitCaption: 'Hover to reveal full color',
       badgeText: 'AVAILABLE · SELECT PROJECTS · BRAZIL · GLOBAL · ',
       ctaPrimary: 'Book a call',
@@ -780,11 +805,11 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
       ctaCv: 'Download CV (PDF)',
       chips: [
         { label: 'ENGINEER · UNICAMP', depth: 18, pos: 'tl' },
-        { label: '#1 SANTANDER ×2', depth: -16, pos: 'tr' },
-        { label: 'PROCESSES · SEBRAE', depth: 14, pos: 'bl' },
+        { label: '4× #1 · BOOTCAMPS', depth: -16, pos: 'tr' },
+        { label: 'FULL STACK · ALETO', depth: 14, pos: 'bl' },
         { label: 'DATA · AI · WEB', depth: -20, pos: 'br' },
       ],
-      bgMarquee: ['DATA SCIENCE', 'DIGITAL TRANSFORMATION', 'POWER BI & QLIK', 'ASTRO & CLOUDFLARE', 'BPMN 2.0'],
+      bgMarquee: ['FULL STACK', 'LARAVEL & GITOPS', 'DATA SCIENCE', 'POWER BI & QLIK', 'ASTRO & CLOUDFLARE'],
     },
     about: {
       num: '01',
@@ -794,21 +819,22 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
       statementMid: ' and digital products with ',
       statementEm2: 'auditable impact',
       statementPost: '.',
-      p1: 'Trained in Mechanical Engineering at UNICAMP with industrial experience at Krones AG (Germany), Maintenance & Strategic Planning at Coca-Cola FEMSA, and dual postgraduate degrees in AI/BI/Big Data and Systems Analysis. Today I lead the Process Management Office at SEBRAE Tocantins and evaluate AI & Big Data grants at Projeto Centelha.',
-      p2: 'Through voaneves.com, I partner with businesses and leaders who need to move from disconnected spreadsheets and sluggish sites to crisp interfaces, trustworthy executive BI, and lean digital workflows.',
+      p1: 'Trained in Mechanical Engineering at UNICAMP with industrial experience at Krones AG (Germany), Maintenance & Strategic Planning at Coca-Cola FEMSA, and dual postgraduate degrees in AI/BI/Big Data and Systems Analysis. Today I am a Web Design Analyst at ALETO (design system, full stack, GitOps and docs-as-code) and evaluate AI & Big Data grants at Projeto Centelha. Before that, at SEBRAE Tocantins: Innovation Agent, Technical Analyst and Process Office Manager.',
+      p2: 'Through voaneves.com, I partner with businesses and leaders who need to move from disconnected spreadsheets and sluggish sites to crisp Laravel, Angular or Astro interfaces, trustworthy executive BI, and lean digital workflows.',
       specs: [
         { k: 'Base & Reach', v: 'Palmas, Brazil · Serving Brazil & Worldwide remotely' },
         { k: 'Education', v: 'UNICAMP · Postgrad AI, BI & Big Data · Postgrad Systems Analysis' },
-        { k: 'Languages', v: 'Portuguese (native) · English C2 (EF SET 84/100) · Spanish · Korean · German' },
-        { k: 'Credentials', v: 'Lean Six Sigma Green Belt · Google PM & Data Analytics · Cambridge ESG' },
+        { k: 'Languages', v: 'Portuguese (native) · English C2 (EF SET 84/100) · Spanish C1 · Korean B1 · German A2' },
+        { k: 'Credentials', v: 'Lean Six Sigma Green Belt · Google PM & Data Analytics · AWS (prep) · Cambridge ESG' },
       ],
       awardsTitle: 'Verified awards & competitive milestones',
       awards: [
         { place: '1ST PLACE', title: 'Santander Bootcamp 2025', detail: 'Back-End with Python, FastAPI & Docker', meta: 'Out of 11,434 participants · DIO' },
+        { place: '2ND PLACE', title: 'Santander Bootcamp 2025', detail: 'Data Science with Python', meta: 'Closed on Jan 25, 2026 · DIO' },
         { place: '1ST PLACE', title: 'Santander Bootcamp 2023', detail: 'Data Science with Python & ML', meta: 'Out of 17,600 participants · DIO' },
         { place: '1ST PLACE', title: 'Bootcamp Nexa 2024', detail: 'Generative AI & Claude 3 / Bedrock', meta: 'Ranked #1 overall · DIO' },
-        { place: '1ST PLACE', title: 'Santander AWS Bootcamp 2024', detail: 'Cloud Architecture & AWS Prep', meta: 'Ranked #1 overall · DIO' },
-        { place: '1ST PLACE', title: 'Estratégia em Alto Mar', detail: 'Strategic Planning Competition', meta: 'SEBRAE Tocantins' },
+        { place: '1ST PLACE', title: 'Santander 2024: AWS Certification Prep', detail: 'AWS Cloud Practitioner', meta: 'Ranked #1 overall · DIO' },
+        { place: '1ST PLACE', title: 'Estratégia em Alto Mar', detail: 'Strategic Planning Competition', meta: 'SEBRAE Tocantins · 2024' },
       ],
     },
     numbers: {
@@ -843,19 +869,19 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
     expertise: {
       num: '03',
       tag: '03 · EXPERTISE & STACK',
-      title: 'From data pipelines to final interface craft.',
+      title: 'Full stack, Jamstack and GitOps: from data pipelines to final interface craft.',
       pauseLabel: 'Pause marquee',
       resumeLabel: 'Resume marquee',
       tracks: [
         ['DATA SCIENCE', 'BPM & PROCESSES', 'DESIGN SYSTEMS', 'FULL-STACK WEB', 'DIGITAL TRANSFORMATION'],
-        ['PYTHON · FASTAPI', 'POWER BI · QLIK SENSE', 'ASTRO · TYPESCRIPT', 'REACT · NEXT.JS · FLUTTER', 'SQL · NOSQL · DOCKER'],
-        ['AWS · CLOUDFLARE', 'LEAN SIX SIGMA', 'OKRS & STRATEGY', 'GENERATIVE AI & LLMS', 'FIGMA · WCAG 2.2 AA'],
+        ['JAVA · PHP · LARAVEL', 'ANGULAR · REACT · NEXT.JS', 'ASTRO · JAMSTACK · TYPESCRIPT', 'PYTHON · FASTAPI', 'POWER BI · QLIK SENSE'],
+        ['GITOPS · SERVERLESS', 'AWS · CLOUDFLARE · DOCKER', 'LEAN SIX SIGMA', 'GENERATIVE AI & LLMS', 'FIGMA · WCAG 2.2 AA'],
       ],
       pillars: [
-        { title: 'Web Engineering & Design', items: ['Astro', 'TypeScript', 'React', 'Next.js', 'Flutter', 'HTML/CSS', 'Figma', 'W3C Tokens', 'WCAG 2.2 AA', 'Technical SEO'] },
+        { title: 'Full Stack Engineering & Design', items: ['Java', 'PHP & Laravel', 'Angular', 'Astro', 'Jamstack', 'TypeScript', 'React', 'Next.js', 'Flutter', 'HTML/CSS', 'Figma', 'W3C Tokens', 'WCAG 2.2 AA', 'Technical SEO'] },
         { title: 'Data, BI & Applied AI', items: ['Python', 'Power BI', 'Qlik Sense', 'SQL / NoSQL', 'Pandas / NumPy', 'FastAPI', 'LLMs & Prompting', 'ETL Modeling'] },
         { title: 'Processes & Strategy', items: ['BPMN 2.0', 'Lean Six Sigma Green Belt', 'DMAIC', 'OKRs', 'Scrum & Kanban', 'Low-Code Automation'] },
-        { title: 'Cloud & Reliability', items: ['Cloudflare Pages & Workers', 'AWS', 'GCP', 'Docker', 'GitHub Actions', 'Lighthouse CI'] },
+        { title: 'Cloud, GitOps & Reliability', items: ['GitOps', 'Serverless', 'Cloudflare Pages & Workers', 'AWS', 'GCP', 'Docker', 'GitHub Actions', 'Lighthouse CI'] },
       ],
     },
     journey: {
@@ -868,14 +894,28 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
       dragHint: 'Drag or use arrow controls',
       items: [
         {
+          id: 'aleto',
+          role: 'Web Design Analyst',
+          company: 'ALETO',
+          period: 'Mar 2026 — Present',
+          location: 'Brazil',
+          logo: '/assets/img/freelance.webp',
+          logoAlt: 'voaneves brand mark',
+          current: true,
+          summary: 'Design and development from design to deploy: design system, full stack with Laravel, Astro and Vite, serverless architecture and GitOps.',
+          highlights: [
+            'Design system with tokens and components, WCAG 2.2 AA.',
+            'Repository-versioned deploys (GitOps) with CI/CD.',
+          ],
+        },
+        {
           id: 'sebrae-uge',
           role: 'Process Office Manager',
           company: 'SEBRAE Tocantins',
-          period: 'Oct 2024 — Present',
+          period: 'Oct 2024 — Mar 2026',
           location: 'Palmas, Brazil',
           logo: '/assets/img/sebrae.webp',
           logoAlt: 'SEBRAE logo',
-          current: true,
           summary: 'Enterprise BPMN 2.0 governance, process automation, and executive Qlik Sense BI for the Strategic Management Unit.',
           highlights: [
             'Refined 50+ corporate workflows (AS-IS/TO-BE) with centralized versioning and bottleneck removal.',
@@ -901,7 +941,7 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
           id: 'sebrae-ali',
           role: 'Technical Analyst & Innovation Agent',
           company: 'SEBRAE Tocantins',
-          period: 'Aug 2022 — Oct 2024',
+          period: 'Sep 2022 — Oct 2024',
           location: 'Gurupi & Dianópolis, Brazil',
           logo: '/assets/img/sebrae.webp',
           logoAlt: 'SEBRAE logo',
@@ -985,6 +1025,7 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
       archiveSummary: 'View full education, international certifications & languages',
       educationTitle: 'Education',
       education: [
+        { title: 'B.Sc. Information Systems', org: 'XP Educação', period: '2023 — 2027', detail: 'In progress' },
         { title: 'Postgraduate Diploma in Systems Analysis', org: 'Faculdade Focus', period: 'Dec 2023 — May 2024', detail: 'Remote' },
         { title: 'Postgraduate Diploma in AI, BI & Big Data', org: 'Faculdade Focus', period: 'Jul 2023 — Nov 2023', detail: 'Remote' },
         { title: 'B.Sc. Mechanical Engineering', org: 'UNICAMP', period: '2012 — 2018', detail: 'Campinas, SP · 3,600h' },
@@ -997,12 +1038,16 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
         { title: 'Lean Six Sigma Green Belt (DMAIC)', org: 'MI Domenech', period: 'Jan 2019' },
         { title: 'Data Visualization & Decision Making', org: 'PwC', period: '2023' },
         { title: 'Innovation Grant Evaluator (AI & Big Data)', org: 'Projeto Centelha', period: 'Aug 2023 — Present' },
+        { title: 'DIO: AWS Cloud Practitioner Prep, Nexa Generative AI and Claude 3, Data Science with Python', org: 'DIO · Santander · AWS', period: '2023 — 2024' },
+        { title: 'CNNs · Digital Skills: AI · Intro to AI · Angular 7 Advanced', org: 'Great Learning · Accenture · Huawei', period: 'AI & Web' },
+        { title: 'Digital Marketing · Inbound Marketing (expired 2025) · Yellow Belt · Essential Leadership', org: 'Accenture · HubSpot · Setec · SerTotal', period: '2015 — 2025' },
+        { title: 'ALI tracks, Transformar Juntos, LGPD, ChatGPT and AI in sales', org: 'SEBRAE', period: '2022 — 2023' },
       ],
       languagesTitle: 'Languages',
       languages: [
         { title: 'Portuguese', org: 'Native', period: 'PT-BR' },
         { title: 'English', org: 'Fluent · EF SET 84/100', period: 'C2' },
-        { title: 'Spanish', org: 'Advanced', period: 'C1' },
+        { title: 'Spanish', org: 'Full professional proficiency', period: 'C1' },
         { title: 'Korean & German', org: 'Intermediate / Basic', period: 'B1 · A2' },
       ],
     },
@@ -1320,6 +1365,7 @@ export const PORTFOLIO: Record<Locale, PortfolioContent> = {
       nextProject: 'Next case',
       ctaHeading: 'Working on a similar challenge?',
       ctaButton: 'Start a conversation',
+      servicesLink: 'See services and pricing',
     },
   },
 };

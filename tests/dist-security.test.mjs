@@ -134,14 +134,39 @@ eachPage('inline CSS url() targets that are files exist in dist', (p) => {
 });
 
 // ---- JSON-LD ----------------------------------------------------------------------------------------
-eachPage('JSON-LD: three parseable blocks with schema.org @context', (p) => {
-  assert.equal(ldBlocks(p).length, 3);
+// Person + ProfessionalService + WebSite everywhere; BreadcrumbList on the case pages.
+const expectedLdTypes = (p) =>
+  ['Person', 'ProfessionalService', 'WebSite', ...(p.kind === 'project' ? ['BreadcrumbList'] : [])].sort();
+
+eachPage('JSON-LD: parseable blocks with schema.org @context', (p) => {
+  assert.equal(ldBlocks(p).length, expectedLdTypes(p).length);
   for (const d of ldDocs(p)) assert.equal(d['@context'], 'https://schema.org');
 });
 
-eachPage('JSON-LD @type set is exactly Person + ProfessionalService + WebSite', (p) => {
-  assert.deepEqual(ldDocs(p).map((d) => d['@type']).sort(), ['Person', 'ProfessionalService', 'WebSite']);
+eachPage('JSON-LD @type set matches the page kind', (p) => {
+  assert.deepEqual(ldDocs(p).map((d) => d['@type']).sort(), expectedLdTypes(p));
 });
+
+eachPage('JSON-LD Person: ALETO, full name, knowsAbout and the four profile links', (p) => {
+  const person = ldDocs(p).find((d) => d['@type'] === 'Person');
+  assert.equal(person.worksFor.name, 'ALETO');
+  assert.ok(person.alternateName.includes('Victor Otávio Andrade das Neves'));
+  assert.ok(person.alumniOf.name.includes('UNICAMP'));
+  for (const k of ['Laravel', 'Jamstack', 'GitOps']) assert.ok(person.knowsAbout.includes(k), k);
+  for (const host of ['github.com', 'linkedin.com', 'youtube.com', 'stackoverflow.com']) {
+    assert.ok(person.sameAs.some((u) => new URL(u).hostname.endsWith(host)), host);
+  }
+});
+
+eachPage(
+  'JSON-LD BreadcrumbList has three items ending on the page itself',
+  (p) => {
+    const bc = ldDocs(p).find((d) => d['@type'] === 'BreadcrumbList');
+    assert.deepEqual(bc.itemListElement.map((i) => i.position), [1, 2, 3]);
+    assert.equal(bc.itemListElement[2].item, `${ORIGIN}${p.route}`);
+  },
+  { routes: ROUTES.filter((r) => r.includes('/projetos/') || r.includes('/projects/')) },
+);
 
 eachPage('JSON-LD Person has the identity fields search engines read', (p) => {
   const person = ldDocs(p).find((d) => d['@type'] === 'Person');

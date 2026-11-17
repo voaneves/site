@@ -41,7 +41,11 @@ async function at(page: Page, sel: string, kind: Kind, p: number, prop: string, 
 
 const nums = (v: string) => (v.match(/-?\d*\.?\d+/g) ?? []).map(Number);
 const num = (v: string, i = 0) => nums(v)[i] ?? NaN;
-const rest = (v: string) => expect(['none', '0px', '0px 0px', '1']).toContain(v);
+// At rest: the neutral value, or a sub-pixel residue of the timeline offset (page height is fractional).
+const rest = (v: string) => {
+  if (['none', '0px', '0px 0px', '1'].includes(v)) return;
+  expect(nums(v).every((n) => Math.abs(n) < 0.1), v).toBe(true);
+};
 
 test.describe('handoffs, timelines', () => {
   test.use({ reducedMotion: 'no-preference', viewport: { width: 1440, height: 900 } });

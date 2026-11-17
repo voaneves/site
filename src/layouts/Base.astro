@@ -13,6 +13,8 @@ export interface Props {
   title?: string;
   description?: string;
   schemaJson?: object[];
+  /** Case pages: name of the current page, appended to the Início > Projetos trail as BreadcrumbList JSON-LD. */
+  breadcrumbLeaf?: string;
   preloadHeroImage?: string;
   preloadHeroSrcset?: string;
   preloadHeroSizes?: string;
@@ -23,6 +25,7 @@ const {
   title,
   description,
   schemaJson = [],
+  breadcrumbLeaf,
   preloadHeroImage,
   preloadHeroSrcset,
   preloadHeroSizes,
@@ -38,6 +41,7 @@ const pageDescription = description ?? t.metaDescHome;
 const siteOrigin = Astro.site ?? 'https://voaneves.com';
 const canonicalUrl = new URL(Astro.url.pathname, siteOrigin).toString();
 const ogImageUrl = new URL('/assets/img/og-img.webp', siteOrigin).toString();
+const ogImageAlt = locale === 'en' ? 'Victor Neves, full stack developer and web designer' : 'Victor Neves, desenvolvedor full stack e webdesigner';
 const alternates = routeAlternates(canonicalUrl);
 // An error page has no canonical: its pathname (/404/) is not a URL that exists.
 const isErrorPage = /^\/404\/?$/.test(Astro.url.pathname);
@@ -59,12 +63,18 @@ const navLinks = [
   { n: '07', hash: 'contato', label: t.navContact },
 ];
 
+// Prices are the ones the page already shows ("a partir de" = minimum, "/ hora" = hourly rate).
+const priceOf = (s: { price: string }) => Number(s.price.replace(/\D/g, ''));
+const isHourly = (s: { unit: string }) => /\/\s*(hora|hour)/i.test(s.unit);
+const personId = 'https://voaneves.com/#person';
+
 const defaultSchema = [
   {
     '@context': 'https://schema.org',
     '@type': 'Person',
+    '@id': personId,
     name: 'Victor Neves',
-    alternateName: 'voaneves',
+    alternateName: ['Victor Otávio Andrade das Neves', 'voaneves'],
     url: 'https://voaneves.com',
     image: ogImageUrl,
     jobTitle: seo.jobTitle,
@@ -75,14 +85,16 @@ const defaultSchema = [
     },
     worksFor: {
       '@type': 'Organization',
-      name: 'SEBRAE Tocantins',
+      name: 'ALETO',
     },
+    knowsAbout: seo.knowsAbout,
     knowsLanguage: ['pt-BR', 'en', 'es', 'ko', 'de'],
     award: seo.awards,
     sameAs: [
       'https://github.com/voaneves',
       'https://www.linkedin.com/in/voaneves/',
       'https://www.youtube.com/@voaneves',
+      'https://stackoverflow.com/users/10596901/voaneves',
     ],
   },
   {
@@ -90,6 +102,7 @@ const defaultSchema = [
     '@type': 'ProfessionalService',
     name: 'voaneves — Victor Neves',
     url: 'https://voaneves.com',
+    founder: { '@id': personId },
     areaServed: [
       { '@type': 'Country', name: seo.areaServedCountry },
       { '@type': 'City', name: 'Palmas' },
@@ -100,8 +113,10 @@ const defaultSchema = [
       name: seo.catalogName,
       itemListElement: c.services.items.map((s) => ({
         '@type': 'Offer',
-        name: s.title,
-        description: s.description,
+        itemOffered: { '@type': 'Service', name: s.title },
+        priceSpecification: isHourly(s)
+          ? { '@type': 'UnitPriceSpecification', priceCurrency: 'BRL', price: priceOf(s), unitCode: 'HUR' }
+          : { '@type': 'PriceSpecification', priceCurrency: 'BRL', minPrice: priceOf(s) },
       })),
     },
   },
@@ -114,7 +129,21 @@ const defaultSchema = [
   },
 ];
 
-const graphs = schemaJson.length > 0 ? schemaJson : defaultSchema;
+// BreadcrumbList mirrors the case-page trail. FAQPage JSON-LD is left out on purpose: it duplicates the visible
+// #perguntas text and pushed the home HTML past budget.json (htmlGzMaxBytes).
+const homeUrl = new URL(homePrefix, siteOrigin).toString();
+const breadcrumbSchema = breadcrumbLeaf && {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: c.caseUi.breadcrumbHome, item: homeUrl },
+    { '@type': 'ListItem', position: 2, name: c.caseUi.breadcrumbProjects, item: `${homeUrl}#projetos` },
+    { '@type': 'ListItem', position: 3, name: breadcrumbLeaf, item: canonicalUrl },
+  ],
+};
+const graphs = schemaJson.length > 0
+  ? schemaJson
+  : [...defaultSchema, ...(breadcrumbSchema ? [breadcrumbSchema] : [])];
 const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
 ---
 <!doctype html>
@@ -129,17 +158,22 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
   {alternates.map((alt) => (
     <link rel="alternate" hreflang={alt.lang} href={alt.url} />
   ))}
+  {!isErrorPage && <meta name="robots" content="index, follow, max-image-preview:large" />}
   <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Victor Neves" />
+  <meta property="og:locale" content={locale === 'en' ? 'en_US' : 'pt_BR'} />
   <meta property="og:title" content={pageTitle} />
   <meta property="og:description" content={pageDescription} />
   {!isErrorPage && <meta property="og:url" content={canonicalUrl} />}
   <meta property="og:image" content={ogImageUrl} />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content={ogImageAlt} />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
   <meta name="twitter:description" content={pageDescription} />
   <meta name="twitter:image" content={ogImageUrl} />
+  <meta name="twitter:image:alt" content={ogImageAlt} />
   <link rel="icon" href="/favicon.ico" sizes="32x32" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

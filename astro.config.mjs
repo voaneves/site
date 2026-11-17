@@ -3,6 +3,7 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { execSync } from 'node:child_process';
 import { routeAlternates } from './src/i18n/routes.mjs';
 
 // Astro does not hash `is:inline` scripts. The theme/js head script in Base.astro must run before
@@ -11,6 +12,16 @@ const baseSrc = readFileSync(new URL('./src/layouts/Base.astro', import.meta.url
 const headInline = [...baseSrc.matchAll(/<script is:inline>([\s\S]*?)<\/script>/g)].map(
   (m) => `sha256-${createHash('sha256').update(m[1].replace(/\r\n/g, '\n')).digest('base64')}`,
 );
+
+// <lastmod> of the sitemap: date of the commit being built (the content only changes through commits).
+// Falls back to the build date when git history is not available.
+const lastmod = (() => {
+  try {
+    return new Date(execSync('git log -1 --format=%cI', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim()).toISOString();
+  } catch {
+    return new Date().toISOString();
+  }
+})();
 
 export default defineConfig({
   site: process.env.PUBLIC_SITE_URL ?? 'https://voaneves.com',
@@ -62,6 +73,7 @@ export default defineConfig({
     sitemap({
       serialize: (item) => ({
         ...item,
+        lastmod,
         links: routeAlternates(item.url),
       }),
     }),

@@ -82,6 +82,15 @@
     margin-block: var(--vn-space-3) var(--vn-space-5);
   }
 
+  /* Role in the h1 for search and screen readers; clipped with clip-path (no overflow) so text-spacing checks do not flag it. */
+  .vn-hero__role {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
   @media (max-width: 1080px) {
     .vn-hero .vn-hero__title {
       font-size: clamp(4.5rem, 30vw, 13rem);
