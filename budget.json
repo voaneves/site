@@ -15,7 +15,8 @@
     "late": 2304,
     "count": 1024,
     "journey": 1792,
-    "smooth": 1024
+    "smooth": 1024,
+    "drag": 640
   },
   "strictLazyChunks": false,
   "preloadFontsMaxBytes": 61440

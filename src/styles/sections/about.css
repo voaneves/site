@@ -71,9 +71,24 @@
   }
 
   .vn-awards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    display: flex;
     gap: var(--vn-space-4);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    padding-block-end: var(--vn-space-3);
+  }
+
+  .vn-awards-grid.is-drag {
+    scroll-snap-type: none;
+    cursor: grabbing;
+    user-select: none;
+  }
+
+  .vn-awards-grid > .vn-award-card {
+    flex: 0 0 clamp(14rem, 22vw, 17.5rem);
+    scroll-snap-align: start;
   }
 
   .vn-award-card {

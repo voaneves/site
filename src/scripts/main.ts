@@ -86,6 +86,14 @@ afterLcp();
   onFirstPointer(() => motionOK() && import('./hover-fx'));
   // W14: magnetic buttons, lazy, first fine-pointer move only.
   onFirstPointer(() => motionOK() && matchMedia('(pointer: fine)').matches && import('./magnetic'));
+  // Awards strip: mouse drag. The chunk is fetched when the pointer first reaches the strip, so a press finds it ready.
+  {
+    const strip = document.querySelector<HTMLElement>('[data-drag-x]');
+    let mod: Promise<typeof import('./drag')> | undefined;
+    const load = () => (mod ??= import('./drag'));
+    strip?.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && void load(), { once: true });
+    strip?.addEventListener('pointerdown', (e) => e.pointerType === 'mouse' && e.button === 0 && void load().then((m) => e.buttons && m.init(strip, e)));
+  }
   // B4: smooth mouse wheel, loaded by the first wheel event on fine pointers (that first notch stays native).
   if (motionOK()) addEventListener('wheel', () => motionOK() && void import('./smooth'), { once: true, passive: true });
 }

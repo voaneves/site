@@ -42,9 +42,9 @@ const eyebrowTag = eyebrowRest.join(' · ');
       </dl>
     </div>
 
-    <div class="vn-awards-wrap">
-      <h3 class="vn-type-label vn-awards-title" data-enter>{c.about.awardsTitle}</h3>
-      <div class="vn-awards-grid" data-stagger>
+    <div class="vn-awards-wrap" data-cursor-zone="drag">
+      <h3 class="vn-type-label vn-awards-title" id="vn-awards-title" data-enter>{c.about.awardsTitle}</h3>
+      <div class="vn-awards-grid" data-stagger data-drag-x tabindex="0" role="region" aria-labelledby="vn-awards-title">
         {c.about.awards.map((award) => (
           <article class="vn-award-card" data-enter="scale" data-fx="tilt">
             <span class="vn-award-card__place">{award.place}</span>
