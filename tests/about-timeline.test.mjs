@@ -14,7 +14,6 @@ const EXPECTED = {
 for (const [locale, exp] of Object.entries(EXPECTED)) {
   test(`aboutTimeline (${locale}): 3 nodes with the expected facts`, () => {
     const t = aboutTimeline(PORTFOLIO[locale]);
-    console.log(`[${locale}]`, JSON.stringify(t));
     assert.equal(t.length, 3);
     assert.deepEqual(t.map((n) => n.org), ['ALETO', 'SEBRAE Tocantins', 'DIO']);
     assert.deepEqual(t.map((n) => n.period), [exp.aleto, exp.sebrae, '2023 — 2025']);
