@@ -6,7 +6,7 @@ import { init as nav } from './nav';
 import { init as marquee } from './marquee';
 import { init as hero } from './hero';
 import { init as afterLcp } from './after-lcp';
-import { onIdle, onEngage, onFirstPointer, motionOK } from './lazy';
+import { onIdle, onEngage, onFirstPointer, motionOK, whenNear } from './lazy';
 
 theme();
 drawer();
@@ -42,35 +42,16 @@ afterLcp();
     io.observe(sec);
   });
   // journey: load only once #jornada is within one viewport
-  onIdle(() => {
-    const sec = document.getElementById('jornada');
-    if (!sec) return;
-    const io = new IntersectionObserver((es) => {
-      if (!es.some((e) => e.isIntersecting)) return;
-      io.disconnect();
-      void import('./journey').then((m) => m.init());
-    }, { rootMargin: '100% 0px' });
-    io.observe(sec);
-  });
+  onIdle(() => whenNear(document.getElementById('jornada'), () => void import('./journey').then((m) => m.init())));
   // W12: the signal-field canvas loads once the browser is idle and #contato is within one viewport.
   onIdle(() => {
     const band = document.getElementById('contato');
-    if (!band || !motionOK()) return;
-    new IntersectionObserver((e, o) => {
-      if (!e.some((x) => x.isIntersecting)) return;
-      o.disconnect();
-      void import('./signal-field').then((m) => m.init(band));
-    }, { rootMargin: '100% 0px' }).observe(band);
+    if (band && motionOK()) whenNear(band, () => void import('./signal-field').then((m) => m.init(band)));
   });
   // U4: stat count-up, lazy, once #numeros is within one viewport (not under reduced motion).
   onIdle(() => {
     const sec = document.getElementById('numeros');
-    if (!sec || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    new IntersectionObserver((e, o) => {
-      if (!e.some((x) => x.isIntersecting)) return;
-      o.disconnect();
-      void import('./count').then((m) => m.init(sec));
-    }, { rootMargin: '100% 0px' }).observe(sec);
+    if (sec && !matchMedia('(prefers-reduced-motion: reduce)').matches) whenNear(sec, () => void import('./count').then((m) => m.init(sec)));
   });
   // U7: scroll choreography (CSS scroll timelines + word split), all pointers, never under reduced motion. Adopted on the
   // first interaction or scroll (or ~9 s of reading); the chunk is fetched on idle. Nothing in the first viewport needs it.
@@ -89,14 +70,10 @@ afterLcp();
   // awards strip: same carousel as the journey (drag, arrows, counter), loaded once #quem-sou is within one viewport
   onIdle(() => {
     const strip = document.querySelector<HTMLElement>('[data-vn-car]');
-    if (!strip) return;
-    const io = new IntersectionObserver((es) => {
-      if (!es.some((e) => e.isIntersecting)) return;
-      io.disconnect();
-      void import('./journey').then((m) => m.init(strip));
-    }, { rootMargin: '100% 0px' });
-    io.observe(strip);
+    if (strip) whenNear(strip, () => void import('./journey').then((m) => m.init(strip)));
   });
+  // images with data-src: requested only once within one viewport of the screen (loading=lazy still fetches ~1250 px ahead)
+  onIdle(() => document.querySelectorAll<HTMLImageElement>('img[data-src]').forEach((i) => whenNear(i, () => { i.src = i.dataset.src!; })));
   // B4: smooth mouse wheel, loaded by the first wheel event on fine pointers (that first notch stays native).
   if (motionOK()) addEventListener('wheel', () => motionOK() && void import('./smooth'), { once: true, passive: true });
 }

@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { execSync } from 'node:child_process';
 import { routeAlternates } from './src/i18n/routes.mjs';
+import cssPurge from './scripts/lib/css-purge.mjs';
 
 // Astro does not hash `is:inline` scripts. The theme/js head script in Base.astro must run before
 // first paint, so hash it here from the same text Astro emits (verbatim, LF line endings).
@@ -57,6 +58,8 @@ export default defineConfig({
     },
   },
   vite: {
+    // Drops dead brand rules/custom properties from the inline CSS (explicit denylist in scripts/lib/css-purge.mjs).
+    css: { postcss: { plugins: [cssPurge()] } },
     server: {
       // Parallel git worktrees live under .claude/worktrees (full checkouts with node_modules); watching
       // them makes the dev server restart constantly and drop its module-runner transport.
