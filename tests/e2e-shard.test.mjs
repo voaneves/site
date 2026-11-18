@@ -56,3 +56,8 @@ test('e2e-weights averages runs, rounds to 0.1 s and sorts heaviest first', () =
   assert.equal(w['e2e/b.spec.ts'], 6);
   assert.equal(w['e2e/a.spec.ts'], 2);
 });
+
+test('e2e-weights attributes tests registered from a helper module to the spec file', () => {
+  const m = sumReport({ suites: [{ file: 'x.spec.ts', suites: [{ file: 'lib/sweep.ts', specs: [{ tests: [{ results: [{ duration: 3000 }] }] }] }] }] });
+  assert.deepEqual([...m], [['e2e/x.spec.ts', 3000]]);
+});

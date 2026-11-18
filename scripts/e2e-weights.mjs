@@ -18,7 +18,7 @@ const key = (f) => `e2e/${f.replaceAll('\\', '/').replace(/^e2e\//, '')}`;
 /** Sum of attempt durations (ms) per spec path ("e2e/x.spec.ts") in one parsed Playwright JSON report. */
 export function sumReport(report, into = new Map()) {
   const walk = (suite, file) => {
-    const f = suite.file ?? file;
+    const f = file ?? suite.file; // top-level suite = the spec file; nested ones may point at helpers (e2e/lib/*)
     for (const spec of suite.specs ?? [])
       for (const t of spec.tests ?? [])
         for (const r of t.results ?? [])
