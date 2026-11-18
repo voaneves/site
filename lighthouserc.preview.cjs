@@ -5,6 +5,9 @@ module.exports = {
     collect: {
       url: [`${baseUrl}/`, `${baseUrl}/en/`, `${baseUrl}/privacidade/`],
       numberOfRuns: 5,
+      // *.pages.dev always sends X-Robots-Tag: noindex (Cloudflare). Turning the assertion off is not enough: the failed audit
+      // still counts in the SEO category score (~0.69), so it is skipped at collection time, as in lighthouserc.prod.cjs.
+      settings: { skipAudits: ['is-crawlable', 'canonical'] },
     },
     assert: {
       assertions: {
@@ -12,8 +15,6 @@ module.exports = {
         'categories:accessibility': ['error', { minScore: 1, aggregationMethod: 'median-run' }],
         'categories:best-practices': ['error', { minScore: 1, aggregationMethod: 'median-run' }],
         'categories:seo': ['error', { minScore: 0.9, aggregationMethod: 'median-run' }],
-        'is-crawlable': 'off',
-        canonical: 'off',
       },
     },
     upload: {
