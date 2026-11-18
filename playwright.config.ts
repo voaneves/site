@@ -5,7 +5,8 @@ const PORT = process.env.PW_PORT ?? '8788';
 
 export default defineConfig({
   testDir: './e2e',
-  // Spread individual tests (not whole files) across workers and CI shards: the sweep specs are heavy.
+  // Tests of a file spread across the workers of one machine. Across CI shards it is scripts/e2e-shard.mjs that
+  // distributes whole spec files (weights in e2e/shard-weights.json).
   fullyParallel: true,
   timeout: 30_000,
   retries: process.env.CI ? 1 : 0,

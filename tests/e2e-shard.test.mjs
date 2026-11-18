@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { plan, specFiles, loadWeights } from '../scripts/e2e-shard.mjs';
+import { sumReport, toWeights } from '../scripts/e2e-weights.mjs';
 
 const TOTAL = 6; // keep in step with the e2e-shard matrix in .github/workflows/ci.yml
 
@@ -30,4 +31,33 @@ test('shards are balanced: the slowest is within the largest single file of the 
 test('a spec without a recorded weight still gets a shard', () => {
   const shards = plan(3, ['e2e/a.spec.ts', 'e2e/b.spec.ts', 'e2e/new.spec.ts'], { 'e2e/a.spec.ts': 10, 'e2e/b.spec.ts': 2 });
   assert.deepEqual(shards.flatMap((s) => s.files).sort(), ['e2e/a.spec.ts', 'e2e/b.spec.ts', 'e2e/new.spec.ts']);
+});
+
+// Minimal Playwright JSON report: file-level suite > describe suite > spec > test > results (one per attempt).
+const fixture = (extra = []) => ({
+  suites: [
+    { file: 'a.spec.ts', suites: [{ title: 'd', specs: [{ tests: [{ results: [{ duration: 1000 }, { duration: 500 }] }] }] }], specs: [] },
+    { file: 'b.spec.ts', specs: [{ tests: [{ results: [{ duration: 4000 }] }, { results: [{ duration: 2000 }] }] }] },
+    ...extra,
+  ],
+});
+
+test('e2e-weights sums every attempt per spec file and nests describe suites', () => {
+  const m = sumReport(fixture());
+  assert.equal(m.get('e2e/a.spec.ts'), 1500);
+  assert.equal(m.get('e2e/b.spec.ts'), 6000);
+});
+
+test('e2e-weights averages runs, rounds to 0.1 s and sorts heaviest first', () => {
+  const run1 = sumReport(fixture());
+  const run2 = sumReport({ suites: [{ file: 'a.spec.ts', specs: [{ tests: [{ results: [{ duration: 2549 }] }] }] }] });
+  const w = toWeights([run1, run2]);
+  assert.deepEqual(Object.keys(w), ['e2e/b.spec.ts', 'e2e/a.spec.ts']);
+  assert.equal(w['e2e/b.spec.ts'], 6);
+  assert.equal(w['e2e/a.spec.ts'], 2);
+});
+
+test('e2e-weights attributes tests registered from a helper module to the spec file', () => {
+  const m = sumReport({ suites: [{ file: 'x.spec.ts', suites: [{ file: 'lib/sweep.ts', specs: [{ tests: [{ results: [{ duration: 3000 }] }] }] }] }] });
+  assert.deepEqual([...m], [['e2e/x.spec.ts', 3000]]);
 });

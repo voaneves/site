@@ -82,16 +82,23 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
+      # Cache acertado: o navegador já está em ~/.cache/ms-playwright e o runner traz as libs do sistema, então
+      # nada de apt-get (o espelho já travou ~5 min aqui). Cache perdido: instala navegador e dependências.
       - name: Instalar Chromium
+        timeout-minutes: 8
+        env:
+          CACHE_HIT: ${{ steps.pw.outputs.cache-hit }}
         run: |
-          if [ "${{ steps.pw.outputs.cache-hit }}" = "true" ]; then
-            npx playwright install-deps chromium
-          else
+          if [ "$CACHE_HIT" != "true" ]; then
+            echo 'Acquire::Retries "3"; Acquire::http::Timeout "20"; Acquire::https::Timeout "20";' | sudo tee /etc/apt/apt.conf.d/80-ci-resilience >/dev/null
             npx playwright install --with-deps chromium
           fi
 
       # Whole spec files per shard, packed by measured duration (scripts/e2e-shard.mjs + e2e/shard-weights.json).
-      - run: npx playwright test $(node scripts/e2e-shard.mjs ${{ matrix.shard }} 6)
+      # O reporter json alimenta scripts/e2e-weights.mjs (recalibração dos pesos) via artefato por fatia.
+      - run: npx playwright test --reporter=list,json $(node scripts/e2e-shard.mjs ${{ matrix.shard }} 6)
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_FILE: playwright-report/results.json
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() }}
