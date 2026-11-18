@@ -37,6 +37,16 @@
     min-block-size: 24px;
   }
 
+  .vn-site-footer__code {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--vn-space-2) var(--vn-space-5);
+    margin-block-start: var(--vn-space-5);
+    padding-block-start: var(--vn-space-4);
+    border-top: 1px solid var(--vn-line);
+  }
+
   /* The clock swaps "UTC−3" for the time when the late script runs: a fixed 5-character box with tabular digits from
      the first paint means the swap can never change the footer row's width (on CI's Linux fonts the row sat at its
      wrap threshold and re-wrapped by 68 px). */
