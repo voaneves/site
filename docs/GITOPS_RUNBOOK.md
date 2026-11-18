@@ -26,6 +26,22 @@ Cron -> Uptime a cada 4h (uptime.yml) + Auditoria semanal (auditoria.yml)
 | Título do PR | `.github/workflows/pr-title.yml` | `pull_request_target` | Valida título em formato Conventional Commits sem executar código do PR. |
 | CodeQL Advanced | `.github/workflows/codeql.yml` | `push: [main]`, `pull_request: [main]`, `36 3 * * 0` (domingo 03:36 UTC) | Análise estática de segurança (CodeQL) para `javascript-typescript` e `actions`. |
 
+### 2.1 Fatiamento do E2E (Playwright + axe)
+
+O job `e2e-shard` do `ci.yml` roda 6 fatias em paralelo; o check agregador `Acessibilidade (Playwright + axe)` (`e2e-a11y`) é o exigido pelo ruleset. Quem distribui os specs entre as fatias é `scripts/e2e-shard.mjs`: arquivos de spec inteiros, empacotados por duração (maior primeiro) com os pesos em `e2e/shard-weights.json`. Dentro de uma fatia, `fullyParallel` espalha os testes entre os workers da máquina. Spec sem peso recebe a mediana, então nunca fica de fora.
+
+O Chromium vem do cache de `~/.cache/ms-playwright`; só no cache perdido o passo roda `playwright install --with-deps` (apt com retries e timeout). Cada fatia grava `playwright-report/results.json` (reporter `json`) no artefato `playwright-report-<n>`.
+
+Regenerar os pesos (quando entrar spec novo ou as durações mudarem muito):
+
+```
+gh run download <id-do-run> -D $TMP/run1 -p 'playwright-report-*'   # repita para 1-3 runs
+node scripts/e2e-weights.mjs $TMP/run1 [$TMP/run2 ...]            # regrava e2e/shard-weights.json
+npm test                                                           # confere cobertura e equilíbrio
+```
+
+Cada argumento é um run (soma as tentativas por spec; média entre runs). Commite só `e2e/shard-weights.json`.
+
 ## 3. Ambientes e Segredos **[MANUAL]**
 
 - `preview`: Permite todas as branches. Segredos: `CLOUDFLARE_API_TOKEN` (Cloudflare Pages Edit), `CLOUDFLARE_ACCOUNT_ID`. Variável: `CF_PAGES_PROJECT=voaneves`.
