@@ -1,6 +1,6 @@
 // Helpers to compute the first-load JS graph of a built page.
 
-const SCRIPT_RE = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
+const SCRIPT_RE = /<script\b([^>]*)>([\s\S]*?)<\/script\b[^>]*>/gi;
 const LINK_RE = /<link\b([^>]*)>/gi;
 
 function attr(attrs, name) {
