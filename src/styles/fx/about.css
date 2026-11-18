@@ -1,0 +1,34 @@
+/* fx/about.css, adopted by src/scripts/scroll-fx.ts into @layer site (do not wrap it in @layer yourself).
+   Rules outside @supports are BASE (always adopted under reduced-motion: no-preference).
+   Scroll-timeline rules go in a top-level @supports (animation-timeline: view()) { ... } block (TL, dropped when unsupported)
+   and inside @media screen and (prefers-reduced-motion: no-preference). The resting look (grey base, colour ink, brand rail) is inline in sections/about.css. */
+
+/* The portrait stays in view while the long column scrolls (desktop only; the sheet is not adopted under reduced motion). */
+@media (min-width: 900px) {
+  .vn-about-portrait { position: sticky; top: calc(var(--nav-h, 73px) + 2rem); align-self: start; }
+}
+
+@supports (animation-timeline: view()) {
+  @media screen and (prefers-reduced-motion: no-preference) {
+    /* The named timeline sits on the grid, which is not sticky: a sticky subject would freeze view() progress. */
+    .vn-about-grid { view-timeline: --ab block; }
+    /* clip-path from none is not interpolable, so each keyframe set names its end shape. The frame opens, then the colour rises from the bottom over the grey base. Both end while the portrait is whole on screen.
+       Longhands only (see fx/parallax.css): the minifier would fold them into a shorthand that drops the timeline. */
+    @keyframes vn-pf { from { clip-path: inset(14% 10% round var(--vn-radius-2xl)); } to { clip-path: inset(0 round var(--vn-radius-2xl)); } }
+    @keyframes vn-pi { from { clip-path: inset(100% 0 0); } to { clip-path: inset(0); } }
+    .vn-about-portrait { animation-name: vn-pf; animation-timing-function: cubic-bezier(.25, 1, .5, 1); animation-fill-mode: backwards; animation-timeline: --ab; animation-range: entry 0% entry 80%; }
+    .vn-about-portrait__ink { animation-name: vn-pi; animation-timing-function: linear; animation-fill-mode: backwards; animation-timeline: --ab; animation-range: entry 20% entry 85%; }
+    /* The trajectory rail draws top to bottom; the real borders step aside while it runs. */
+    .vn-about-tl__list { position: relative; }
+    .vn-about-tl__list > .vn-timeline-item { border-left-color: transparent; }
+    .vn-about-tl__list::after {
+      content: ""; position: absolute; inset: 0 auto 0 0; width: 1px; background: var(--vn-line); transform-origin: 50% 0; pointer-events: none;
+      animation-name: vn-rail; animation-timing-function: linear; animation-fill-mode: backwards; animation-timeline: view(); animation-range: entry 0% cover 55%;
+    }
+    @keyframes vn-rail { from { scale: 1 0; } }
+    @media (forced-colors: active) {
+      .vn-about-portrait, .vn-about-portrait__ink, .vn-about-tl__list::after { animation: none; }
+      .vn-about-tl__list > .vn-timeline-item { border-left-color: revert-layer; }
+    }
+  }
+}

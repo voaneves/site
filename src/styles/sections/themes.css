@@ -41,7 +41,6 @@
     --vn-text: var(--g-fg);
     --vn-text-muted: var(--g-muted);
     --vn-text-on-inverse: var(--g-fg);
-    --vn-text-muted-on-inverse: var(--g-muted);
     --vn-line: var(--g-line);
     --vn-signal-ink: var(--g-red);
   }

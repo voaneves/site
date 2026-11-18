@@ -14,6 +14,17 @@ export function onFirstPointer(cb: () => void): void {
   addEventListener('pointermove', () => cb(), { once: true, passive: true });
 }
 
+/** Runs `cb` once, the first time `el` comes within one viewport of the screen (the shared "load when near" trigger). */
+export function whenNear(el: Element | null, cb: () => void): void {
+  if (!el) return;
+  const io = new IntersectionObserver((es) => {
+    if (!es.some((e) => e.isIntersecting)) return;
+    io.disconnect();
+    cb();
+  }, { rootMargin: '100% 0px' });
+  io.observe(el);
+}
+
 export function motionOK(): boolean {
   return matchMedia('(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference)').matches;
 }

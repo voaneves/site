@@ -123,6 +123,10 @@ eachPage('the primary nav has no duplicate hrefs', (p) => {
 });
 
 // ---- images ------------------------------------------------------------------------------------------
+// An image can defer its request with data-src (set by main.ts once it is within one viewport; stricter than loading=lazy).
+const srcOf = (i) => i.attrs.src ?? i.attrs['data-src'];
+const isLazy = (i) => i.attrs.loading === 'lazy' || i.attrs['data-src'] !== undefined;
+
 eachPage('every <img> has an alt attribute (empty only when decorative)', (p) => {
   const bad = [];
   for (const i of p.q('img')) {
@@ -144,15 +148,15 @@ eachPage('every <img> declares intrinsic width and height (no layout shift)', (p
 
 eachPage('every <img src> exists in dist and is a modern format', (p) => {
   for (const i of p.q('img')) {
-    assert.ok(i.attrs.src, 'img without src');
-    assert.ok(resolveInDist(i.attrs.src), `${i.attrs.src} missing in dist`);
-    assert.match(i.attrs.src, /\.(webp|avif|svg|png)$/i, `${i.attrs.src}: use webp/avif`);
+    assert.ok(srcOf(i), 'img without src');
+    assert.ok(resolveInDist(srcOf(i)), `${srcOf(i)} missing in dist`);
+    assert.match(srcOf(i), /\.(webp|avif|svg|png)$/i, `${srcOf(i)}: use webp/avif`);
   }
 });
 
 eachPage('declared img dimensions match the file aspect ratio (WebP header)', (p) => {
   for (const i of p.q('img')) {
-    const f = resolveInDist(i.attrs.src);
+    const f = resolveInDist(srcOf(i));
     if (!f?.endsWith('.webp')) continue;
     const b = fs.readFileSync(f);
     if (b.toString('ascii', 0, 4) !== 'RIFF') continue;
@@ -176,12 +180,12 @@ eachPage('at most one fetchpriority=high image, and only an eager one', (p) => {
 
 eachPage('below-the-fold images are lazy: at most 2 eager images, none after the first section', (p) => {
   const imgs = p.q('img');
-  const eager = imgs.filter((i) => i.attrs.loading !== 'lazy');
+  const eager = imgs.filter((i) => !isLazy(i));
   assert.ok(eager.length <= 2, `${eager.length} eager images`);
   for (const i of imgs) assert.ok(['async', 'sync', 'auto'].includes(i.attrs.decoding), `decoding on ${i.attrs.src}`);
   if (imgs.length) {
     assert.notEqual(imgs[0].attrs.loading, 'lazy', 'the LCP candidate (first image) must not be lazy');
-    for (const i of imgs.slice(1)) assert.equal(i.attrs.loading, 'lazy', `${i.attrs.src} should be lazy`);
+    for (const i of imgs.slice(1)) assert.ok(isLazy(i), `${srcOf(i)} should be lazy`);
   }
 });
 
