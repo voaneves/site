@@ -9,9 +9,6 @@
   .vn-bento-grid .vn-service-card {
     grid-column: span 2;
     justify-content: space-between;
-  }
-
-  .vn-service-card--featured {
     border-color: var(--vn-line-strong);
   }
 

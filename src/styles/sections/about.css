@@ -60,20 +60,27 @@
   }
 
   .vn-awards-wrap {
-    margin-block-start: var(--vn-space-9);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--vn-space-3);
+    margin-block: var(--vn-space-9) var(--vn-space-4);
     padding-block-start: var(--vn-space-7);
     border-top: 1px solid var(--vn-line);
   }
 
   .vn-awards-title {
     color: var(--vn-text-muted);
-    margin-block-end: var(--vn-space-4);
   }
 
-  .vn-awards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-    gap: var(--vn-space-4);
+  .vn-awards-wrap .vn-journey-controls {
+    margin: 0;
+  }
+
+  .vn-awards-track > .vn-award-card {
+    flex: 0 0 min(17.5rem, 78vw);
+    scroll-snap-align: start;
   }
 
   .vn-award-card {

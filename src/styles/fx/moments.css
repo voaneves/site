@@ -12,7 +12,7 @@
     .vn-numbers-lower { view-timeline: --vn-nl block; }
     html.js .vn-chart-svg__fill { animation-name: vn-bar; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: --vn-nl; animation-range: entry 50% cover 50%; }
     /* The 3rem entry offset must stay inside the clipped track (no scrollHeight overflow): borrow it from the margin. Net layout is unchanged. */
-    .vn-journey-track { padding-block-end: calc(var(--vn-space-4) + 3rem); margin-block-end: -3rem; }
+    #jornada .vn-journey-track { padding-block-end: calc(var(--vn-space-4) + 3rem); margin-block-end: -3rem; }
     html.js .vn-journey-card {
       animation-name: vn-jt-in, vn-jt-out;
       animation-timing-function: linear;

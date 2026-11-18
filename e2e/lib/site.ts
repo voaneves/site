@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 import { ROUTE_PAIRS } from '../../src/i18n/routes.mjs';
 
 /** Every indexable page of the site (pt then en for each pair) plus the 404 document. */
@@ -91,4 +91,18 @@ export async function scrollThrough(page: Page): Promise<void> {
  */
 export async function engage(page: Page): Promise<void> {
   await page.keyboard.press('Shift');
+}
+
+/** content-visibility sections above can resize while scrolling in: wait until the element stops moving. */
+export async function settle(page: Page, track: Locator): Promise<void> {
+  await track.scrollIntoViewIfNeeded();
+  let prev = -1;
+  await expect.poll(async () => {
+    await track.scrollIntoViewIfNeeded();
+    const y = (await track.boundingBox())!.y + (await page.evaluate(() => scrollY));
+    const same = Math.abs(y - prev) < 0.5;
+    prev = y;
+    await page.waitForTimeout(120);
+    return same;
+  }).toBe(true);
 }

@@ -96,7 +96,7 @@ test('Proof-board chart panel is sticky on large screens only', async ({ page })
 // Chrome rejects view()/scroll() inside the `animation` shorthand, so the minifier must not merge the longhands.
 test('built inline scroll-driven animations keep a name and a scroll/view timeline', async ({ page }) => {
   await ready(page);
-  const sel = ['.vn-chart-svg__fill', '.vn-journey-track', '.vn-service-card', '#perguntas h2[data-drift]'];
+  const sel = ['.vn-chart-svg__fill', '#jornada .vn-journey-track', '.vn-service-card', '#perguntas h2[data-drift]'];
   for (const s of sel) {
     const r = await page.locator(s).first().evaluate((e) => ({
       name: getComputedStyle(e).animationName,

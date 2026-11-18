@@ -11,6 +11,11 @@ const { locale } = Astro.props;
 const c = PORTFOLIO[locale];
 const [eyebrowNum, ...eyebrowRest] = (c.about.tag).split(' · ');
 const eyebrowTag = eyebrowRest.join(' · ');
+const L = {
+  'pt-br': { drag: 'Arraste', prev: 'Conquista anterior', next: 'Próxima conquista' },
+  en: { drag: 'Drag', prev: 'Previous award', next: 'Next award' },
+}[locale];
+const total = String(c.about.awards.length).padStart(2, '0');
 ---
 
 <section data-section="01" id="quem-sou" class="vn-section vn-chapter--creme vn-site-anchor-target" data-cursor-zone="read">
@@ -43,17 +48,32 @@ const eyebrowTag = eyebrowRest.join(' · ');
     </div>
 
     <div class="vn-awards-wrap">
-      <h3 class="vn-type-label vn-awards-title" data-enter>{c.about.awardsTitle}</h3>
-      <div class="vn-awards-grid" data-stagger>
-        {c.about.awards.map((award) => (
-          <article class="vn-award-card" data-enter="scale" data-fx="tilt">
-            <span class="vn-award-card__place">{award.place}</span>
-            <h4 class="vn-type-body-strong vn-award-card__title">{award.title}</h4>
-            <p class="vn-type-body-sm vn-award-card__detail">{award.detail}</p>
-            <p class="vn-type-micro vn-muted">{award.meta}</p>
-          </article>
-        ))}
+      <h3 class="vn-type-label vn-awards-title" id="vn-awards-title" data-enter>{c.about.awardsTitle}</h3>
+      <div class="vn-journey-controls" data-enter>
+        <span class="vn-type-micro vn-muted vn-journey-hint">{c.journey.dragHint}</span>
+        <span class="vn-journey-count vn-type-micro" data-car-count>01 / {total}</span>
+        <button type="button" class="vn-icon-btn" data-car-prev aria-label={L.prev}>←</button>
+        <button type="button" class="vn-icon-btn" data-car-next aria-label={L.next}>→</button>
       </div>
     </div>
+  </div>
+
+  <div
+    class="vn-journey-track vn-awards-track"
+    data-vn-car
+    data-cursor-zone="drag"
+    data-cursor-label={L.drag}
+    tabindex="0"
+    role="region"
+    aria-labelledby="vn-awards-title"
+  >
+    {c.about.awards.map((award) => (
+      <article class="vn-award-card">
+        <span class="vn-award-card__place">{award.place}</span>
+        <h4 class="vn-type-body-strong vn-award-card__title">{award.title}</h4>
+        <p class="vn-type-body-sm vn-award-card__detail">{award.detail}</p>
+        <p class="vn-type-micro vn-muted">{award.meta}</p>
+      </article>
+    ))}
   </div>
 </section>
