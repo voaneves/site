@@ -47,7 +47,7 @@ export const DEAD_PROPERTIES = [
   '--vn-text-muted-on-inverse',
 ];
 
-const BRAND_DIR = '@voaneves/brand/dist/css/';
+export const BRAND_DIR = '@voaneves/brand/dist/css/';
 const fromBrand = (node) => (node.source?.input?.file ?? '').replaceAll('\\', '/').includes(BRAND_DIR);
 
 const classRe = (name) => new RegExp(String.raw`\.${name}(?![\w-])`);
@@ -56,10 +56,13 @@ const DEAD_PROP_SET = new Set(DEAD_PROPERTIES);
 
 const isDeadSelector = (sel) => DEAD_CLASS_RES.some((re) => re.test(sel));
 
-/** Parent chain cleanup: drops an at-rule/rule that the purge left empty (never touches `@layer` order statements). */
-function dropEmptyAncestors(node) {
-  let parent = node.parent;
+/**
+ * Parent chain cleanup: drops a rule/at-rule that the purge left empty, walking up. It stops at (and keeps) an
+ * `@layer name { }` block: removing it could change the cascade layer order when it is the first mention of the name.
+ */
+function dropEmptyAncestors(parent) {
   while (parent && parent.type !== 'root' && parent.nodes && parent.nodes.length === 0) {
+    if (parent.type === 'atrule' && parent.name === 'layer') return;
     const up = parent.parent;
     parent.remove();
     parent = up;
@@ -81,7 +84,7 @@ export default function cssPurge() {
         if (kept.length === 0) {
           const parent = rule.parent;
           rule.remove();
-          dropEmptyAncestors({ parent });
+          dropEmptyAncestors(parent);
         } else {
           rule.selectors = kept;
         }
@@ -90,11 +93,7 @@ export default function cssPurge() {
         if (!decl.prop.startsWith('--') || !DEAD_PROP_SET.has(decl.prop) || !fromBrand(decl)) return;
         const parent = decl.parent;
         decl.remove();
-        if (parent.nodes.length === 0) {
-          const up = parent.parent;
-          parent.remove();
-          dropEmptyAncestors({ parent: up });
-        }
+        dropEmptyAncestors(parent);
       });
     },
   };

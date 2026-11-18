@@ -117,11 +117,16 @@ test.describe('quem sou, revelacao e fallbacks', () => {
 
   test('sem o engine de scroll: retrato colorido e bordas da trajetoria visiveis', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
-    await page.route(/\/_astro\/scroll-fx\./, (r) => r.abort());
+    // Depends on the build naming the engine chunk after its module (`_astro/scroll-fx.<hash>.js`, from the dynamic
+    // import in main.ts). The pattern only needs "scroll-fx" in an _astro path; if the chunk is ever renamed, nothing
+    // is aborted and the poll below fails with a clear message instead of this test passing with the engine running.
+    const aborted: string[] = [];
+    page.on('requestfailed', (r) => { if (/\/_astro\/.*scroll-fx/.test(r.url())) aborted.push(r.url()); });
+    await page.route(/\/_astro\/.*scroll-fx/, (r) => r.abort());
     await page.goto('/');
     await engage(page);
     await settle(page, grid(page));
-    await page.waitForTimeout(500);
+    await expect.poll(() => aborted.length, { message: 'the scroll-fx chunk was never requested (chunk renamed? this test would not be testing the fallback)', timeout: 15000 }).toBeGreaterThan(0);
     expect(await page.evaluate(() => document.documentElement.dataset.scrollFx === 'tl')).toBe(false);
     await expect.poll(() => clip(page)).toBe('none');
     await expect(ink(page)).toBeVisible();
@@ -155,7 +160,7 @@ test.describe('quem sou, revelacao e fallbacks', () => {
   });
 
   for (const theme of ['light', 'dark'] as const) {
-    test(`tema ${theme}: o periodo contrasta com o fundo da secao`, async ({ page }) => {
+    test(`tema ${theme}: periodo, organizacao, funcao e detalhes da trajetoria tem contraste WCAG AA (4.5:1)`, async ({ page }) => {
       await page.addInitScript((t) => {
         if (sessionStorage.getItem('vn-seeded')) return;
         sessionStorage.setItem('vn-seeded', '1');
@@ -163,11 +168,60 @@ test.describe('quem sou, revelacao e fallbacks', () => {
       }, theme);
       await page.goto('/');
       await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
-      const c = await page.evaluate(() => ({
-        bg: getComputedStyle(document.querySelector('#quem-sou')!).backgroundColor,
-        fg: getComputedStyle(document.querySelector('#quem-sou .vn-about-tl__period')!).color,
-      }));
-      expect(c.fg).not.toBe(c.bg);
+      // Contrast computed in the browser from the computed colours. Any CSS colour syntax (color-mix, oklch, ...) is
+      // normalised to sRGB through a canvas pixel, and the effective background is the stack of translucent background
+      // colours of the ancestors over white. Background images/gradients are not modelled (the section has none).
+      const rows = await page.evaluate(() => {
+        const px = document.createElement('canvas').getContext('2d', { willReadFrequently: true })!;
+        px.canvas.width = px.canvas.height = 1;
+        const rgba = (css: string): [number, number, number, number] => {
+          px.clearRect(0, 0, 1, 1);
+          px.fillStyle = '#000';
+          px.fillStyle = css;
+          px.fillRect(0, 0, 1, 1);
+          const d = px.getImageData(0, 0, 1, 1).data;
+          return [d[0], d[1], d[2], d[3] / 255];
+        };
+        const over = (top: number[], below: number[]) => {
+          const a = top[3];
+          return [0, 1, 2].map((i) => top[i] * a + below[i] * (1 - a)).concat(1);
+        };
+        const effectiveBg = (el: Element) => {
+          const layers: number[][] = [];
+          for (let e: Element | null = el; e; e = e.parentElement) {
+            const c = rgba(getComputedStyle(e).backgroundColor);
+            if (c[3] > 0) layers.push(c);
+            if (c[3] === 1) break;
+          }
+          return layers.reduceRight<number[]>((acc, l) => over(l, acc), [255, 255, 255, 1]);
+        };
+        const lum = (c: number[]) => {
+          const [r, g, b] = c.slice(0, 3).map((v) => {
+            const s = v / 255;
+            return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+          });
+          return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        };
+        const ratio = (fg: number[], bg: number[]) => {
+          const [hi, lo] = [lum(fg), lum(bg)].sort((a, b) => b - a);
+          return (hi + 0.05) / (lo + 0.05);
+        };
+        const targets: Array<[string, string]> = [
+          ['periodo', '#quem-sou .vn-about-tl__period'],
+          ['organizacao', '#quem-sou .vn-timeline-item h4'],
+          ['funcao', '#quem-sou .vn-timeline-item .vn-type-body-strong'],
+          ['detalhe', '#quem-sou .vn-about-tl__sub li'],
+        ];
+        return targets.flatMap(([name, sel]) =>
+          [...document.querySelectorAll(sel)].map((el, i) => {
+            const bg = effectiveBg(el);
+            const fg = over(rgba(getComputedStyle(el).color), bg);
+            return { name: `${name} #${i}`, fg: fg.map(Math.round).join(','), bg: bg.map(Math.round).join(','), ratio: Math.round(ratio(fg, bg) * 100) / 100 };
+          }),
+        );
+      });
+      expect(rows.length).toBeGreaterThanOrEqual(4);
+      for (const r of rows) expect(r.ratio, `${r.name} (${theme}): fg rgb(${r.fg}) sobre bg rgb(${r.bg})`).toBeGreaterThanOrEqual(4.5);
     });
   }
 });

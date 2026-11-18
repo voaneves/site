@@ -48,15 +48,17 @@ const total = String(c.about.awards.length).padStart(2, '0');
         </div>
         <div class="vn-about-tl" data-stagger>
           <h3 class="vn-type-label vn-muted" data-enter>{tlTitle}</h3>
-          <ol class="vn-about-tl__list" data-stagger>
+          <ol class="vn-about-tl__list" role="list" data-stagger>
             {timeline.map((item) => (
               <li class="vn-timeline-item" data-enter data-current={item.current ? '' : undefined}>
-                <p class="vn-type-label vn-about-tl__period">{item.period}</p>
+                {item.period && <p class="vn-type-label vn-about-tl__period">{item.period}</p>}
                 <h4 class="vn-type-h4">{item.org}</h4>
                 {item.role && <p class="vn-type-body-strong">{item.role}</p>}
-                <ul class="vn-about-tl__sub">
-                  {item.sub.map((s) => <li class="vn-type-caption">{s}</li>)}
-                </ul>
+                {item.sub.length > 0 && (
+                  <ul class="vn-about-tl__sub" role="list">
+                    {item.sub.map((s) => <li class="vn-type-caption">{s}</li>)}
+                  </ul>
+                )}
               </li>
             ))}
           </ol>
