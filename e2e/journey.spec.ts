@@ -1,18 +1,5 @@
-import { test, expect, type Locator, type Page } from '@playwright/test';
-
-// content-visibility sections above can resize while scrolling in: wait until the track stops moving.
-async function settle(page: Page, track: Locator) {
-  await track.scrollIntoViewIfNeeded();
-  let prev = -1;
-  await expect.poll(async () => {
-    await track.scrollIntoViewIfNeeded();
-    const y = (await track.boundingBox())!.y + (await page.evaluate(() => scrollY));
-    const same = Math.abs(y - prev) < 0.5;
-    prev = y;
-    await page.waitForTimeout(120);
-    return same;
-  }).toBe(true);
-}
+import { test, expect } from '@playwright/test';
+import { settle } from './lib/site';
 
 // 1024 wide: the swipe carousel. The pinned desktop mode is covered by journey-pinned.spec.ts.
 test.describe('journey gallery', () => {

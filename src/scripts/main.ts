@@ -86,6 +86,17 @@ afterLcp();
   onFirstPointer(() => motionOK() && import('./hover-fx'));
   // W14: magnetic buttons, lazy, first fine-pointer move only.
   onFirstPointer(() => motionOK() && matchMedia('(pointer: fine)').matches && import('./magnetic'));
+  // awards strip: same carousel as the journey (drag, arrows, counter), loaded once #quem-sou is within one viewport
+  onIdle(() => {
+    const strip = document.querySelector<HTMLElement>('[data-vn-car]');
+    if (!strip) return;
+    const io = new IntersectionObserver((es) => {
+      if (!es.some((e) => e.isIntersecting)) return;
+      io.disconnect();
+      void import('./journey').then((m) => m.init(strip));
+    }, { rootMargin: '100% 0px' });
+    io.observe(strip);
+  });
   // B4: smooth mouse wheel, loaded by the first wheel event on fine pointers (that first notch stays native).
   if (motionOK()) addEventListener('wheel', () => motionOK() && void import('./smooth'), { once: true, passive: true });
 }

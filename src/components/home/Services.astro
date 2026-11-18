@@ -35,7 +35,7 @@ const idle = [eyebrowTag, c.services.ctaLabel.toUpperCase(), c.services.items[0]
       {c.services.items.map((srv, idx) => {
         const waHref = waLink(srv.waMessage);
         return (
-          <article class={`vn-service-card vn-svc-${idx + 1} ${srv.featured ? 'vn-service-card--featured' : ''}`} data-stagger>
+          <article class={`vn-service-card vn-svc-${idx + 1}`} data-stagger>
             <div class="vn-service-card__head" data-enter>
               <span class="vn-type-tag vn-muted">{srv.n} · {srv.tag}</span>
               <span class="vn-service-card__price">
