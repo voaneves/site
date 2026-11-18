@@ -20,3 +20,9 @@
 - [LinkedIn](https://www.linkedin.com/in/voaneves/)
 - [YouTube](https://www.youtube.com/@voaneves)
 - [Stack Overflow](https://stackoverflow.com/users/10596901/voaneves)
+
+## Repositórios públicos
+
+- [voaneves/brand](https://github.com/voaneves/brand): design system e tokens W3C/DTCG (`@voaneves/brand`) com checagem WCAG 2.2 AA.
+- [voaneves/site](https://github.com/voaneves/site): código-fonte de `voaneves.com` (Astro 7, GitOps, Cloudflare Pages, Lighthouse 100).
+- [voaneves/snake-arena](https://github.com/voaneves/snake-arena): benchmark de Reinforcement Learning em Keras 3 com 14 algoritmos e 749 testes.
