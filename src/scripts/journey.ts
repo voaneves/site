@@ -73,6 +73,7 @@ export function init(el?: HTMLElement | null): void {
     if (pin) scrollTo({ top: runTop() + (i / (cards.length - 1)) * span(), behavior: behavior() });
     else track.scrollTo({ left: snaps[i], behavior: behavior() });
   };
+  // Each section holds a single carousel and its own controls, so the first match inside `sec` is always this track's.
   sec.querySelector('[data-journey-prev],[data-car-prev]')?.addEventListener('click', () => go(-1));
   sec.querySelector('[data-journey-next],[data-car-next]')?.addEventListener('click', () => go(1));
   track.addEventListener('keydown', (e) => {

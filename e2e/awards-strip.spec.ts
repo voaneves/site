@@ -34,4 +34,22 @@ test.describe('awards strip', () => {
 
     await expect(page.locator('#jornada [data-journey-count]')).toHaveText(/^01 \/ /);
   });
+
+  test('keyboard: arrow keys on the focused strip move it and update the counter', async ({ page }) => {
+    await page.goto('/');
+    const strip = page.locator('[data-vn-car]');
+    await settle(page, strip);
+    await expect(strip).toHaveAttribute('data-ready', '');
+    const count = page.locator('#quem-sou [data-car-count]');
+    await expect(count).toHaveText(/^01 \//);
+
+    await strip.focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(count).toHaveText(/^02 \//);
+    await expect.poll(() => strip.evaluate((e) => e.scrollLeft)).toBeGreaterThan(100);
+
+    await page.keyboard.press('ArrowLeft');
+    await expect(count).toHaveText(/^01 \//);
+    await expect.poll(() => strip.evaluate((e) => e.scrollLeft)).toBeLessThan(2);
+  });
 });
