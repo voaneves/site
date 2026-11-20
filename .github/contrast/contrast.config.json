@@ -1,0 +1,143 @@
+{
+  "$schema": "https://raw.githubusercontent.com/voaneves/dtcg-contrast/main/dtcg-contrast.schema.json",
+  "tokens": [
+    "./tokens.json"
+  ],
+  "themes": [
+    {
+      "name": "light"
+    },
+    {
+      "name": "dark",
+      "extensionPath": "vn.dark"
+    }
+  ],
+  "pairs": [
+    {
+      "fg": "ground.a.fg",
+      "bg": "ground.a.bg",
+      "level": "AA",
+      "name": "ground a text"
+    },
+    {
+      "fg": "ground.a.muted",
+      "bg": "ground.a.bg",
+      "level": "AA",
+      "name": "ground a muted text"
+    },
+    {
+      "fg": "ground.a.link",
+      "bg": "ground.a.bg",
+      "level": "AA",
+      "name": "ground a link / eyebrow"
+    },
+    {
+      "fg": "ground.a.focus",
+      "bg": "ground.a.bg",
+      "level": "UI",
+      "name": "ground a focus ring"
+    },
+    {
+      "fg": "ground.b.fg",
+      "bg": "ground.b.bg",
+      "level": "AA",
+      "name": "ground b text"
+    },
+    {
+      "fg": "ground.b.muted",
+      "bg": "ground.b.bg",
+      "level": "AA",
+      "name": "ground b muted text"
+    },
+    {
+      "fg": "ground.b.link",
+      "bg": "ground.b.bg",
+      "level": "AA",
+      "name": "ground b link / eyebrow"
+    },
+    {
+      "fg": "ground.b.focus",
+      "bg": "ground.b.bg",
+      "level": "UI",
+      "name": "ground b focus ring"
+    },
+    {
+      "fg": "ground.c.fg",
+      "bg": "ground.c.bg",
+      "level": "AA",
+      "name": "ground c text"
+    },
+    {
+      "fg": "ground.c.muted",
+      "bg": "ground.c.bg",
+      "level": "AA",
+      "name": "ground c muted text"
+    },
+    {
+      "fg": "ground.c.link",
+      "bg": "ground.c.bg",
+      "level": "AA",
+      "name": "ground c link / eyebrow"
+    },
+    {
+      "fg": "ground.c.focus",
+      "bg": "ground.c.bg",
+      "level": "UI",
+      "name": "ground c focus ring"
+    },
+    {
+      "fg": "ground.c.tag",
+      "bg": "ground.c.bg",
+      "level": "AA",
+      "name": "dark section tag"
+    },
+    {
+      "fg": "card.fg",
+      "bg": "card.bg",
+      "level": "AA",
+      "name": "card text"
+    },
+    {
+      "fg": "card.muted",
+      "bg": "card.bg",
+      "level": "AA",
+      "name": "card muted text"
+    },
+    {
+      "fg": "ground.a.link",
+      "bg": "card.bg",
+      "level": "AA",
+      "name": "link on card"
+    },
+    {
+      "fg": "button.primary.fg",
+      "bg": "button.primary.bg",
+      "level": "AA",
+      "name": "primary button text"
+    },
+    {
+      "fg": "button.signal.fg",
+      "bg": "button.signal.bg",
+      "level": "AA",
+      "name": "signal button text"
+    },
+    {
+      "fg": "contact.fg",
+      "bg": "contact.bg",
+      "level": "AA",
+      "name": "contact section text"
+    },
+    {
+      "fg": "button.primary.bg",
+      "bg": "ground.a.bg",
+      "level": "UI",
+      "name": "primary button fill on ground a"
+    },
+    {
+      "fg": "button.primary.bg",
+      "bg": "ground.b.bg",
+      "level": "UI",
+      "name": "primary button fill on ground b"
+    }
+  ]
+}
