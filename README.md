@@ -76,3 +76,7 @@ Pushes to `main` run CI, publish a candidate to Cloudflare Pages, smoke test it,
 
 - Brand and design system: [voaneves/brand](https://github.com/voaneves/brand)
 - Author profile: [github.com/voaneves](https://github.com/voaneves)
+
+## License
+
+Code is MIT, see [LICENSE](LICENSE). Fonts are SIL OFL 1.1; logo, wordmark, photos, CV and written content are all rights reserved. Details in [LICENSES.md](LICENSES.md).
