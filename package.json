@@ -8,9 +8,9 @@
   },
   "dependencies": {
     "@astrojs/mdx": "^8.1.6",
-    "@astrojs/sitemap": "^3.7.5",
+    "@astrojs/sitemap": "^3.7.6",
     "@voaneves/brand": "file:./vendor/voaneves-brand-1.0.0.tgz",
-    "astro": "^7.4.12"
+    "astro": "^7.4.13"
   },
   "scripts": {
     "dev": "astro dev",
@@ -27,6 +27,6 @@
     "@playwright/test": "^1.65.1",
     "oxlint": "^1.94.0",
     "typescript": "^7.0.2",
-    "wrangler": "^4.164.0"
+    "wrangler": "^4.165.0"
   }
 }
