@@ -1,0 +1,48 @@
+{
+  "repo": "site",
+  "branch": "main",
+  "lang": "en",
+  "license": "MIT",
+  "name": "voaneves.com",
+  "tagline": "Personal website and consulting portfolio of Victor Neves, built with Astro and Cloudflare Pages.",
+  "description": "Source code of voaneves.com: fast, static, bilingual (PT-BR and EN) site built with Astro and deployed on Cloudflare Pages.",
+  "logo": {
+    "existing": "assets/logo/logo-light.svg"
+  },
+  "buttons": [
+    {
+      "id": "live",
+      "text": "Visit voaneves.com",
+      "kind": "primary",
+      "font": "sans",
+      "href": "https://voaneves.com/en/",
+      "landing": false
+    },
+    {
+      "id": "run",
+      "text": "Run locally",
+      "kind": "secondary",
+      "font": "sans",
+      "href": "https://github.com/voaneves/site#getting-started",
+      "landing": false
+    },
+    {
+      "id": "hire",
+      "text": "Let's talk",
+      "kind": "primary",
+      "font": "sans",
+      "href": "https://voaneves.com/en/#contact",
+      "landing": false
+    },
+    {
+      "id": "site",
+      "text": "voaneves.com",
+      "kind": "secondary",
+      "font": "sans",
+      "href": "https://voaneves.com/en/",
+      "landing": false
+    }
+  ],
+  "landing": false,
+  "live_url": "https://voaneves.com"
+}
