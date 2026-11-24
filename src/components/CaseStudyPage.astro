@@ -22,13 +22,19 @@ const caseBase = locale === 'en' ? '/en/projects' : '/projetos';
 <article class="vn-case">
   <section class="vn-case-hero" data-surface="inverse">
     <div class="vn-container">
-      <nav class="vn-case-crumb" aria-label={UI[locale].breadcrumbLabel}>
-        <a href={homeHref}>{c.caseUi.breadcrumbHome}</a>
-        <span aria-hidden="true">/</span>
-        <a href={`${homeHref}#projetos`}>{c.caseUi.breadcrumbProjects}</a>
-        <span aria-hidden="true">/</span>
-        <span aria-current="page">{project.index}</span>
-      </nav>
+      <div class="vn-case-topbar">
+        <nav class="vn-case-crumb" aria-label={UI[locale].breadcrumbLabel}>
+          <a href={homeHref}>{c.caseUi.breadcrumbHome}</a>
+          <span aria-hidden="true">/</span>
+          <a href={`${homeHref}#projetos`}>{c.caseUi.breadcrumbProjects}</a>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page">{project.index}</span>
+        </nav>
+        <a class="vn-btn vn-btn--ghost vn-btn--sm vn-case-back" href={homeHref}>
+          <span aria-hidden="true">←</span>
+          <span>{UI[locale].backHome}</span>
+        </a>
+      </div>
 
       <div class="vn-case-hero__meta">
         <p class="vn-eyebrow vn-case-eyebrow" data-fx="scramble"><span aria-hidden="true">[ </span>Case — {project.year}<span aria-hidden="true"> ]</span></p>

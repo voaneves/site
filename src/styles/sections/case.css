@@ -13,6 +13,25 @@
     min-block-size: 24px;
   }
 
+  .vn-case-topbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--vn-space-3);
+    margin-block-end: var(--vn-space-5);
+  }
+
+  .vn-case-back {
+    color: var(--vn-cream);
+    border-color: var(--vn-line-on-dark);
+    opacity: 1;
+  }
+
+  .vn-case-back:hover {
+    background-color: var(--vn-line-on-dark);
+  }
+
   .vn-case-crumb {
     display: flex;
     flex-wrap: wrap;
@@ -20,7 +39,6 @@
     font-family: var(--vn-font-mono);
     font-size: 12px;
     color: var(--vn-ref-sand-500);
-    margin-block-end: var(--vn-space-5);
   }
 
   .vn-case-hero__meta {
