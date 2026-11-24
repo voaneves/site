@@ -1,5 +1,7 @@
 @layer vn.reset, vn.tokens, vn.base, vn.type, vn.components, vn.utilities, site;
+
 @layer site {
+
   /* Case Study Pages */
   .vn-case-hero {
     padding-block: clamp(var(--vn-space-8), 8vw, var(--vn-space-12));
@@ -65,7 +67,8 @@
 
   .vn-case-hero__title {
     margin-block-end: var(--vn-space-4);
-    max-width: 12em; /* = 18ch of the web font; ch would depend on the fallback font during the swap */
+    max-width: 12em;
+    /* = 18ch of the web font; ch would depend on the fallback font during the swap */
     font-size: clamp(2.75rem, 9vw, 7rem);
     overflow-wrap: break-word;
   }
@@ -102,7 +105,9 @@
      followed the image's simulated download (1.08-1.39 s against a 1.2 s cap). At two thirds it reads as a figure beside
      the copy and the title, painted with the first frame, stays the largest element. */
   @media (max-width: 600px) {
-    .vn-case-media { width: 66%; }
+    .vn-case-media {
+      width: 66%;
+    }
   }
 
   .vn-case-grid {
@@ -128,7 +133,8 @@
   }
 
   .vn-case-outcomes {
-    overflow-x: clip; /* items enter from 3.5rem right: never widen the page */
+    overflow-x: clip;
+    /* items enter from 3.5rem right: never widen the page */
     display: grid;
     gap: var(--vn-space-3);
     padding-left: var(--vn-space-5);
@@ -168,11 +174,18 @@
   /* Spec-row wipe and pager lift (hover, focus-within, focus-visible) live in src/scripts/main.ts, adopted on case pages. */
 
   @media (max-width: 1080px) {
-    .vn-case-grid { grid-template-columns: 1fr; }
+    .vn-case-grid {
+      grid-template-columns: 1fr;
+    }
   }
 
   @media (max-width: 720px) {
-    .vn-case-pager { grid-template-columns: 1fr; }
-    .vn-case-pager__link--next { text-align: left; }
+    .vn-case-pager {
+      grid-template-columns: 1fr;
+    }
+
+    .vn-case-pager__link--next {
+      text-align: left;
+    }
   }
 }
