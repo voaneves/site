@@ -27,6 +27,6 @@
     "@playwright/test": "^1.65.1",
     "oxlint": "^1.94.0",
     "typescript": "^7.0.2",
-    "wrangler": "^4.165.0"
+    "wrangler": "^4.166.0"
   }
 }
