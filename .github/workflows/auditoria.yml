@@ -55,7 +55,16 @@ jobs:
           status=0
           npm outdated || status=1
           npm audit --audit-level=low || status=1
-          npm audit signatures || status=1
+          if sig_out="$(npm audit signatures 2>&1)"; then
+            printf '%s\n' "$sig_out"
+          else
+            printf '%s\n' "$sig_out"
+            if printf '%s\n' "$sig_out" | grep -qE 'npm (error|ERR!) code FETCH_ERROR'; then
+              echo "::warning::npm audit signatures falhou por FETCH_ERROR no registro npm (erro transitório/CDN); verificação ignorada nesta execução."
+            else
+              status=1
+            fi
+          fi
           exit $status
 
       - name: Lighthouse em produção
