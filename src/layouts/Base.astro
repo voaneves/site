@@ -274,7 +274,9 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
     aria-label={locale === 'en' ? 'Mobile navigation drawer' : 'Menu de navegação móvel'}
   >
     <div class="vn-mobile-drawer__head">
-      <Logo variant="signature" tone="reverse" />
+      <a href={homePrefix} aria-label="voaneves" data-drawer-link>
+        <Logo variant="signature" tone="reverse" />
+      </a>
       <button id="vn-drawer-close" class="vn-icon-btn vn-drawer-close" type="button" aria-label={t.menuClose}>
         ×
       </button>
