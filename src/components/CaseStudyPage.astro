@@ -30,9 +30,9 @@ const caseBase = locale === 'en' ? '/en/projects' : '/projetos';
           <span aria-hidden="true">/</span>
           <span aria-current="page">{project.index}</span>
         </nav>
-        <a class="vn-btn vn-btn--ghost vn-btn--sm vn-case-back" href={homeHref}>
+        <a class="vn-btn vn-btn--ghost vn-btn--sm vn-case-back" href={`${homeHref}#projetos`}>
           <span aria-hidden="true">←</span>
-          <span>{UI[locale].backHome}</span>
+          <span>{UI[locale].backProjects}</span>
         </a>
       </div>
 
