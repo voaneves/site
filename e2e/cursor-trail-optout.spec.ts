@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { engage } from './lib/site';
 
 const trail = (page: Page) => page.locator('canvas.vn-cursor-trail');
 const opacity = (page: Page) => trail(page).evaluate((c) => getComputedStyle(c).opacity);
@@ -10,10 +11,22 @@ async function setup(page: Page) {
   // markup contract (data-trail="off" on #contato) is injected so the test is independent of the markup change
   await page.evaluate(() => {
     document.querySelector('#contato')!.setAttribute('data-trail', 'off');
-    const t = document.querySelector('#contato')!.getBoundingClientRect().top + scrollY;
-    scrollTo({ top: t - innerHeight / 2, behavior: 'instant' }); // contact starts mid-viewport: room to stand above and inside it
   });
-  await expect.poll(() => page.evaluate(() => Math.round(document.querySelector('#contato')!.getBoundingClientRect().top - innerHeight / 2))).toBeLessThan(4);
+  await engage(page);
+  await page.waitForFunction(
+    () => 'late' in document.documentElement.dataset
+      && 'fontsReady' in document.documentElement.dataset
+      && document.documentElement.dataset.scrollFx !== undefined,
+  );
+  await page.evaluate(async () => {
+    for (let i = 0; i < 20; i++) {
+      const r = document.querySelector('#contato')!.getBoundingClientRect();
+      if (i && Math.abs(r.top - innerHeight / 2) < 2) break;
+      scrollTo({ top: scrollY + r.top - innerHeight / 2, behavior: 'instant' });
+      await new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res)));
+    }
+  });
+  await expect.poll(() => page.evaluate(() => Math.abs(Math.round(document.querySelector('#contato')!.getBoundingClientRect().top - innerHeight / 2)))).toBeLessThan(4);
 }
 
 // y of a point inside #contato (visible part of the viewport) and one clearly above it

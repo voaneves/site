@@ -44,8 +44,8 @@ function stop(): void {
 }
 
 function tick(now: number): void {
-  const dt = Math.min(64, now - last);
-  last = now;
+  const dt = Math.max(0, Math.min(64, now - last));
+  last = Math.max(last, now);
   target = Math.min(Math.max(target, 0), max()); // the page may have grown or shrunk (deferred sections)
   cur += (target - cur) * (1 - Math.exp(-dt / TAU));
   if (Math.abs(target - cur) < 0.5) cur = target;
@@ -93,6 +93,7 @@ function on(): void {
   addEventListener('keydown', stop);
   addEventListener('pointerdown', stop);
   addEventListener('hashchange', stop);
+  flag();
 }
 function off(): void {
   stop();

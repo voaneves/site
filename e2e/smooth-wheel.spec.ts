@@ -12,8 +12,15 @@ const running = (page: Page) => page.evaluate(() => (window as unknown as { __vn
 // first notch loads the module (and scrolls natively); wait for the page to rest
 const arm = async (page: Page) => {
   await page.mouse.move(700, 400);
+  const res = page.waitForResponse((r) => CHUNK.test(r.url()));
   await page.mouse.wheel(0, 100);
-  await page.waitForResponse((r) => CHUNK.test(r.url()));
+  await res;
+  await page.waitForFunction(
+    () => (window as unknown as { __vnSmooth?: boolean }).__vnSmooth === false
+      && 'late' in document.documentElement.dataset
+      && 'fontsReady' in document.documentElement.dataset
+      && document.documentElement.dataset.scrollFx !== undefined,
+  );
   let prev = -1;
   await expect.poll(async () => { const v = await y(page); const same = v === prev; prev = v; return same; }, { intervals: [150] }).toBe(true);
 };
@@ -38,9 +45,8 @@ test.describe('smooth wheel', () => {
     await arm(page);
     const y0 = await y(page);
     await page.mouse.wheel(0, 400);
-    await page.waitForTimeout(60);
+    await expect.poll(() => y(page), { intervals: [20], timeout: 2000 }).toBeGreaterThan(y0);
     const mid = await y(page);
-    expect(mid).toBeGreaterThan(y0);
     expect(mid).toBeLessThan(y0 + 380); // still on its way after 60 ms
     expect(await running(page)).toBe(true);
     await expect.poll(() => running(page), { timeout: 4000 }).toBe(false);
