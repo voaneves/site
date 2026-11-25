@@ -25,7 +25,7 @@
 <p><sub>Need a site like this? <a href="https://voaneves.com/en/#contact"><strong>Let's talk →</strong></a></sub></p>
 
 <p>
-  <a href="https://github.com/voaneves/site/actions/workflows/ci.yml"><img src="https://github.com/voaneves/site/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>
+  <a href="https://github.com/voaneves/site/actions/workflows/deploy.yml"><img src="https://img.shields.io/github/actions/workflow/status/voaneves/site/deploy.yml?branch=main&style=flat-square&label=CI%20%2F%20Deploy&labelColor=0A0A0A" alt="CI and Deploy status on main" /></a>
   <img src="https://img.shields.io/badge/Astro_7_%C2%B7_TypeScript-0A0A0A?style=flat-square" alt="Astro 7 and TypeScript" />
   <a href="./lighthouserc.cjs"><img src="https://img.shields.io/badge/Lighthouse-100_%C3%974-B80000?style=flat-square" alt="Lighthouse 100 across all 4 categories" /></a>
   <a href="./LICENSES.md"><img src="https://img.shields.io/badge/license-MIT_(code)-0A0A0A?style=flat-square" alt="MIT License (code)" /></a>
