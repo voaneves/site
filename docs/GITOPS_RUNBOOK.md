@@ -26,6 +26,7 @@ Cron -> Uptime a cada 4h (uptime.yml) + Auditoria semanal (auditoria.yml)
 | Título do PR | `.github/workflows/pr-title.yml` | `pull_request_target` | Valida título em formato Conventional Commits sem executar código do PR. |
 | CodeQL Advanced | `.github/workflows/codeql.yml` | `push: [main]`, `pull_request: [main]`, `36 3 * * 0` (domingo 03:36 UTC) | Análise estática de segurança (CodeQL) para `javascript-typescript` e `actions`. |
 | Contraste (tokens) | `.github/workflows/contrast.yml` | `push: [main]`, `pull_request`, `workflow_dispatch` | Gate WCAG 2.2/APCA dos pares de cor reais do site com `voaneves/dtcg-contrast@v1` (`.github/contrast/contrast.config.json`). |
+| readme-kit | `.github/workflows/readme-kit.yml` | `push: [main]`, `workflow_dispatch` | Gate WCAG 2.2/APCA dos tokens e assets do README com `voaneves/dtcg-contrast@v1` (`.github/readme-kit/contrast.config.json`). |
 
 ### 2.1 Fatiamento do E2E (Playwright + axe)
 
