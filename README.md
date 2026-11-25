@@ -13,8 +13,7 @@
 <p>
   <strong>Personal website and consulting portfolio of Victor Neves, built with Astro and Cloudflare Pages.</strong><br />
   <sub>
-    Bilingual static architecture (PT-BR &amp; EN) with automated Lighthouse 100 and WCAG 2.2 AA gates —
-    <kbd>Astro 7</kbd> · <kbd>TypeScript</kbd> · <kbd>Cloudflare Pages</kbd> · <kbd>Playwright</kbd>
+    Bilingual static site (PT-BR &amp; EN) — <kbd>Astro 7</kbd> · <kbd>TypeScript</kbd> · <kbd>Cloudflare Pages</kbd> · <kbd>Playwright</kbd>
   </sub>
 </p>
 
@@ -32,16 +31,6 @@
   <a href="./LICENSES.md"><img src="https://img.shields.io/badge/license-MIT_(code)-0A0A0A?style=flat-square" alt="MIT License (code)" /></a>
 </p>
 
-<p>
-  <a href="https://voaneves.com/en/">Live site</a> ·
-  <a href="#overview">Overview</a> ·
-  <a href="#stack">Stack</a> ·
-  <a href="#getting-started">Getting started</a> ·
-  <a href="#quality">Quality</a> ·
-  <a href="#deployment">Deployment</a> ·
-  <a href="#contact">Contact</a>
-</p>
-
 </div>
 
 <picture>
@@ -50,13 +39,26 @@
   <img alt="" src="https://raw.githubusercontent.com/voaneves/site/main/assets/brand/rule-light.svg" width="100%" />
 </picture>
 
+<details>
+  <summary><strong>Contents</strong> — jump to a section</summary>
+
+- [Overview &amp; Stack](#overview)
+- [Getting started](#getting-started)
+- [Scripts](#scripts)
+- [Project structure](#project-structure)
+- [Quality](#quality)
+- [Deployment](#deployment)
+- [Contact](#contact)
+
+</details>
+
 <a id="overview"></a>
 ## Overview
 
 Read the bilingual consulting portfolio, project case studies, and service overview of Victor Neves on a fast static Astro site deployed to Cloudflare Pages.
 
 <a id="stack"></a>
-## Stack
+### Stack
 
 - [Astro](https://astro.build) 7 (static output, MDX, sitemap with localized alternates)
 - TypeScript
@@ -66,7 +68,7 @@ Read the bilingual consulting portfolio, project case studies, and service overv
 - Lint: oxlint
 - Quality gates: Lighthouse CI and a size budget
 
-## Features
+### Features
 
 - Two locales: `pt-br` (default, no prefix) and `en` (`/en/`), with localized route pairs and `hreflang` alternates in the sitemap.
 - Home page, project case studies (`/projetos/<slug>/`, `/en/projects/<slug>/`) and privacy pages.
