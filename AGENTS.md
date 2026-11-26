@@ -1,11 +1,10 @@
 # AGENTS.md — `voaneves/site`
 
-## Regras Operacionais
+Site institucional `voaneves.com` (Astro 7 + `@voaneves/brand` + Cloudflare Pages). Runbook GitOps em `docs/GITOPS_RUNBOOK.md`.
 
-- Nunca mencionar Claude, Gemini ou IA em commits, PRs ou arquivos (sem `Co-Authored-By`).
-- Nunca fazer `git commit` ou `git push` sem autorização explícita do usuário.
-- **One-liner PowerShell 7.6 (`pwsh`) obrigatório ao final:** Sempre encerrar respostas que criem ou alterem arquivos com um único comando one-liner para PowerShell 7.6 (encadeado com `&&`) que muda para a pasta do projeto (`Set-Location`), adiciona os arquivos (`git add -A`), faz o commit em Conventional Commits sem citar IA/Claude/Gemini e sem `Co-Authored-By` (`git commit -m "..."`), e faz o push (`git push`).
-  - Exemplo:
-    ```powershell
-    Set-Location D:\GitHub\site && git add -A && git commit -m "chore(site): descrição" && git push
-    ```
+## Regras
+
+- Nunca mencione IA, Claude ou Gemini em commits, PRs, código ou arquivos (sem `Co-Authored-By`).
+- Não faça commit nem push. Resposta que altera arquivos termina com um one-liner para PowerShell 7.6:
+  `Set-Location <raiz do repo>; git add -- <arquivos alterados> && git commit -m '<tipo>(<escopo>): <resumo>' && git pull --rebase --autostash && git push`
+- `git add` só com os arquivos alterados, nunca `-A` nem `.`. Conventional Commits em inglês, sem gitmoji. Aspas simples (apóstrofo vira `''`).
